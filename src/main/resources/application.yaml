@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /giasu
+
+
+spring:
+  application:
+    name: Web thue gia su online
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/giasu
+    username: postgres
+    password: "123456"
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+
+
