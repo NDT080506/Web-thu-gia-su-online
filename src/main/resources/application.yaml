@@ -15,8 +15,11 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
 
-
+#jwt:
+#  signer-key: "b86383ed92beb5147abc0bb495feed83fed1a00d3eeb06ca60f5943fadd8619f4"
+#  valid-duration: 10 # in seconds
+#  refreshable-duration: 120 # in seconds
 

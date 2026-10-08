@@ -9,5 +9,4 @@ public class WebThueGiaSuOnlineApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebThueGiaSuOnlineApplication.class, args);
     }
-
 }
