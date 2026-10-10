@@ -13,7 +13,6 @@ import org.example.web_thue_gia_su_online.mapper.tutoring.TutorApplicationMapper
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.tutoring.TutorApplicationRepository;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorApplicationService;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -39,11 +38,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         tutorApplication.setUser(user);
         tutorApplication.setCreatedAt(Instant.now());
 
-        try {
-            tutorApplicationRepository.save(tutorApplication);
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        tutorApplicationRepository.save(tutorApplication);
 
         return tutorApplicationMapper.toTutorApplicationResponse(tutorApplication);
     }
@@ -53,7 +48,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
 
         TutorApplication tutorApplication = tutorApplicationRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Tutor application not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.TUTOR_APPLICATION_NOT_FOUND));
 
         return tutorApplicationMapper.toTutorApplicationResponse(tutorApplication);
     }
@@ -70,7 +65,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
 
         TutorApplication tutorApplication = tutorApplicationRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Tutor application not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.TUTOR_APPLICATION_NOT_FOUND));
 
         tutorApplicationRepository.delete(tutorApplication);
     }

@@ -19,7 +19,8 @@ public enum ErrorCode {
     USER_NOT_LOG_IN(1006, "User not log in", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
-    INVALID_KEY(1009, "Uncategorized error", HttpStatus.BAD_REQUEST);
+    INVALID_KEY(1009, "Uncategorized error", HttpStatus.BAD_REQUEST),
+    TUTOR_APPLICATION_NOT_FOUND(1010, "Tutor application not found", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

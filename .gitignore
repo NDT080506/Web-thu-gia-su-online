@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+# Ignore Junie model configs containing API keys
+.junie/models/*.json
