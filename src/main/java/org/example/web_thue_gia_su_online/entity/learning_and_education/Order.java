@@ -7,6 +7,8 @@ import java.util.List;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
+import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.enums.OrderStatus;
 
@@ -58,4 +60,12 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Session> sessions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<Dispute> disputes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }

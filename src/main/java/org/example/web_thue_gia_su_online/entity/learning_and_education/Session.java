@@ -5,6 +5,8 @@ import java.time.Instant;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -40,4 +42,8 @@ public class Session {
 
     @NonNull
     Instant updateAt;
+
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    java.util.List<Dispute> disputes = new java.util.ArrayList<>();
 }

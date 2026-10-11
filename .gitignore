@@ -35,3 +35,8 @@ build/
 
 # Ignore Junie model configs containing API keys
 .junie/models/*.json
+.aider*
+.env*
+CONVENTIONS.md
+conventions.md
+*.docx
