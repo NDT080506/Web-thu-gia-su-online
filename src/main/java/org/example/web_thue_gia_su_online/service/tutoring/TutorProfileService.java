@@ -1,9 +1,9 @@
-package org.example.web_thue_gia_su_online.service.identity_and_administration;
+package org.example.web_thue_gia_su_online.service.tutoring;
 
 import java.util.List;
 
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileUpdateRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.TutorProfileResponse;
 
 public interface TutorProfileService {

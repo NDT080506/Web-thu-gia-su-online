@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateRequest;
+import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateStatusRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.UserService;
@@ -45,10 +46,18 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{userId}")
+    @PatchMapping("/{userId}")
     ApiResponse<UserResponse> updateUser(@RequestBody @Valid UserUpdateRequest request, @PathVariable String userId) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(request, userId))
+                .build();
+    }
+
+    @PutMapping("/{userId}/status")
+    ApiResponse<UserResponse> updateUserAccountStatus(
+            @RequestBody @Valid UserUpdateStatusRequest request, @PathVariable String userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateUserAccountStatus(request, userId))
                 .build();
     }
 

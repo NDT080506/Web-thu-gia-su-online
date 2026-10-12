@@ -1,4 +1,4 @@
-package org.example.web_thue_gia_su_online.dto.request.identity_and_administration;
+package org.example.web_thue_gia_su_online.dto.request.tutoring;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TutorProfileCreationRequest {
+public class TutorProfileUpdateRequest {
 
     String bio;
 

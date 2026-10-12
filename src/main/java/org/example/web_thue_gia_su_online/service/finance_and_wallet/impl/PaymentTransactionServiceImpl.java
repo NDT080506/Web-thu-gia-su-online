@@ -54,7 +54,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
         switch (request.getType()) {
             case DEPOSIT, SESSION_PAYOUT, REFUND -> wallet.setBalance(wallet.getBalance() + request.getAmount());
             case ESCROW_HOLD, BROKERAGE_FEE, PLATFORM_CUT, WITHDRAWAL ->
-                wallet.setBalance(wallet.getBalance() - request.getAmount());
+                    wallet.setBalance(wallet.getBalance() - request.getAmount());
         }
         wallet.setUpdateAt(Instant.now());
         walletRepository.save(wallet);

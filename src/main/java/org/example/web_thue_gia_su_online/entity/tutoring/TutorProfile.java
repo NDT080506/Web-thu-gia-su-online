@@ -1,8 +1,10 @@
-package org.example.web_thue_gia_su_online.entity.identity_and_administration;
+package org.example.web_thue_gia_su_online.entity.tutoring;
 
 import java.time.Instant;
 
 import jakarta.persistence.*;
+
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -30,9 +32,7 @@ public class TutorProfile {
     @Builder.Default
     double rating = 5.0;
 
-    @NonNull
     Instant createdAt;
 
-    @NonNull
     Instant updateAt;
 }
