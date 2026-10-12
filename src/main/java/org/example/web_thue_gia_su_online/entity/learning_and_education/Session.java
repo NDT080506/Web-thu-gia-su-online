@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 
 @Entity
 @Getter
@@ -36,4 +37,8 @@ public class Session {
     Instant created_at;
 
     Instant updateAt;
+
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    java.util.List<Dispute> disputes = new java.util.ArrayList<>();
 }

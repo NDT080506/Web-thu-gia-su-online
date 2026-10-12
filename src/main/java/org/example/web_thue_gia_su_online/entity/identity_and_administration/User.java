@@ -6,7 +6,11 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
+import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
+import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.authentication.InvalidatedToken;
+import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
+import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Order;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.OrderMessage;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
@@ -75,4 +79,19 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     List<InvalidatedToken> invalidatedTokens = new ArrayList<>();
+
+    @OneToMany(mappedBy = "raisedBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<Dispute> disputes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<Article> articles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<ArticleComment> articleComments = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    Wallet wallet;
 }
