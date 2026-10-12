@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
+import org.example.web_thue_gia_su_online.entity.authentication.InvalidatedToken;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Order;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.OrderMessage;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
+import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
 import org.example.web_thue_gia_su_online.enums.AccountStatus;
 import org.example.web_thue_gia_su_online.enums.UserRole;
 
@@ -23,38 +24,33 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @NonNull
     String email;
 
-    @NonNull
     String passwordHash;
 
-    @NotNull
-    String display_name;
+    @Column(name = "display_name")
+    private String displayName;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    @NonNull
     UserRole role = UserRole.MEMBER;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    @NotNull
     AccountStatus status = AccountStatus.ACTIVE;
 
     String phone;
     String zaloLink;
 
-    @NotNull
     Instant createdAt;
 
-    @NonNull
     Instant updateAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -74,5 +70,9 @@ public class User {
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<OrderMessage> orderMessageList = new ArrayList<>();
+    List<OrderMessage> orderMessages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<InvalidatedToken> invalidatedTokens = new ArrayList<>();
 }

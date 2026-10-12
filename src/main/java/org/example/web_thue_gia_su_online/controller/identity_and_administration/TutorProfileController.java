@@ -4,11 +4,11 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileUpdateRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.TutorProfileResponse;
-import org.example.web_thue_gia_su_online.service.identity_and_administration.TutorProfileService;
+import org.example.web_thue_gia_su_online.service.tutoring.TutorProfileService;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;

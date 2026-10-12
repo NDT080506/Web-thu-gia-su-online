@@ -4,9 +4,7 @@ import org.example.web_thue_gia_su_online.dto.request.identity_and_administratio
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -16,5 +14,6 @@ public interface UserMapper {
 
     UserResponse toUserResponse(User user);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
 }

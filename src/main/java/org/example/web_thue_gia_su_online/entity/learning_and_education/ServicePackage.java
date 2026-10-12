@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.enums.PackageType;
 
@@ -25,27 +24,20 @@ public class ServicePackage {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @NotNull
     String name;
 
-    @NotNull
     PackageType type;
 
-    @NotNull
     long price;
 
-    @NotNull
     @Builder.Default
     int min_sessions = 1;
 
-    @NotNull
     @Builder.Default
     int platform_fee_percent = 15;
 
-    @NotNull
     Instant createdAt;
 
-    @NonNull
     Instant updateAt;
 
     @OneToMany(mappedBy = "servicePackage", cascade = CascadeType.ALL, orphanRemoval = true)
