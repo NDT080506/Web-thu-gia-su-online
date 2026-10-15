@@ -40,3 +40,8 @@ build/
 CONVENTIONS.md
 conventions.md
 *.docx
+
+# Ignore markdown files except README
+*.md
+!README.md
+!readme.md
