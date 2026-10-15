@@ -8,14 +8,12 @@ import org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting.Di
 import org.example.web_thue_gia_su_online.dto.response.disputing_and_reporting.DisputeResponse;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Order;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Session;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.enums.DisputeStatus;
 import org.example.web_thue_gia_su_online.mapper.disputing_and_reporting.DisputeMapper;
 import org.example.web_thue_gia_su_online.repository.disputing_and_reporting.DisputeRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
-import org.example.web_thue_gia_su_online.repository.learning_and_education.OrderRepository;
-import org.example.web_thue_gia_su_online.repository.learning_and_education.SessionRepository;
+import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.service.disputing_and_reporting.DisputeService;
 import org.springframework.stereotype.Service;
 
@@ -31,31 +29,28 @@ import lombok.extern.slf4j.Slf4j;
 public class DisputeServiceImpl implements DisputeService {
 
     DisputeRepository disputeRepository;
-    OrderRepository orderRepository;
-    SessionRepository sessionRepository;
+    BookingRepository bookingRepository;
     UserRepository userRepository;
     DisputeMapper disputeMapper;
 
     @Override
-    public DisputeResponse createDispute(
-            DisputeCreationRequest request, String orderId, String raisedById, String sessionId) {
+    public DisputeResponse createDispute(DisputeCreationRequest request) {
+        Booking booking = bookingRepository
+                .findById(request.getBookingId())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        User student = userRepository
+                .findById(request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        User raisedBy = userRepository.findById(raisedById).orElseThrow(() -> new RuntimeException("User not found"));
-
-        Session session = null;
-        if (sessionId != null && !sessionId.isBlank()) {
-            session = sessionRepository.findById(sessionId).orElse(null);
-        }
-
-        Dispute dispute = disputeMapper.toDispute(request);
-        dispute.setOrder(order);
-        dispute.setRaisedBy(raisedBy);
-        dispute.setSession(session);
-        dispute.setStatus(DisputeStatus.PENDING);
-        dispute.setCreatedAt(Instant.now());
-        dispute.setUpdateAt(Instant.now());
+        Dispute dispute = Dispute.builder()
+                .booking(booking)
+                .student(student)
+                .reason(request.getReason())
+                .status(DisputeStatus.PENDING)
+                .refundAmount(0)
+                .createdAt(Instant.now())
+                .build();
 
         return disputeMapper.toDisputeResponse(disputeRepository.save(dispute));
     }
@@ -75,16 +70,13 @@ public class DisputeServiceImpl implements DisputeService {
     }
 
     @Override
-    public DisputeResponse updateDispute(DisputeUpdateRequest request, String id, String adminId) {
+    public DisputeResponse updateDispute(DisputeUpdateRequest request, String id) {
         Dispute dispute = disputeRepository.findById(id).orElseThrow(() -> new RuntimeException("Dispute not found"));
 
-        if (adminId != null && !adminId.isBlank()) {
-            User admin = userRepository.findById(adminId).orElseThrow(() -> new RuntimeException("Admin not found"));
-            dispute.setAdmin(admin);
-        }
-
         disputeMapper.updateDispute(dispute, request);
-        dispute.setUpdateAt(Instant.now());
+        if (request.getStatus() != null && request.getStatus() != DisputeStatus.PENDING) {
+            dispute.setResolvedAt(Instant.now());
+        }
 
         return disputeMapper.toDisputeResponse(disputeRepository.save(dispute));
     }

@@ -9,4 +9,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ArticleCommentRepository extends JpaRepository<ArticleComment, String> {
     List<ArticleComment> findByArticleId(String articleId);
+
+    List<ArticleComment> findByArticleIdAndParentIsNull(String articleId);
+
+    List<ArticleComment> findByParentId(String parentId);
 }

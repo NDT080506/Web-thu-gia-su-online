@@ -25,14 +25,10 @@ public class DisputeController {
 
     DisputeService disputeService;
 
-    @PostMapping("/{orderId}/{raisedById}")
-    ApiResponse<DisputeResponse> createDispute(
-            @RequestBody @Valid DisputeCreationRequest request,
-            @PathVariable String orderId,
-            @PathVariable String raisedById,
-            @RequestParam(required = false) String sessionId) {
+    @PostMapping
+    ApiResponse<DisputeResponse> createDispute(@RequestBody @Valid DisputeCreationRequest request) {
         return ApiResponse.<DisputeResponse>builder()
-                .result(disputeService.createDispute(request, orderId, raisedById, sessionId))
+                .result(disputeService.createDispute(request))
                 .build();
     }
 
@@ -52,11 +48,9 @@ public class DisputeController {
 
     @PutMapping("/{id}")
     ApiResponse<DisputeResponse> updateDispute(
-            @PathVariable String id,
-            @RequestParam(required = false) String adminId,
-            @RequestBody @Valid DisputeUpdateRequest request) {
+            @PathVariable String id, @RequestBody @Valid DisputeUpdateRequest request) {
         return ApiResponse.<DisputeResponse>builder()
-                .result(disputeService.updateDispute(request, id, adminId))
+                .result(disputeService.updateDispute(request, id))
                 .build();
     }
 

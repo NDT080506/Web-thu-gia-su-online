@@ -24,13 +24,11 @@ public class PaymentTransactionController {
 
     PaymentTransactionService paymentTransactionService;
 
-    @PostMapping("/{walletId}")
+    @PostMapping
     ApiResponse<PaymentTransactionResponse> createTransaction(
-            @RequestBody @Valid PaymentTransactionCreationRequest request,
-            @PathVariable String walletId,
-            @RequestParam(required = false) String orderId) {
+            @RequestBody @Valid PaymentTransactionCreationRequest request) {
         return ApiResponse.<PaymentTransactionResponse>builder()
-                .result(paymentTransactionService.createTransaction(request, walletId, orderId))
+                .result(paymentTransactionService.createTransaction(request))
                 .build();
     }
 
@@ -48,10 +46,10 @@ public class PaymentTransactionController {
                 .build();
     }
 
-    @GetMapping("/order/{orderId}")
-    ApiResponse<List<PaymentTransactionResponse>> getTransactionsByOrder(@PathVariable String orderId) {
+    @GetMapping("/booking/{bookingId}")
+    ApiResponse<List<PaymentTransactionResponse>> getTransactionsByBooking(@PathVariable String bookingId) {
         return ApiResponse.<List<PaymentTransactionResponse>>builder()
-                .result(paymentTransactionService.getTransactionsByOrder(orderId))
+                .result(paymentTransactionService.getTransactionsByBooking(bookingId))
                 .build();
     }
 

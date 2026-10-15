@@ -5,13 +5,14 @@ import java.time.Instant;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Order;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.enums.TransactionType;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(name = "payment_transactions")
 @Getter
 @Setter
 @Builder
@@ -25,12 +26,16 @@ public class PaymentTransaction {
     String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "wallet_id", nullable = false)
-    Wallet wallet;
+    @JoinColumn(name = "source_wallet_id")
+    Wallet sourceWallet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    Order order;
+    @JoinColumn(name = "destination_wallet_id")
+    Wallet destinationWallet;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id")
+    Booking booking;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -39,11 +44,12 @@ public class PaymentTransaction {
     @NotNull
     long amount;
 
-    String bankRefCode;
+    @NotNull
+    long balanceAfter;
+
+    @Column(columnDefinition = "TEXT")
+    String note;
 
     @NotNull
     Instant createdAt;
-
-    @NonNull
-    Instant updateAt;
 }

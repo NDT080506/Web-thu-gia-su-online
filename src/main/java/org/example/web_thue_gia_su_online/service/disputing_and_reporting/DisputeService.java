@@ -8,13 +8,13 @@ import org.example.web_thue_gia_su_online.dto.response.disputing_and_reporting.D
 
 public interface DisputeService {
 
-    DisputeResponse createDispute(DisputeCreationRequest request, String orderId, String raisedById, String sessionId);
+    DisputeResponse createDispute(DisputeCreationRequest request);
 
     DisputeResponse getDispute(String id);
 
     List<DisputeResponse> getDisputes();
 
-    DisputeResponse updateDispute(DisputeUpdateRequest request, String id, String adminId);
+    DisputeResponse updateDispute(DisputeUpdateRequest request, String id);
 
     void deleteDispute(String id);
 }

@@ -6,14 +6,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Order;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Session;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.enums.DisputeStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(name = "disputes")
 @Getter
 @Setter
 @Builder
@@ -26,36 +26,31 @@ public class Dispute {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    Order order;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false, unique = true)
+    Booking booking;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id")
-    Session session;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "raised_by", nullable = false)
-    User raisedBy;
+    @JoinColumn(name = "student_id", nullable = false)
+    User student;
 
     @NotNull
-    String reasonType;
-
-    String description;
+    @Column(columnDefinition = "TEXT")
+    String reason;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
+    @Column(length = 50, nullable = false)
     DisputeStatus status = DisputeStatus.PENDING;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id")
-    User admin;
+    @Builder.Default
+    long refundAmount = 0;
 
-    String resolutionNote;
+    @Column(columnDefinition = "TEXT")
+    String adminNote;
 
     @NotNull
     Instant createdAt;
 
-    @NonNull
-    Instant updateAt;
+    Instant resolvedAt;
 }

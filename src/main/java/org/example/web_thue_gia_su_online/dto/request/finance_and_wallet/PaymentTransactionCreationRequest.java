@@ -1,6 +1,7 @@
 package org.example.web_thue_gia_su_online.dto.request.finance_and_wallet;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import org.example.web_thue_gia_su_online.enums.TransactionType;
 
@@ -15,11 +16,19 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentTransactionCreationRequest {
 
-    @NotNull(message = "Transaction type must not be null")
+    String sourceWalletId;
+    String destinationWalletId;
+    String bookingId;
+
+    @NotNull
     TransactionType type;
 
-    @NotNull(message = "Amount must not be null")
-    long amount;
+    @NotNull
+    @Positive
+    Long amount;
 
-    String bankRefCode;
+    @NotNull
+    Long balanceAfter;
+
+    String note;
 }

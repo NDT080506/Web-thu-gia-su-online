@@ -2,7 +2,7 @@ package org.example.web_thue_gia_su_online.dto.response.tutoring;
 
 import java.time.Instant;
 
-import org.example.web_thue_gia_su_online.enums.ApplicationStatus;
+import org.example.web_thue_gia_su_online.enums.RequestStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -19,18 +19,10 @@ import lombok.experimental.FieldDefaults;
 public class TutorApplicationResponse {
 
     String id;
-
     String userId;
-
     String cvUrl;
-
     String testSubmission;
-
-    ApplicationStatus status;
-
+    RequestStatus status;
     String adminNote;
-
     Instant createdAt;
-
-    Instant updateAt;
 }

@@ -16,8 +16,8 @@ public class ArticleCommentResponse {
     String id;
     String articleId;
     String userId;
+    String parentId;
     String content;
     boolean isHidden;
     Instant createdAt;
-    Instant updateAt;
 }

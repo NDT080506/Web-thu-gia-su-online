@@ -1,13 +1,16 @@
 package org.example.web_thue_gia_su_online.entity.identity_and_administration;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(name = "tutor_profiles")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,15 +27,16 @@ public class TutorProfile {
     @JoinColumn(name = "user_id")
     User user;
 
+    @Column(columnDefinition = "TEXT")
     String bio;
-    String subjectCanTeach;
+
+    @Column(columnDefinition = "TEXT")
+    String subjectsCanTeach;
 
     @Builder.Default
-    double rating = 5.0;
+    @Column(precision = 3, scale = 2)
+    BigDecimal rating = new BigDecimal("5.00");
 
-    @NonNull
+    @NotNull
     Instant createdAt;
-
-    @NonNull
-    Instant updateAt;
 }

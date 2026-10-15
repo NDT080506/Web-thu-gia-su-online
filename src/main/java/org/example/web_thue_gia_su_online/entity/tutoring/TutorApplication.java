@@ -6,12 +6,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.ApplicationStatus;
+import org.example.web_thue_gia_su_online.enums.RequestStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(name = "tutor_applications", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "status"}))
 @Getter
 @Setter
 @Builder
@@ -29,15 +30,18 @@ public class TutorApplication {
     User user;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     String cvUrl;
 
-    String textSubmission;
+    @Column(columnDefinition = "TEXT")
+    String testSubmission;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @NotNull
-    ApplicationStatus status = ApplicationStatus.PENDING;
+    RequestStatus status = RequestStatus.PENDING;
 
+    @Column(columnDefinition = "TEXT")
     String adminNote;
 
     @NotNull

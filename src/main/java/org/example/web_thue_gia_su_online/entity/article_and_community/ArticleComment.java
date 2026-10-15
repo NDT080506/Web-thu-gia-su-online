@@ -1,6 +1,8 @@
 package org.example.web_thue_gia_su_online.entity.article_and_community;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +13,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(
+        name = "comments",
+        indexes = {@Index(columnList = "article_id"), @Index(columnList = "parent_id, article_id")})
 @Getter
 @Setter
 @Builder
@@ -31,8 +36,16 @@ public class ArticleComment {
     @JoinColumn(name = "user_id", nullable = false)
     User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    ArticleComment parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<ArticleComment> replies = new ArrayList<>();
+
     @NotNull
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     String content;
 
     @Builder.Default
@@ -40,7 +53,4 @@ public class ArticleComment {
 
     @NotNull
     Instant createdAt;
-
-    @NonNull
-    Instant updateAt;
 }

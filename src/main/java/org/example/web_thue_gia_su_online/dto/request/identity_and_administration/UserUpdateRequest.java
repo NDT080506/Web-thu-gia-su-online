@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 public class UserUpdateRequest {
     String email;
     String displayName;
-
+    String avatarUrl;
     String phone;
     String zaloLink;
 }

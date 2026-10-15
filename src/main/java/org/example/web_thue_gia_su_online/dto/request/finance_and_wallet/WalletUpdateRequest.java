@@ -11,6 +11,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WalletUpdateRequest {
 
-    Long balance;
-    String bankInfo;
+    Long availableBalance;
+    Long holdingBalance;
 }

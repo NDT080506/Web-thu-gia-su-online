@@ -7,14 +7,13 @@ import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.Paymen
 
 public interface PaymentTransactionService {
 
-    PaymentTransactionResponse createTransaction(
-            PaymentTransactionCreationRequest request, String walletId, String orderId);
+    PaymentTransactionResponse createTransaction(PaymentTransactionCreationRequest request);
 
     PaymentTransactionResponse getTransaction(String id);
 
     List<PaymentTransactionResponse> getTransactionsByWallet(String walletId);
 
-    List<PaymentTransactionResponse> getTransactionsByOrder(String orderId);
+    List<PaymentTransactionResponse> getTransactionsByBooking(String bookingId);
 
     List<PaymentTransactionResponse> getTransactions();
 }

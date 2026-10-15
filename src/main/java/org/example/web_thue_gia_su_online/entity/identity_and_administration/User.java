@@ -10,9 +10,12 @@ import jakarta.validation.constraints.NotNull;
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
+import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentMethod;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Order;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.OrderMessage;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.Message;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
 import org.example.web_thue_gia_su_online.enums.AccountStatus;
 import org.example.web_thue_gia_su_online.enums.UserRole;
@@ -21,6 +24,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(name = "users")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -33,36 +37,52 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @NonNull
+    @Column(unique = true, nullable = false, length = 255)
     String email;
 
-    @NonNull
+    @Column(nullable = false, length = 255)
     String passwordHash;
 
-    @NotNull
-    String display_name;
+    @Column(nullable = false, length = 150)
+    String displayName;
+
+    @Column(columnDefinition = "TEXT")
+    String avatarUrl;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    @NonNull
-    UserRole role = UserRole.MEMBER;
+    @NotNull
+    UserRole role = UserRole.GUEST;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @NotNull
     AccountStatus status = AccountStatus.ACTIVE;
 
+    @Column(length = 20)
     String phone;
+
+    @Column(columnDefinition = "TEXT")
     String zaloLink;
 
     @NotNull
     Instant createdAt;
 
-    @NonNull
-    Instant updateAt;
+    @NotNull
+    Instant updatedAt;
 
+    // ─── One-to-One ───────────────────────────────────────────
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     TutorProfile tutorProfile;
+
+    // ─── One-to-Many ──────────────────────────────────────────
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<InvalidatedToken> invalidatedTokens = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<PaymentMethod> paymentMethods = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -70,19 +90,31 @@ public class User {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<Order> studentOrders = new ArrayList<>();
+    List<Booking> studentBookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<Order> tutorOrders = new ArrayList<>();
+    List<Booking> tutorBookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<OrderMessage> orderMessageList = new ArrayList<>();
+    List<Message> sentMessages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "raisedBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<Course> courses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<CourseEnrollment> courseEnrollments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     List<Dispute> disputes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<Wallet> wallets = new ArrayList<>();
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -91,7 +123,4 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     List<ArticleComment> articleComments = new ArrayList<>();
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    Wallet wallet;
 }

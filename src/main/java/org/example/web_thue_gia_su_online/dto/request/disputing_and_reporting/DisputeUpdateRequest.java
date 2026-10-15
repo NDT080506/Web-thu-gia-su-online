@@ -14,5 +14,6 @@ import lombok.experimental.FieldDefaults;
 public class DisputeUpdateRequest {
 
     DisputeStatus status;
-    String resolutionNote;
+    Long refundAmount;
+    String adminNote;
 }

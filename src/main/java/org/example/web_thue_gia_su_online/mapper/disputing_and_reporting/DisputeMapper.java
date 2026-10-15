@@ -4,20 +4,19 @@ import org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting.Di
 import org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting.DisputeUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.disputing_and_reporting.DisputeResponse;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface DisputeMapper {
 
+    @Mapping(target = "booking.id", source = "bookingId")
+    @Mapping(target = "student.id", source = "studentId")
     Dispute toDispute(DisputeCreationRequest request);
 
-    @Mapping(source = "order.id", target = "orderId")
-    @Mapping(source = "session.id", target = "sessionId")
-    @Mapping(source = "raisedBy.id", target = "raisedById")
-    @Mapping(source = "admin.id", target = "adminId")
+    @Mapping(source = "booking.id", target = "bookingId")
+    @Mapping(source = "student.id", target = "studentId")
     DisputeResponse toDisputeResponse(Dispute dispute);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateDispute(@MappingTarget Dispute dispute, DisputeUpdateRequest request);
 }

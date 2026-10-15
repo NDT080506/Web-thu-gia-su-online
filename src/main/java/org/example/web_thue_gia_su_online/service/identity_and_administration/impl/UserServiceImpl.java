@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserCreationRequest request) {
-        if (userRepository.existByName(request.getDisplayName())) {
+        if (userRepository.existsByDisplayName(request.getDisplayName())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
         Instant now = Instant.now();
         user.setCreatedAt(now);
-        user.setUpdateAt(now);
+        user.setUpdatedAt(now);
 
         try {
             userRepository.save(user);
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userMapper.updateUser(user, request);
-        user.setUpdateAt(Instant.now());
+        user.setUpdatedAt(Instant.now());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

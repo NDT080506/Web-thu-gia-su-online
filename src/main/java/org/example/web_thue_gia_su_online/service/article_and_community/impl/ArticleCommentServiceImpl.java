@@ -40,11 +40,18 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
+        ArticleComment parent = null;
+        if (request.getParentId() != null && !request.getParentId().isBlank()) {
+            parent = articleCommentRepository
+                    .findById(request.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+        }
+
         ArticleComment comment = articleCommentMapper.toArticleComment(request);
         comment.setArticle(article);
         comment.setUser(user);
+        comment.setParent(parent);
         comment.setCreatedAt(Instant.now());
-        comment.setUpdateAt(Instant.now());
 
         return articleCommentMapper.toArticleCommentResponse(articleCommentRepository.save(comment));
     }
@@ -70,7 +77,6 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                 articleCommentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found"));
 
         articleCommentMapper.updateArticleComment(comment, request);
-        comment.setUpdateAt(Instant.now());
 
         return articleCommentMapper.toArticleCommentResponse(articleCommentRepository.save(comment));
     }

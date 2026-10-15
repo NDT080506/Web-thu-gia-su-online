@@ -15,4 +15,6 @@ public class ArticleCommentCreationRequest {
 
     @NotBlank(message = "Comment content must not be blank")
     String content;
+
+    String parentId;
 }

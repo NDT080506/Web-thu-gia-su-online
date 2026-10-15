@@ -1,5 +1,7 @@
 package org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting;
 
+import jakarta.validation.constraints.NotBlank;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,6 +13,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DisputeCreationRequest {
 
-    String reasonType;
-    String description;
+    @NotBlank
+    String bookingId;
+
+    @NotBlank
+    String studentId;
+
+    @NotBlank
+    String reason;
 }

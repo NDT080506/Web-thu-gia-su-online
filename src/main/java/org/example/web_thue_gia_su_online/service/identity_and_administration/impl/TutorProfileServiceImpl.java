@@ -32,19 +32,15 @@ public class TutorProfileServiceImpl implements TutorProfileService {
 
     @Override
     public TutorProfileResponse createTutorProfile(TutorProfileCreationRequest request, String userId) {
-        if (tutorProfileRepository.existById(userId)) {
-            throw new RuntimeException("Tutor profile already existed");
+        if (tutorProfileRepository.existsById(userId)) {
+            throw new RuntimeException("Tutor profile already exists");
         }
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         TutorProfile tutorProfile = tutorProfileMapper.toTutorProfile(request);
-
         tutorProfile.setUser(user);
-
-        Instant now = Instant.now();
-        tutorProfile.setCreatedAt(now);
-        tutorProfile.setUpdateAt(now);
+        tutorProfile.setCreatedAt(Instant.now());
 
         try {
             tutorProfileRepository.save(tutorProfile);
@@ -64,21 +60,18 @@ public class TutorProfileServiceImpl implements TutorProfileService {
 
     @Override
     public TutorProfileResponse getTutorProfile(String id) {
-
         TutorProfile tutorProfile =
-                tutorProfileRepository.findById(id).orElseThrow(() -> new RuntimeException("Tutor Profile not exist"));
+                tutorProfileRepository.findById(id).orElseThrow(() -> new RuntimeException("Tutor Profile not found"));
 
         return tutorProfileMapper.toTutorProfileResponse(tutorProfile);
     }
 
     @Override
     public TutorProfileResponse updateTutorProfile(TutorProfileUpdateRequest request, String id) {
-
         TutorProfile tutorProfile =
-                tutorProfileRepository.findById(id).orElseThrow(() -> new RuntimeException("Tutor Profile not exist"));
+                tutorProfileRepository.findById(id).orElseThrow(() -> new RuntimeException("Tutor Profile not found"));
 
         tutorProfileMapper.updateTutorProfileResponse(tutorProfile, request);
-        tutorProfile.setUpdateAt(Instant.now());
 
         return tutorProfileMapper.toTutorProfileResponse(tutorProfileRepository.save(tutorProfile));
     }
@@ -86,7 +79,7 @@ public class TutorProfileServiceImpl implements TutorProfileService {
     @Override
     public void deleteTutorProfile(String id) {
         TutorProfile tutorProfile =
-                tutorProfileRepository.findById(id).orElseThrow(() -> new RuntimeException("Tutor Profile not exist"));
+                tutorProfileRepository.findById(id).orElseThrow(() -> new RuntimeException("Tutor Profile not found"));
 
         tutorProfileRepository.delete(tutorProfile);
     }

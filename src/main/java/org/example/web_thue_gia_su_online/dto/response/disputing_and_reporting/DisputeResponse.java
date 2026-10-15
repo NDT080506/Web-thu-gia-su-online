@@ -16,14 +16,12 @@ import lombok.experimental.FieldDefaults;
 public class DisputeResponse {
 
     String id;
-    String orderId;
-    String sessionId;
-    String raisedById;
-    String reasonType;
-    String description;
+    String bookingId;
+    String studentId;
+    String reason;
     DisputeStatus status;
-    String adminId;
-    String resolutionNote;
+    long refundAmount;
+    String adminNote;
     Instant createdAt;
-    Instant updateAt;
+    Instant resolvedAt;
 }

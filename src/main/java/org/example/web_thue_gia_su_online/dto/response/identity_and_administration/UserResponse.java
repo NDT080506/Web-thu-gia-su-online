@@ -17,19 +17,13 @@ import lombok.experimental.FieldDefaults;
 public class UserResponse {
 
     String id;
-
     String email;
-
     String displayName;
-
+    String avatarUrl;
     UserRole role;
-
     AccountStatus status;
-
     String phone;
     String zaloLink;
-
     Instant createdAt;
-
-    Instant updateAt;
+    Instant updatedAt;
 }

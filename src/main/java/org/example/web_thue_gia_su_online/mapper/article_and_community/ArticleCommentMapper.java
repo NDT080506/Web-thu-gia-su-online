@@ -15,6 +15,7 @@ public interface ArticleCommentMapper {
 
     @Mapping(source = "article.id", target = "articleId")
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "hidden", target = "isHidden")
     ArticleCommentResponse toArticleCommentResponse(ArticleComment comment);
 

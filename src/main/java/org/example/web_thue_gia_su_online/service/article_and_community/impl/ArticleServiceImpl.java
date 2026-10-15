@@ -36,7 +36,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleMapper.toArticle(request);
         article.setAuthor(author);
         article.setCreatedAt(Instant.now());
-        article.setUpdateAt(Instant.now());
+        article.setUpdatedAt(Instant.now());
 
         return articleMapper.toArticleResponse(articleRepository.save(article));
     }
@@ -60,7 +60,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleRepository.findById(id).orElseThrow(() -> new RuntimeException("Article not found"));
 
         articleMapper.updateArticle(article, request);
-        article.setUpdateAt(Instant.now());
+        article.setUpdatedAt(Instant.now());
 
         return articleMapper.toArticleResponse(articleRepository.save(article));
     }

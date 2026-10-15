@@ -1,17 +1,18 @@
 package org.example.web_thue_gia_su_online.service.finance_and_wallet.impl;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.PaymentTransactionCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Order;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.mapper.finance_and_wallet.PaymentTransactionMapper;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRepository;
-import org.example.web_thue_gia_su_online.repository.learning_and_education.OrderRepository;
+import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentTransactionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,35 +30,52 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
     PaymentTransactionRepository paymentTransactionRepository;
     WalletRepository walletRepository;
-    OrderRepository orderRepository;
+    BookingRepository bookingRepository;
     PaymentTransactionMapper paymentTransactionMapper;
 
     @Override
     @Transactional
-    public PaymentTransactionResponse createTransaction(
-            PaymentTransactionCreationRequest request, String walletId, String orderId) {
-
-        Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new RuntimeException("Wallet not found"));
-
-        Order order = null;
-        if (orderId != null && !orderId.isBlank()) {
-            order = orderRepository.findById(orderId).orElse(null);
+    public PaymentTransactionResponse createTransaction(PaymentTransactionCreationRequest request) {
+        Wallet sourceWallet = null;
+        if (request.getSourceWalletId() != null && !request.getSourceWalletId().isBlank()) {
+            sourceWallet = walletRepository
+                    .findById(request.getSourceWalletId())
+                    .orElseThrow(() -> new RuntimeException("Source wallet not found"));
+            sourceWallet.setAvailableBalance(sourceWallet.getAvailableBalance() - request.getAmount());
+            sourceWallet.setUpdatedAt(Instant.now());
+            walletRepository.save(sourceWallet);
         }
 
-        PaymentTransaction transaction = paymentTransactionMapper.toPaymentTransaction(request);
-        transaction.setWallet(wallet);
-        transaction.setOrder(order);
-        transaction.setCreatedAt(Instant.now());
-        transaction.setUpdateAt(Instant.now());
-
-        // Cập nhật số dư ví tùy theo loại giao dịch
-        switch (request.getType()) {
-            case DEPOSIT, SESSION_PAYOUT, REFUND -> wallet.setBalance(wallet.getBalance() + request.getAmount());
-            case ESCROW_HOLD, BROKERAGE_FEE, PLATFORM_CUT, WITHDRAWAL ->
-                wallet.setBalance(wallet.getBalance() - request.getAmount());
+        Wallet destinationWallet = null;
+        if (request.getDestinationWalletId() != null
+                && !request.getDestinationWalletId().isBlank()) {
+            destinationWallet = walletRepository
+                    .findById(request.getDestinationWalletId())
+                    .orElseThrow(() -> new RuntimeException("Destination wallet not found"));
+            destinationWallet.setAvailableBalance(destinationWallet.getAvailableBalance() + request.getAmount());
+            destinationWallet.setUpdatedAt(Instant.now());
+            walletRepository.save(destinationWallet);
         }
-        wallet.setUpdateAt(Instant.now());
-        walletRepository.save(wallet);
+
+        Booking booking = null;
+        if (request.getBookingId() != null && !request.getBookingId().isBlank()) {
+            booking = bookingRepository.findById(request.getBookingId()).orElse(null);
+        }
+
+        long balanceAfter = request.getBalanceAfter() != null
+                ? request.getBalanceAfter()
+                : (sourceWallet != null ? sourceWallet.getAvailableBalance() : 0);
+
+        PaymentTransaction transaction = PaymentTransaction.builder()
+                .sourceWallet(sourceWallet)
+                .destinationWallet(destinationWallet)
+                .booking(booking)
+                .type(request.getType())
+                .amount(request.getAmount())
+                .balanceAfter(balanceAfter)
+                .note(request.getNote())
+                .createdAt(Instant.now())
+                .build();
 
         return paymentTransactionMapper.toPaymentTransactionResponse(paymentTransactionRepository.save(transaction));
     }
@@ -73,14 +91,18 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
     @Override
     public List<PaymentTransactionResponse> getTransactionsByWallet(String walletId) {
-        return paymentTransactionRepository.findByWalletId(walletId).stream()
+        List<PaymentTransaction> results = new ArrayList<>();
+        results.addAll(paymentTransactionRepository.findBySourceWalletId(walletId));
+        results.addAll(paymentTransactionRepository.findByDestinationWalletId(walletId));
+        return results.stream()
+                .distinct()
                 .map(paymentTransactionMapper::toPaymentTransactionResponse)
                 .toList();
     }
 
     @Override
-    public List<PaymentTransactionResponse> getTransactionsByOrder(String orderId) {
-        return paymentTransactionRepository.findByOrderId(orderId).stream()
+    public List<PaymentTransactionResponse> getTransactionsByBooking(String bookingId) {
+        return paymentTransactionRepository.findByBookingId(bookingId).stream()
                 .map(paymentTransactionMapper::toPaymentTransactionResponse)
                 .toList();
     }

@@ -18,4 +18,8 @@ public class ArticleCreationRequest {
 
     @NotBlank(message = "Content must not be blank")
     String content;
+
+    String authorNickname;
+    String authorAvatarUrl;
+    Integer minRoleLevel;
 }

@@ -9,9 +9,13 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PaymentTransactionMapper {
 
+    @Mapping(target = "sourceWallet.id", source = "sourceWalletId")
+    @Mapping(target = "destinationWallet.id", source = "destinationWalletId")
+    @Mapping(target = "booking.id", source = "bookingId")
     PaymentTransaction toPaymentTransaction(PaymentTransactionCreationRequest request);
 
-    @Mapping(source = "wallet.id", target = "walletId")
-    @Mapping(source = "order.id", target = "orderId")
+    @Mapping(source = "sourceWallet.id", target = "sourceWalletId")
+    @Mapping(source = "destinationWallet.id", target = "destinationWalletId")
+    @Mapping(source = "booking.id", target = "bookingId")
     PaymentTransactionResponse toPaymentTransactionResponse(PaymentTransaction transaction);
 }

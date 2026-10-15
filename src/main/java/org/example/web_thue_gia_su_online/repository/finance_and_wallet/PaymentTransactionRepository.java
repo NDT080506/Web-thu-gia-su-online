@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaymentTransactionRepository extends JpaRepository<PaymentTransaction, String> {
-    List<PaymentTransaction> findByWalletId(String walletId);
+    List<PaymentTransaction> findBySourceWalletId(String sourceWalletId);
 
-    List<PaymentTransaction> findByOrderId(String orderId);
+    List<PaymentTransaction> findByDestinationWalletId(String destinationWalletId);
+
+    List<PaymentTransaction> findByBookingId(String bookingId);
 }

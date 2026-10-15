@@ -13,6 +13,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(name = "articles")
 @Getter
 @Setter
 @Builder
@@ -29,12 +30,22 @@ public class Article {
     @JoinColumn(name = "author_id", nullable = false)
     User author;
 
+    @Column(length = 150)
+    String authorNickname;
+
+    @Column(length = 500)
+    String authorAvatarUrl;
+
     @NotNull
+    @Column(length = 255, nullable = false)
     String title;
 
     @NotNull
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     String content;
+
+    @Builder.Default
+    int minRoleLevel = 0;
 
     @Builder.Default
     boolean isPublished = true;
@@ -42,10 +53,10 @@ public class Article {
     @NotNull
     Instant createdAt;
 
-    @NonNull
-    Instant updateAt;
+    @NotNull
+    Instant updatedAt;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<ArticleComment> articleComments = new ArrayList<>();
+    List<ArticleComment> comments = new ArrayList<>();
 }

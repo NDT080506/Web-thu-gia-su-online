@@ -1,5 +1,7 @@
 package org.example.web_thue_gia_su_online.dto.request.tutoring;
 
+import jakarta.validation.constraints.NotBlank;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,6 +13,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TutorApplicationCreationRequest {
 
+    @NotBlank
     String cvUrl;
-    String textSubmission;
+
+    String testSubmission;
 }

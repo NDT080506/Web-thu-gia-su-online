@@ -8,11 +8,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.WalletType;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
+@Table(name = "wallets", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "type"}))
 @Getter
 @Setter
 @Builder
@@ -25,24 +27,31 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     User user;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
-    @Builder.Default
-    long balance = 0;
+    WalletType type;
 
-    @Column(columnDefinition = "jsonb")
-    String bankInfo;
+    @Builder.Default
+    long availableBalance = 0;
+
+    @Builder.Default
+    long holdingBalance = 0;
 
     @NotNull
     Instant createdAt;
 
-    @NonNull
-    Instant updateAt;
+    @NotNull
+    Instant updatedAt;
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sourceWallet", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+    List<PaymentTransaction> outgoingTransactions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "destinationWallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<PaymentTransaction> incomingTransactions = new ArrayList<>();
 }

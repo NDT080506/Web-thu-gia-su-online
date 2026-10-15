@@ -16,11 +16,12 @@ import lombok.experimental.FieldDefaults;
 public class PaymentTransactionResponse {
 
     String id;
-    String walletId;
-    String orderId;
+    String sourceWalletId;
+    String destinationWalletId;
+    String bookingId;
     TransactionType type;
     long amount;
-    String bankRefCode;
+    long balanceAfter;
+    String note;
     Instant createdAt;
-    Instant updateAt;
 }

@@ -15,9 +15,12 @@ public class ArticleResponse {
 
     String id;
     String authorId;
+    String authorNickname;
+    String authorAvatarUrl;
     String title;
     String content;
+    int minRoleLevel;
     boolean isPublished;
     Instant createdAt;
-    Instant updateAt;
+    Instant updatedAt;
 }
