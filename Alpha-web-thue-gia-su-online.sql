@@ -26,6 +26,12 @@ CREATE TYPE "transaction_type" AS ENUM (
   'refund'
 );
 
+CREATE TYPE "request_status" AS ENUM (
+  'pending',
+  'approved',
+  'rejected'
+);
+
 CREATE TABLE "users" (
   "id" uuid PRIMARY KEY DEFAULT (gen_random_uuid()),
   "email" varchar(255) UNIQUE NOT NULL,
@@ -73,7 +79,7 @@ CREATE TABLE "tutor_applications" (
   "user_id" uuid NOT NULL,
   "cv_url" text NOT NULL,
   "test_submission" text,
-  "status" varchar(50) NOT NULL DEFAULT 'pending',
+  "status" request_status NOT NULL DEFAULT 'pending',
   "admin_note" text,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
