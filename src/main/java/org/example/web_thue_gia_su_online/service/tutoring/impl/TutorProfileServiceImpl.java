@@ -1,17 +1,17 @@
-package org.example.web_thue_gia_su_online.service.identity_and_administration.impl;
+package org.example.web_thue_gia_su_online.service.tutoring.impl;
 
 import java.time.Instant;
 import java.util.List;
 
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileUpdateRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.TutorProfileResponse;
-import org.example.web_thue_gia_su_online.entity.identity_and_administration.TutorProfile;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.mapper.identity_and_administration.TutorProfileMapper;
-import org.example.web_thue_gia_su_online.repository.identity_and_administration.TutorProfileRepository;
+import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
+import org.example.web_thue_gia_su_online.mapper.tutoring.TutorProfileMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
-import org.example.web_thue_gia_su_online.service.identity_and_administration.TutorProfileService;
+import org.example.web_thue_gia_su_online.repository.tutoring.TutorProfileRepository;
+import org.example.web_thue_gia_su_online.service.tutoring.TutorProfileService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 

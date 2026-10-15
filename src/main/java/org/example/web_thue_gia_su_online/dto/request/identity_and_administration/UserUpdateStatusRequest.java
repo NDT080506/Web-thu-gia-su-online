@@ -1,17 +1,16 @@
 package org.example.web_thue_gia_su_online.dto.request.identity_and_administration;
 
+import org.example.web_thue_gia_su_online.enums.AccountStatus;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TutorProfileUpdateRequest {
-
-    String bio;
-
-    String subjectsCanTeach;
+public class UserUpdateStatusRequest {
+    AccountStatus status;
 }

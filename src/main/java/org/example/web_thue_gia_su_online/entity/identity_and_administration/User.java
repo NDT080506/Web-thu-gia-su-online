@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
+import org.example.web_thue_gia_su_online.entity.authentication.InvalidatedToken;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentMethod;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
@@ -17,6 +18,7 @@ import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Message;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
+import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
 import org.example.web_thue_gia_su_online.enums.AccountStatus;
 import org.example.web_thue_gia_su_online.enums.UserRole;
 
@@ -56,7 +58,6 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    @NotNull
     AccountStatus status = AccountStatus.ACTIVE;
 
     @Column(length = 20)
@@ -65,7 +66,6 @@ public class User {
     @Column(columnDefinition = "TEXT")
     String zaloLink;
 
-    @NotNull
     Instant createdAt;
 
     @NotNull

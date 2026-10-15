@@ -2,10 +2,10 @@ package org.example.web_thue_gia_su_online.service.identity_and_administration.i
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateRequest;
+import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateStatusRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.exception.AppException;
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toUser(request);
-        user.setPasswordHash(Objects.requireNonNull(passwordEncoder.encode(request.getPassword())));
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         Instant now = Instant.now();
         user.setCreatedAt(now);
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
         return userMapper.toUserResponse(user);
@@ -72,6 +72,15 @@ public class UserServiceImpl implements UserService {
 
         userMapper.updateUser(user, request);
         user.setUpdatedAt(Instant.now());
+
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @Override
+    public UserResponse updateUserAccountStatus(UserUpdateStatusRequest request, String id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setStatus(request.getStatus());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

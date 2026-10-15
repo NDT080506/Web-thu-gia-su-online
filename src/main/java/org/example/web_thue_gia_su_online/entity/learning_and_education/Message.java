@@ -3,7 +3,6 @@ package org.example.web_thue_gia_su_online.entity.learning_and_education;
 import java.time.Instant;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 
@@ -36,6 +35,5 @@ public class Message {
     @Column(columnDefinition = "TEXT")
     String content;
 
-    @NotNull
     Instant createdAt;
 }

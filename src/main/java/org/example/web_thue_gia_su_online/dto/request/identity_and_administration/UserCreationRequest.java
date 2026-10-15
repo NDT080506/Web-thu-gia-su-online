@@ -13,11 +13,19 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
 
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email is invalid")
     String email;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     String password;
+
+    @NotBlank(message = "Display name is required")
     String displayName;
     String avatarUrl;
     UserRole role;
     String phone;
+
     String zaloLink;
 }

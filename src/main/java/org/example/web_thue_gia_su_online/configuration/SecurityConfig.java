@@ -1,5 +1,6 @@
 package org.example.web_thue_gia_su_online.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -24,29 +25,29 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    //    public final String[] PUBLIC_ENDPOINTS = {
-    //            "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
-    //    };
+    public final String[] PUBLIC_ENDPOINTS = {
+        "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh"
+    };
 
-    //    @Value("${jwt.signer-key}")
-    //    private String signerKey;
+    @Value("${jwt.signer-key}")
+    private String signerKey;
 
-    // private CustomJwtDecoder customJwtDecoder;
+    private CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        //       httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST,
-        // PUBLIC_ENDPOINTS)
-        //                .permitAll()
-        //                .anyRequest()
-        //                .authenticated());
+        //                httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST,
+        //         PUBLIC_ENDPOINTS)
+        //                        .permitAll()
+        //                        .anyRequest()
+        //                        .authenticated());
 
         httpSecurity.authorizeHttpRequests(request -> request.anyRequest().permitAll());
 
-        //       httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-        //                        .decoder(customJwtDecoder)
-        //                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-        //                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
         httpSecurity.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable);
 

@@ -1,9 +1,9 @@
-package org.example.web_thue_gia_su_online.mapper.identity_and_administration;
+package org.example.web_thue_gia_su_online.mapper.tutoring;
 
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.TutorProfileUpdateRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.TutorProfileResponse;
-import org.example.web_thue_gia_su_online.entity.identity_and_administration.TutorProfile;
+import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 

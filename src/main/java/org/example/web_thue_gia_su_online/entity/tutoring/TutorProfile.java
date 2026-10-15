@@ -1,10 +1,12 @@
-package org.example.web_thue_gia_su_online.entity.identity_and_administration;
+package org.example.web_thue_gia_su_online.entity.tutoring;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
