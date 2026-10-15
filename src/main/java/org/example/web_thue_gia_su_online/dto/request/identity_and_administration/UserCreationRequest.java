@@ -1,5 +1,9 @@
 package org.example.web_thue_gia_su_online.dto.request.identity_and_administration;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import org.example.web_thue_gia_su_online.enums.UserRole;
 
 import lombok.*;
@@ -23,9 +27,9 @@ public class UserCreationRequest {
 
     @NotBlank(message = "Display name is required")
     String displayName;
+
     String avatarUrl;
     UserRole role;
     String phone;
-
     String zaloLink;
 }
