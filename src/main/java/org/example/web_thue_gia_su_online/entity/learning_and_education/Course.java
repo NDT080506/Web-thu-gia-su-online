@@ -46,11 +46,11 @@ public class Course {
     @NotNull
     Instant createdAt;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course")
     @Builder.Default
     List<Lesson> lessons = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course")
     @Builder.Default
     List<CourseEnrollment> enrollments = new ArrayList<>();
 }

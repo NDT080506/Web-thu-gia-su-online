@@ -25,13 +25,13 @@ public class WalletController {
 
     WalletService walletService;
 
-    @PostMapping("/{userId}")
-    ApiResponse<WalletResponse> createWallet(
-            @RequestBody @Valid WalletCreationRequest request, @PathVariable String userId) {
-        return ApiResponse.<WalletResponse>builder()
-                .result(walletService.createWallet(request, userId))
-                .build();
-    }
+//    @PostMapping("/{userId}")
+//    ApiResponse<WalletResponse> createWallet(
+//            @RequestBody @Valid WalletCreationRequest request, @PathVariable String userId) {
+//        return ApiResponse.<WalletResponse>builder()
+//                .result(walletService.createWallet(request, userId))
+//                .build();
+//    }
 
     @GetMapping("/{id}")
     ApiResponse<WalletResponse> getWallet(@PathVariable String id) {

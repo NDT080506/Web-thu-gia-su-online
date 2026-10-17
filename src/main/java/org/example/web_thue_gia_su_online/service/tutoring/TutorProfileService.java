@@ -2,19 +2,25 @@ package org.example.web_thue_gia_su_online.service.tutoring;
 
 import java.util.List;
 
-import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileUpdateRequest;
-import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.TutorProfileResponse;
+import org.example.web_thue_gia_su_online.dto.response.tutoring.TutorProfileResponse;
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
+import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
 
 public interface TutorProfileService {
 
-    public TutorProfileResponse createTutorProfile(TutorProfileCreationRequest request, String userId);
+    public TutorProfile createTutorProfile(User user, TutorApplication tutorApplication);
 
     public List<TutorProfileResponse> getTutorProfiles();
 
-    public TutorProfileResponse getTutorProfile(String id);
+    public TutorProfileResponse getMyTutorProfile();
 
-    public TutorProfileResponse updateTutorProfile(TutorProfileUpdateRequest request, String id);
+    public TutorProfileResponse getTutorProfile(String userId);
 
-    public void deleteTutorProfile(String id);
+    public TutorProfileResponse updateMyTutorProfile(TutorProfileUpdateRequest request);
+
+    public TutorProfileResponse updateTutorProfile(TutorProfileUpdateRequest request, String userId);
+
+    public void deleteTutorProfile(String userId);
 }

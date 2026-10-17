@@ -1,5 +1,6 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BrokeragePackageCreationRequest;
@@ -9,6 +10,7 @@ import org.example.web_thue_gia_su_online.entity.learning_and_education.Brokerag
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.BrokeragePackageMapper;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BrokeragePackageRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BrokeragePackageService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -24,12 +26,18 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
     BrokeragePackageMapper mapper;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public BrokeragePackageResponse create(BrokeragePackageCreationRequest request) {
         BrokeragePackage pkg = mapper.toEntity(request);
+        Instant now = Instant.now();
+        pkg.setCreatedAt(now);
+        pkg.setUpdatedAt(now);
+
         return mapper.toResponse(repository.save(pkg));
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public BrokeragePackageResponse getById(String id) {
         return repository
                 .findById(id)
@@ -38,11 +46,13 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<BrokeragePackageResponse> getAll() {
         return repository.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
     public BrokeragePackageResponse update(String id, BrokeragePackageUpdateRequest request) {
         BrokeragePackage pkg = repository
                 .findById(id)
@@ -52,6 +62,7 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
     public void delete(String id) {
         repository.deleteById(id);
     }
