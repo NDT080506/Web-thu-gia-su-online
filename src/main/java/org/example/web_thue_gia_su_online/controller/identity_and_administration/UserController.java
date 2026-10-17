@@ -33,13 +33,20 @@ public class UserController {
     }
 
     @GetMapping
+    ApiResponse<UserResponse> getMyUser() {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getMyUser())
+                .build();
+    }
+
+    @GetMapping("/admin")
     ApiResponse<List<UserResponse>> getUsers() {
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getUsers())
                 .build();
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/admin/{userId}")
     ApiResponse<UserResponse> getUser(@PathVariable String userId) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.getUser(userId))
@@ -53,7 +60,7 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{userId}/status")
+    @PutMapping("/admin/{userId}/status")
     ApiResponse<UserResponse> updateUserAccountStatus(
             @RequestBody @Valid UserUpdateStatusRequest request, @PathVariable String userId) {
         return ApiResponse.<UserResponse>builder()

@@ -13,6 +13,8 @@ public interface UserService {
 
     public List<UserResponse> getUsers();
 
+    public UserResponse getMyUser();
+
     public UserResponse getUser(String id);
 
     public UserResponse updateUser(UserUpdateRequest request, String id);

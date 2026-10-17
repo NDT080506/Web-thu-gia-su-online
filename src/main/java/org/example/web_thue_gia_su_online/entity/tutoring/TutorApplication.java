@@ -10,6 +10,7 @@ import org.example.web_thue_gia_su_online.enums.RequestStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.stereotype.Component;
 
 @Entity
 @Table(name = "tutor_applications", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "status"}))
@@ -31,6 +32,14 @@ public class TutorApplication {
 
     @NotNull
     @Column(columnDefinition = "TEXT")
+    String bio;
+
+    @NotNull
+    @Column(columnDefinition = "TEXT")
+    String subjectsCanTeach;
+
+    @NotNull
+    @Column(columnDefinition = "TEXT")
     String cvUrl;
 
     @Column(columnDefinition = "TEXT")
@@ -45,4 +54,6 @@ public class TutorApplication {
     String adminNote;
 
     Instant createdAt;
+
+    Instant updateAt;
 }

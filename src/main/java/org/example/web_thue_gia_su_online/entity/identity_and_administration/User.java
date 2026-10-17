@@ -72,55 +72,55 @@ public class User {
     Instant updatedAt;
 
     // ─── One-to-One ───────────────────────────────────────────
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user")
     TutorProfile tutorProfile;
 
     // ─── One-to-Many ──────────────────────────────────────────
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @Builder.Default
     List<InvalidatedToken> invalidatedTokens = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @Builder.Default
     List<PaymentMethod> paymentMethods = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @Builder.Default
     List<TutorApplication> tutorApplications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "student")
     @Builder.Default
     List<Booking> studentBookings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tutor")
     @Builder.Default
     List<Booking> tutorBookings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sender")
     @Builder.Default
     List<Message> sentMessages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tutor")
     @Builder.Default
     List<Course> courses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "student")
     @Builder.Default
     List<CourseEnrollment> courseEnrollments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "student")
     @Builder.Default
     List<Dispute> disputes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @Builder.Default
     List<Wallet> wallets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "author")
     @Builder.Default
     List<Article> articles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     @Builder.Default
     List<ArticleComment> articleComments = new ArrayList<>();
 }

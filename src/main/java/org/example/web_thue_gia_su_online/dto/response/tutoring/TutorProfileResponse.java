@@ -1,4 +1,4 @@
-package org.example.web_thue_gia_su_online.dto.response.identity_and_administration;
+package org.example.web_thue_gia_su_online.dto.response.tutoring;
 
 import java.math.BigDecimal;
 import java.time.Instant;

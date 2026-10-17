@@ -56,7 +56,7 @@ public class Article {
     @NotNull
     Instant updatedAt;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", orphanRemoval = true)
     @Builder.Default
     List<ArticleComment> comments = new ArrayList<>();
 }

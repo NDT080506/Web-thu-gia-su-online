@@ -31,26 +31,23 @@ public class WalletServiceImpl implements WalletService {
     WalletMapper walletMapper;
 
     @Override
-    public WalletResponse createWallet(WalletCreationRequest request, String userId) {
-        User user = null;
-        String targetUserId = userId != null ? userId : request.getUserId();
-        if (targetUserId != null && !targetUserId.isBlank()) {
-            user = userRepository.findById(targetUserId).orElseThrow(() -> new RuntimeException("User not found"));
-        } else if (request.getType() != WalletType.PLATFORM) {
-            throw new RuntimeException("User ID is required for non-platform wallets");
+    public Wallet createWallet(User user, WalletType type) {
+
+        if (user != null && walletRepository.existsByUserIdAndType(user.getId(), type)){
+            throw new RuntimeException("User đã có ví loại này");
         }
 
         Instant now = Instant.now();
         Wallet wallet = Wallet.builder()
                 .user(user)
-                .type(request.getType())
+                .type(type)
                 .availableBalance(0)
                 .holdingBalance(0)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
 
-        return walletMapper.toWalletResponse(walletRepository.save(wallet));
+        return walletRepository.save(wallet);
     }
 
     @Override
