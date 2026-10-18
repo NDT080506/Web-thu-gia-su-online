@@ -47,11 +47,11 @@ public class Wallet {
     @NotNull
     Instant updatedAt;
 
-    @OneToMany(mappedBy = "sourceWallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sourceWallet")
     @Builder.Default
     List<PaymentTransaction> outgoingTransactions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "destinationWallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "destinationWallet")
     @Builder.Default
     List<PaymentTransaction> incomingTransactions = new ArrayList<>();
 }

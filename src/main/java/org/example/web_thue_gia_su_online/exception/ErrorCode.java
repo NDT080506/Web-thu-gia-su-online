@@ -20,7 +20,10 @@ public enum ErrorCode {
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     INVALID_KEY(1009, "Uncategorized error", HttpStatus.BAD_REQUEST),
-    TUTOR_APPLICATION_NOT_FOUND(1010, "Tutor application not found", HttpStatus.NOT_FOUND);
+    TUTOR_APPLICATION_NOT_FOUND(1010, "Tutor application not found", HttpStatus.NOT_FOUND),
+    TUTOR_APPLICATION_EXISTED(1011, "Tutor application existed", HttpStatus.BAD_REQUEST),
+    TUTOR_PROFILE_EXISTED(1012, "Tutor profile existed", HttpStatus.BAD_REQUEST),
+    TUTOR_PROFILE_NOT_FOUND(1013, "Tutor profile not found", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

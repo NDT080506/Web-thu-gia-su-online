@@ -41,4 +41,7 @@ public class TutorProfile {
 
     @NotNull
     Instant createdAt;
+
+    @NotNull
+    Instant updatedAt;
 }

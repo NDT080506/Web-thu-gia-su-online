@@ -30,7 +30,7 @@ public class BrokeragePackageController {
                 .build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/admin/{id}")
     public ApiResponse<BrokeragePackageResponse> getById(@PathVariable String id) {
         return ApiResponse.<BrokeragePackageResponse>builder()
                 .result(packageService.getById(id))
@@ -44,8 +44,16 @@ public class BrokeragePackageController {
                 .build();
     }
 
-    @PutMapping("/{id}")
-    public ApiResponse<BrokeragePackageResponse> update(
+    @PatchMapping("/admin/{id}")
+    public ApiResponse<BrokeragePackageResponse> adminUpdate(
+            @PathVariable String id, @RequestBody @Valid BrokeragePackageUpdateRequest request) {
+        return ApiResponse.<BrokeragePackageResponse>builder()
+                .result(packageService.update(id, request))
+                .build();
+    }
+
+    @PatchMapping("/tutor/{id}")
+    public ApiResponse<BrokeragePackageResponse> tutorUpdate(
             @PathVariable String id, @RequestBody @Valid BrokeragePackageUpdateRequest request) {
         return ApiResponse.<BrokeragePackageResponse>builder()
                 .result(packageService.update(id, request))

@@ -1,5 +1,6 @@
 package org.example.web_thue_gia_su_online.entity.learning_and_education;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +31,19 @@ public class BrokeragePackage {
     @NotNull
     long price;
 
-    @Builder.Default
-    int platformFeePercent = 10;
+    @NotNull
+    int platformFeePercent;
 
-    @Builder.Default
-    boolean isActive = true;
+    @NotNull
+    boolean isActive;
 
-    @OneToMany(mappedBy = "brokeragePackage", cascade = CascadeType.ALL, orphanRemoval = true)
+    @NotNull
+    Instant createdAt;
+
+    @NotNull
+    Instant updatedAt;
+
+    @OneToMany(mappedBy = "brokeragePackage")
     @Builder.Default
     List<Booking> bookings = new ArrayList<>();
 }

@@ -14,7 +14,14 @@ import lombok.experimental.FieldDefaults;
 public class TutorApplicationCreationRequest {
 
     @NotBlank
+    String bio;
+
+    @NotBlank
+    String subjectsCanTeach;
+
+    @NotBlank
     String cvUrl;
 
+    @NotBlank
     String testSubmission;
 }

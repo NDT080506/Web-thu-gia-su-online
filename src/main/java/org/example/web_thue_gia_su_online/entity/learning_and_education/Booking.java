@@ -72,14 +72,14 @@ public class Booking {
     Instant updatedAt;
 
     // ─── One-to-Many ──────────────────────────────────────────
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "booking")
     @Builder.Default
     List<Message> messages = new ArrayList<>();
 
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "booking")
     Dispute dispute;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "booking")
     @Builder.Default
     List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }
