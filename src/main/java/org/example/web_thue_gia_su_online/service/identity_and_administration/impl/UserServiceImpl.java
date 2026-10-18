@@ -21,12 +21,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @PreAuthorize("hasRole('GUEST')")
     public UserResponse createUser(UserCreationRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())){
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Mail này đã được sở hữu");
         }
 
@@ -78,10 +78,8 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
     public UserResponse getMyUser() {
 
-        String id = Objects.requireNonNull(SecurityContextHolder
-                        .getContext()
-                        .getAuthentication())
-                        .getName();
+        String id = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
+                .getName();
 
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));

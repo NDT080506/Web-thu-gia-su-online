@@ -24,13 +24,13 @@ public class TutorProfileController {
 
     TutorProfileService tutorProfileService;
 
-//    @PostMapping("/{userid}")
-//    ApiResponse<TutorProfileResponse> createTutorProfile(
-//            @RequestBody @Valid TutorProfileCreationRequest request, @PathVariable String userid) {
-//        return ApiResponse.<TutorProfileResponse>builder()
-//                .result(tutorProfileService.createTutorProfile(request, userid))
-//                .build();
-//    }
+    //    @PostMapping("/{userid}")
+    //    ApiResponse<TutorProfileResponse> createTutorProfile(
+    //            @RequestBody @Valid TutorProfileCreationRequest request, @PathVariable String userid) {
+    //        return ApiResponse.<TutorProfileResponse>builder()
+    //                .result(tutorProfileService.createTutorProfile(request, userid))
+    //                .build();
+    //    }
 
     @GetMapping
     ApiResponse<TutorProfileResponse> getMyTutorProfile() {
@@ -54,8 +54,7 @@ public class TutorProfileController {
     }
 
     @PatchMapping
-    ApiResponse<TutorProfileResponse> updateMyTutorProfile(
-            @RequestBody @Valid TutorProfileUpdateRequest request) {
+    ApiResponse<TutorProfileResponse> updateMyTutorProfile(@RequestBody @Valid TutorProfileUpdateRequest request) {
         return ApiResponse.<TutorProfileResponse>builder()
                 .result(tutorProfileService.updateMyTutorProfile(request))
                 .build();

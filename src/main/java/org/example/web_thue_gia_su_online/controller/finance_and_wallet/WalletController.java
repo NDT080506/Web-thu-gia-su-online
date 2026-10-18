@@ -4,7 +4,6 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
-import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.WalletCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.WalletUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.WalletResponse;
@@ -25,13 +24,13 @@ public class WalletController {
 
     WalletService walletService;
 
-//    @PostMapping("/{userId}")
-//    ApiResponse<WalletResponse> createWallet(
-//            @RequestBody @Valid WalletCreationRequest request, @PathVariable String userId) {
-//        return ApiResponse.<WalletResponse>builder()
-//                .result(walletService.createWallet(request, userId))
-//                .build();
-//    }
+    //    @PostMapping("/{userId}")
+    //    ApiResponse<WalletResponse> createWallet(
+    //            @RequestBody @Valid WalletCreationRequest request, @PathVariable String userId) {
+    //        return ApiResponse.<WalletResponse>builder()
+    //                .result(walletService.createWallet(request, userId))
+    //                .build();
+    //    }
 
     @GetMapping("/{id}")
     ApiResponse<WalletResponse> getWallet(@PathVariable String id) {

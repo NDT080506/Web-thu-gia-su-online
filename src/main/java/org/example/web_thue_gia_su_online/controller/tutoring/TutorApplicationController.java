@@ -8,9 +8,6 @@ import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorApplicationC
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.tutoring.TutorApplicationResponse;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorApplicationService;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -66,14 +63,14 @@ public class TutorApplicationController {
     }
 
     @PatchMapping("/admin/{applicationId}/approve")
-    ApiResponse<TutorApplicationResponse> approveTutorApplication(@PathVariable String applicationId){
+    ApiResponse<TutorApplicationResponse> approveTutorApplication(@PathVariable String applicationId) {
         return ApiResponse.<TutorApplicationResponse>builder()
                 .result(tutorApplicationService.approveTutorApplication(applicationId))
                 .build();
     }
 
     @PatchMapping("/admin/{applicationId}/reject")
-    ApiResponse<TutorApplicationResponse> rejectTutorApplication(@PathVariable String applicationId){
+    ApiResponse<TutorApplicationResponse> rejectTutorApplication(@PathVariable String applicationId) {
         return ApiResponse.<TutorApplicationResponse>builder()
                 .result(tutorApplicationService.rejectTutorApplication(applicationId))
                 .build();

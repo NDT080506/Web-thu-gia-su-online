@@ -19,6 +19,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +37,12 @@ public class TutorProfileServiceImpl implements TutorProfileService {
     TutorProfileMapper tutorProfileMapper;
 
     @Override
+    @Transactional
     public TutorProfile createTutorProfile(User user, TutorApplication tutorApplication) {
 
         if (user == null || tutorApplication == null) throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-        if (tutorProfileRepository.existsByUserId(user.getId())) throw new AppException(ErrorCode.TUTOR_PROFILE_EXISTED);
+        if (tutorProfileRepository.existsByUserId(user.getId()))
+            throw new AppException(ErrorCode.TUTOR_PROFILE_EXISTED);
 
         Instant now = Instant.now();
         TutorProfile tutorProfile = TutorProfile.builder()
@@ -67,55 +70,65 @@ public class TutorProfileServiceImpl implements TutorProfileService {
     @Override
     public TutorProfileResponse getMyTutorProfile() {
 
-        String userId = Objects.requireNonNull(SecurityContextHolder
-                        .getContext()
-                        .getAuthentication())
-                        .getName();
+        String userId = Objects.requireNonNull(
+                        SecurityContextHolder.getContext().getAuthentication())
+                .getName();
 
-        TutorProfile tutorProfile =
-                tutorProfileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
+        TutorProfile tutorProfile = tutorProfileRepository
+                .findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
+
         return tutorProfileMapper.toTutorProfileResponse(tutorProfile);
     }
 
     @Override
     public TutorProfileResponse getTutorProfile(String userId) {
-        TutorProfile tutorProfile =
-                tutorProfileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
+        TutorProfile tutorProfile = tutorProfileRepository
+                .findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
 
         return tutorProfileMapper.toTutorProfileResponse(tutorProfile);
     }
 
     @Override
+    @Transactional
     public TutorProfileResponse updateMyTutorProfile(TutorProfileUpdateRequest request) {
 
-        String userId = Objects.requireNonNull(SecurityContextHolder
-                        .getContext()
-                        .getAuthentication())
+        String userId = Objects.requireNonNull(
+                        SecurityContextHolder.getContext().getAuthentication())
                 .getName();
 
-        TutorProfile tutorProfile =
-                tutorProfileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
-
-
-        return tutorProfileMapper.toTutorProfileResponse(tutorProfile);
-    }
-
-    @Override
-    @PreAuthorize("hasRole('ADMIN')")
-    public TutorProfileResponse updateTutorProfile(TutorProfileUpdateRequest request, String userId) {
-        TutorProfile tutorProfile =
-                tutorProfileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
+        TutorProfile tutorProfile = tutorProfileRepository
+                .findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
 
         tutorProfileMapper.updateTutorProfileResponse(tutorProfile, request);
+        tutorProfile.setUpdatedAt(Instant.now());
 
         return tutorProfileMapper.toTutorProfileResponse(tutorProfileRepository.save(tutorProfile));
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public TutorProfileResponse updateTutorProfile(TutorProfileUpdateRequest request, String userId) {
+        TutorProfile tutorProfile = tutorProfileRepository
+                .findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
+
+        tutorProfileMapper.updateTutorProfileResponse(tutorProfile, request);
+        tutorProfile.setUpdatedAt(Instant.now());
+
+        return tutorProfileMapper.toTutorProfileResponse(tutorProfileRepository.save(tutorProfile));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void deleteTutorProfile(String userId) {
-        TutorProfile tutorProfile =
-                tutorProfileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
+        TutorProfile tutorProfile = tutorProfileRepository
+                .findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
 
         tutorProfileRepository.delete(tutorProfile);
     }

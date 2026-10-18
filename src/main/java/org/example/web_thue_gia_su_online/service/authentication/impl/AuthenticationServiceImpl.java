@@ -25,6 +25,7 @@ import org.example.web_thue_gia_su_online.service.authentication.AuthenticationS
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -37,7 +38,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,9 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         try {
             SignedJWT signedJWT = verifyToken(token, "access");
             String userId = signedJWT.getJWTClaimsSet().getSubject();
-            User user = userRepository
-                    .findById(userId)
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
             isValid = user.getStatus() == AccountStatus.ACTIVE;
 
@@ -84,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        //log.info(request.getDisplayName());
+        // log.info(request.getDisplayName());
         User user = userRepository
                 .findByDisplayName(request.getDisplayName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -99,14 +97,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        String accessToken = generateToken(
-                user, "access", VALID_DURATION
-        );
+        String accessToken = generateToken(user, "access", VALID_DURATION);
 
-        String refreshToken = generateToken(
-                user, "refresh", REFRESHABLE_DURATION
-        );
-
+        String refreshToken = generateToken(user, "refresh", REFRESHABLE_DURATION);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -118,13 +111,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logout(LogoutRequest request) {
         try {
-            SignedJWT accessToken = verifyToken(
-                    request.getAccessToken(), "access"
-            );
+            SignedJWT accessToken = verifyToken(request.getAccessToken(), "access");
 
-            SignedJWT refreshToken = verifyToken(
-                    request.getRefreshToken(), "refresh"
-            );
+            SignedJWT refreshToken = verifyToken(request.getRefreshToken(), "refresh");
 
             JWTClaimsSet accessClaims = accessToken.getJWTClaimsSet();
             JWTClaimsSet refreshClaims = refreshToken.getJWTClaimsSet();
@@ -136,27 +125,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             String userId = accessClaims.getSubject();
 
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() ->
-                            new AppException(ErrorCode.USER_NOT_FOUND));
+            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
             // Thu hồi Access Token
-            invalidatedTokenRepository.save(
-                    InvalidatedToken.builder()
-                            .id(accessClaims.getJWTID())
-                            .user(user)
-                            .expiryTime(accessClaims.getExpirationTime())
-                            .build()
-            );
+            invalidatedTokenRepository.save(InvalidatedToken.builder()
+                    .id(accessClaims.getJWTID())
+                    .user(user)
+                    .expiryTime(accessClaims.getExpirationTime())
+                    .build());
 
             // Thu hồi Refresh Token
-            invalidatedTokenRepository.save(
-                    InvalidatedToken.builder()
-                            .id(refreshClaims.getJWTID())
-                            .user(user)
-                            .expiryTime(refreshClaims.getExpirationTime())
-                            .build()
-            );
+            invalidatedTokenRepository.save(InvalidatedToken.builder()
+                    .id(refreshClaims.getJWTID())
+                    .user(user)
+                    .expiryTime(refreshClaims.getExpirationTime())
+                    .build());
 
         } catch (AppException | ParseException | JOSEException e) {
             throw new RuntimeException(e);
@@ -171,9 +154,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jit = signedToken.getJWTClaimsSet().getJWTID();
         Date expiryTime = signedToken.getJWTClaimsSet().getExpirationTime();
         String userId = signedToken.getJWTClaimsSet().getSubject();
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getStatus() != AccountStatus.ACTIVE) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -187,10 +168,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         invalidatedTokenRepository.save(invalidatedToken);
 
-        String accessToken = generateToken(
-                user, "access", VALID_DURATION
-        );
-
+        String accessToken = generateToken(user, "access", VALID_DURATION);
 
         return RefreshTokenResponse.builder()
                 .accessToken(accessToken)
@@ -211,7 +189,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String tokenType = claims.getStringClaim("token_type");
         String jit = claims.getJWTID();
 
-        if (!(verified && expiredTime.after(new Date()) && expectedType.equals(tokenType))) throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!(verified && expiredTime.after(new Date()) && expectedType.equals(tokenType)))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         if (invalidatedTokenRepository.existsById(jit)) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -227,9 +206,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .subject(user.getId())
                 .issuer("my-app-backend")
                 .issueTime(new Date())
-                .expirationTime(Date.from(
-                        Instant.now().plus(duration, ChronoUnit.DAYS)
-                ))
+                .expirationTime(Date.from(Instant.now().plus(duration, ChronoUnit.DAYS)))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .claim("token_type", tokenType)

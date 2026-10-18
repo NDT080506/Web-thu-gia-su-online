@@ -4,13 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import org.example.web_thue_gia_su_online.enums.AccountStatus;
 import org.example.web_thue_gia_su_online.enums.UserRole;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import javax.management.relation.Role;
 
 @Getter
 @Setter
@@ -35,6 +32,7 @@ public class UserCreationRequest {
 
     @Builder.Default
     UserRole role = UserRole.STUDENT;
+
     String phone;
     String zaloLink;
 }
