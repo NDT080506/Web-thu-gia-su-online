@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import org.antlr.v4.runtime.RuntimeMetaData;
 import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorApplicationCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.tutoring.TutorApplicationResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
@@ -21,12 +20,12 @@ import org.example.web_thue_gia_su_online.service.tutoring.TutorProfileService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,12 +41,11 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
     @Override
     @PreAuthorize("hasRole('STUDENT')")
     public TutorApplicationResponse createTutorApplication(TutorApplicationCreationRequest request) {
-        String userId = Objects.requireNonNull(SecurityContextHolder
-                        .getContext()
-                        .getAuthentication())
-                        .getName();
+        String userId = Objects.requireNonNull(
+                        SecurityContextHolder.getContext().getAuthentication())
+                .getName();
 
-        if (tutorApplicationRepository.findByUserIdAndStatus(userId, RequestStatus.PENDING)){
+        if (tutorApplicationRepository.existsByUserIdAndStatus(userId, RequestStatus.PENDING)) {
             throw new AppException(ErrorCode.TUTOR_APPLICATION_EXISTED);
         }
 
@@ -68,11 +66,9 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
     @PreAuthorize("hasAnyRole('STUDENT')")
     public TutorApplicationResponse getMyTutorApplication() {
 
-        String userId = Objects.requireNonNull(SecurityContextHolder
-                        .getContext()
-                        .getAuthentication())
-                        .getName();
-
+        String userId = Objects.requireNonNull(
+                        SecurityContextHolder.getContext().getAuthentication())
+                .getName();
 
         TutorApplication tutorApplication = tutorApplicationRepository
                 .findByUserId(userId)
@@ -80,7 +76,6 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
 
         return tutorApplicationMapper.toTutorApplicationResponse(tutorApplication);
     }
-
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
@@ -113,7 +108,9 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         tutorApplication.setStatus(RequestStatus.APPROVED);
         tutorApplication.setUpdateAt(Instant.now());
 
-        User user = userRepository.findById(tutorApplication.getUser().getId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository
+                .findById(tutorApplication.getUser().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setRole(UserRole.TUTOR);
 
         userRepository.save(user);
@@ -139,7 +136,6 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         return tutorApplicationMapper.toTutorApplicationResponse(tutorApplication);
     }
 
-
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteTutorApplication(String id) {
@@ -155,16 +151,14 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
     @PreAuthorize("hasRole('STUDENT')")
     public void deleteMyTutorApplication() {
 
-        String userId = Objects.requireNonNull(SecurityContextHolder
-                        .getContext()
-                        .getAuthentication())
-                        .getName();
+        String userId = Objects.requireNonNull(
+                        SecurityContextHolder.getContext().getAuthentication())
+                .getName();
 
         TutorApplication tutorApplication = tutorApplicationRepository
                 .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.TUTOR_APPLICATION_NOT_FOUND));
 
         tutorApplicationRepository.delete(tutorApplication);
-
     }
 }

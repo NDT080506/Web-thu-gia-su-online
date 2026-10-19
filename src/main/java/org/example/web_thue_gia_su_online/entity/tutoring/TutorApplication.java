@@ -10,7 +10,6 @@ import org.example.web_thue_gia_su_online.enums.RequestStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Component;
 
 @Entity
 @Table(name = "tutor_applications", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "status"}))

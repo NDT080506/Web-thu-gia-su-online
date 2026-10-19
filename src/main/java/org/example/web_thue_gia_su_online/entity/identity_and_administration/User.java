@@ -42,6 +42,9 @@ public class User {
     @Column(unique = true, nullable = false, length = 255)
     String email;
 
+    @Column(name = "email_verified_at")
+    Instant emailVerifiedAt;
+
     @Column(nullable = false, length = 255)
     String passwordHash;
 
