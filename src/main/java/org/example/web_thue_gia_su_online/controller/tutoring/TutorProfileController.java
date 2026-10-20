@@ -39,14 +39,14 @@ public class TutorProfileController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     ApiResponse<List<TutorProfileResponse>> getTutorProfiles() {
         return ApiResponse.<List<TutorProfileResponse>>builder()
                 .result(tutorProfileService.getTutorProfiles())
                 .build();
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/admin/{userId}")
     ApiResponse<TutorProfileResponse> getTutorProfile(@PathVariable String userId) {
         return ApiResponse.<TutorProfileResponse>builder()
                 .result(tutorProfileService.getTutorProfile(userId))
@@ -60,7 +60,7 @@ public class TutorProfileController {
                 .build();
     }
 
-    @PatchMapping("/{userId}")
+    @PatchMapping("/admin/{userId}")
     ApiResponse<TutorProfileResponse> updateTutorProfile(
             @RequestBody @Valid TutorProfileUpdateRequest request, @PathVariable String userId) {
         return ApiResponse.<TutorProfileResponse>builder()
@@ -68,7 +68,7 @@ public class TutorProfileController {
                 .build();
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/admin/{userId}")
     ApiResponse<Void> deleteTutorProfile(@PathVariable String userId) {
         tutorProfileService.deleteTutorProfile(userId);
 

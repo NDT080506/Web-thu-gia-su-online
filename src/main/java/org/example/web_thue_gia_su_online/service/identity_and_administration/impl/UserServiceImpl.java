@@ -14,6 +14,7 @@ import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.identity_and_administration.UserMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
+import org.example.web_thue_gia_su_online.service.authentication.EmailVerificationService;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.WalletService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.UserService;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -38,13 +39,13 @@ public class UserServiceImpl implements UserService {
     WalletService walletService;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    EmailVerificationService emailVerificationService;
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('GUEST')")
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Mail này đã được sở hữu");
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
         if (userRepository.existsByDisplayName(request.getDisplayName())) {
@@ -57,10 +58,12 @@ public class UserServiceImpl implements UserService {
         Instant now = Instant.now();
         user.setCreatedAt(now);
         user.setUpdatedAt(now);
+        user.setEmailVerifiedAt(null);
 
         try {
             userRepository.save(user);
             walletService.createWallet(user, WalletType.NORMAL);
+            emailVerificationService.sendVerificationEmail(user);
         } catch (DataIntegrityViolationException e) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }

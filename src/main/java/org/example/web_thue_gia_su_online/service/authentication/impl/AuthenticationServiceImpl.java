@@ -91,6 +91,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
+        if (user.getEmailVerifiedAt() == null) {
+            throw new AppException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
 
         if (!authenticated) {

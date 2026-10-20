@@ -3,6 +3,7 @@ package org.example.web_thue_gia_su_online.controller.authentication;
 import java.text.ParseException;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import org.example.web_thue_gia_su_online.dto.request.authentication.AuthenticationRequest;
 import org.example.web_thue_gia_su_online.dto.request.authentication.IntrospectRequest;
@@ -13,6 +14,7 @@ import org.example.web_thue_gia_su_online.dto.response.authentication.Authentica
 import org.example.web_thue_gia_su_online.dto.response.authentication.IntrospectResponse;
 import org.example.web_thue_gia_su_online.dto.response.authentication.RefreshTokenResponse;
 import org.example.web_thue_gia_su_online.service.authentication.AuthenticationService;
+import org.example.web_thue_gia_su_online.service.authentication.EmailVerificationService;
 import org.springframework.web.bind.annotation.*;
 
 import com.nimbusds.jose.JOSEException;
@@ -30,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
+    EmailVerificationService emailVerificationService;
 
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> introspect(@RequestBody @Valid IntrospectRequest request) {
@@ -56,6 +59,16 @@ public class AuthenticationController {
             throws ParseException, JOSEException {
         return ApiResponse.<RefreshTokenResponse>builder()
                 .result(authenticationService.refreshToken(request))
+                .build();
+    }
+
+    @GetMapping("/verify-email")
+    public ApiResponse<Void> verifyEmail(@RequestParam @NotBlank String token) {
+
+        emailVerificationService.verifyEmail(token);
+
+        return ApiResponse.<Void>builder()
+                .message("Email verified successfully")
                 .build();
     }
 }
