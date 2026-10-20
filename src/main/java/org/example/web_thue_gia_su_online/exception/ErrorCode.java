@@ -24,7 +24,8 @@ public enum ErrorCode {
     TUTOR_APPLICATION_EXISTED(1011, "Tutor application existed", HttpStatus.BAD_REQUEST),
     TUTOR_PROFILE_EXISTED(1012, "Tutor profile existed", HttpStatus.BAD_REQUEST),
     TUTOR_PROFILE_NOT_FOUND(1013, "Tutor profile not found", HttpStatus.NOT_FOUND),
-    EMAIL_NOT_VERIFIED(1014, "Email not verified", HttpStatus.UNAUTHORIZED);
+    EMAIL_NOT_VERIFIED(1014, "Email not verified", HttpStatus.UNAUTHORIZED),
+    EMAIL_EXISTED(1015, "Email existed", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

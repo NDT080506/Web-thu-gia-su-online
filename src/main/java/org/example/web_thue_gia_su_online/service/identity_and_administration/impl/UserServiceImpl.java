@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Mail này đã được sở hữu");
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
         if (userRepository.existsByDisplayName(request.getDisplayName())) {
