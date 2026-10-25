@@ -120,7 +120,7 @@ CREATE TABLE "bookings" (
 );
 
 CREATE TABLE "messages" (
-  "id" bigserial PRIMARY KEY,
+  "id" uuid PRIMARY KEY,
   "booking_id" uuid NOT NULL,
   "sender_id" uuid NOT NULL,
   "content" text NOT NULL,

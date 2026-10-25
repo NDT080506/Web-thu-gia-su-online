@@ -45,7 +45,6 @@ public class ActionLogServiceImpl implements ActionLogService {
         ActionLog actionLog = actionLogMapper.toEntity(request);
         actionLog.setAdmin(admin);
         actionLog.setTargetUser(targetUser);
-        actionLog.setCreatedAt(Instant.now());
 
         return actionLogMapper.toResponse(actionLogRepository.save(actionLog));
     }

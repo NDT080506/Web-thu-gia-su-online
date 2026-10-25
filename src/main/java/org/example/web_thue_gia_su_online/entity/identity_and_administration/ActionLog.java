@@ -40,7 +40,7 @@ public class ActionLog {
     @Column(length = 50)
     String targetType;
 
-    UUID targetId;
+    String targetId;
 
     @Column(length = 100)
     String actionCode;
@@ -56,4 +56,9 @@ public class ActionLog {
 
     @NotNull
     Instant createdAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
 }

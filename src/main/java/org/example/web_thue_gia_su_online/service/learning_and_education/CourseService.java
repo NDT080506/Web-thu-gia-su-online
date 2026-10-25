@@ -11,5 +11,7 @@ public interface CourseService {
 
     CourseResponse getById(String id);
 
-    List<CourseResponse> getByTutorId(String tutorId);
+    List<CourseResponse> getCourses();
+
+    List<CourseResponse> getAllByTutorId(String tutorId);
 }

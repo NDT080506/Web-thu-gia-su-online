@@ -11,7 +11,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "messages", indexes = @Index(columnList = "booking_id, created_at"))
+@Table(name = "messages")
 @Getter
 @Setter
 @Builder
@@ -21,20 +21,33 @@ import lombok.experimental.FieldDefaults;
 public class Message {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id", nullable = false)
-    Booking booking;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "conversation_id", nullable = false)
+    Conversation conversation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "sender_id", nullable = false)
     User sender;
 
-    @NotNull
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     String content;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
     Instant createdAt;
+
+    @Column(name = "updated_at")
+    Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

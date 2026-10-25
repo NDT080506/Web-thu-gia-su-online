@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MessageResponse {
     Long id;
-    String bookingId;
+    String conversationId;
     String senderId;
     String content;
     Instant createdAt;

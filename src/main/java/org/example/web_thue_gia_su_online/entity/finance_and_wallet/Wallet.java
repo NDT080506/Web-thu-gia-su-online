@@ -44,8 +44,17 @@ public class Wallet {
     @NotNull
     Instant createdAt;
 
-    @NotNull
     Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 
     @OneToMany(mappedBy = "sourceWallet")
     @Builder.Default

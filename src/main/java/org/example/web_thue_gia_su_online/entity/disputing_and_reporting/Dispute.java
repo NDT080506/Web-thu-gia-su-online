@@ -53,4 +53,9 @@ public class Dispute {
     Instant createdAt;
 
     Instant resolvedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
 }

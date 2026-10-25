@@ -7,9 +7,7 @@ import org.example.web_thue_gia_su_online.dto.request.learning_and_education.Les
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.LessonResponse;
 
 public interface LessonService {
-    LessonResponse createLesson(LessonCreationRequest request);
-
-    LessonResponse getLesson(String id);
+    LessonResponse createLesson(LessonCreationRequest request, String courseId);
 
     List<LessonResponse> getLessonsByCourseId(String courseId);
 

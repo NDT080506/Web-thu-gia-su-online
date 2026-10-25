@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CourseMapper {
 
-    @Mapping(target = "tutor.id", source = "tutorId")
     Course toEntity(CourseCreationRequest request);
 
     @Mapping(target = "tutorId", source = "tutor.id")

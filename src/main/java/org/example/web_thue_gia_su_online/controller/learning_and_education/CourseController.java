@@ -36,10 +36,17 @@ public class CourseController {
                 .build();
     }
 
-    @GetMapping("/tutor/{tutorId}")
-    public ApiResponse<List<CourseResponse>> getByTutorId(@PathVariable String tutorId) {
+    @GetMapping
+    public ApiResponse<List<CourseResponse>> getCourses() {
         return ApiResponse.<List<CourseResponse>>builder()
-                .result(courseService.getByTutorId(tutorId))
+                .result(courseService.getCourses())
+                .build();
+    }
+
+    @GetMapping("/tutor/{tutorId}")
+    public ApiResponse<List<CourseResponse>> getAllByTutorId(@PathVariable String tutorId) {
+        return ApiResponse.<List<CourseResponse>>builder()
+                .result(courseService.getAllByTutorId(tutorId))
                 .build();
     }
 }

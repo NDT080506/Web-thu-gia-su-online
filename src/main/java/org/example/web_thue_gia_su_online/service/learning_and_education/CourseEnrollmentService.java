@@ -11,11 +11,11 @@ public interface CourseEnrollmentService {
 
     CourseEnrollmentResponse getEnrollment(String id);
 
-    List<CourseEnrollmentResponse> getEnrollmentsByStudent(String studentId);
+    List<CourseEnrollmentResponse> getEnrollmentsByStudent();
 
     List<CourseEnrollmentResponse> getEnrollmentsByCourse(String courseId);
 
-    CourseEnrollmentResponse updateEnrollment(String id, CourseEnrollmentUpdateRequest request);
+    CourseEnrollmentResponse updateEnrollment(String id);
 
-    void cancelEnrollment(String id);
+    void deleteEnrollment(String id);
 }

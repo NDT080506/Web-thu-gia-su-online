@@ -53,8 +53,17 @@ public class Article {
     @NotNull
     Instant createdAt;
 
-    @NotNull
     Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 
     @OneToMany(mappedBy = "article", orphanRemoval = true)
     @Builder.Default

@@ -52,7 +52,18 @@ public class TutorApplication {
     @Column(columnDefinition = "TEXT")
     String adminNote;
 
+    @NotNull
     Instant createdAt;
 
     Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

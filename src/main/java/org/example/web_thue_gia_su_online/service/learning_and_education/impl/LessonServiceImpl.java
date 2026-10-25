@@ -12,6 +12,7 @@ import org.example.web_thue_gia_su_online.mapper.learning_and_education.LessonMa
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.LessonRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.LessonService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,10 +33,11 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     @Transactional
-    public LessonResponse createLesson(LessonCreationRequest request) {
+    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
+    public LessonResponse createLesson(LessonCreationRequest request, String courseId) {
         Course course = courseRepository
-                .findById(request.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found: " + request.getCourseId()));
+                .findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found: " + courseId));
 
         Lesson lesson = lessonMapper.toEntity(request);
         lesson.setCourse(course);
@@ -45,13 +47,7 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public LessonResponse getLesson(String id) {
-        Lesson lesson =
-                lessonRepository.findById(id).orElseThrow(() -> new RuntimeException("Lesson not found: " + id));
-        return lessonMapper.toResponse(lesson);
-    }
-
-    @Override
+    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN', 'STUDENT')")
     public List<LessonResponse> getLessonsByCourseId(String courseId) {
         return lessonRepository.findByCourseId(courseId).stream()
                 .map(lessonMapper::toResponse)
@@ -60,6 +56,7 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
     public LessonResponse updateLesson(String id, LessonUpdateRequest request) {
         Lesson lesson =
                 lessonRepository.findById(id).orElseThrow(() -> new RuntimeException("Lesson not found: " + id));
@@ -70,6 +67,7 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
     public void deleteLesson(String id) {
         Lesson lesson =
                 lessonRepository.findById(id).orElseThrow(() -> new RuntimeException("Lesson not found: " + id));

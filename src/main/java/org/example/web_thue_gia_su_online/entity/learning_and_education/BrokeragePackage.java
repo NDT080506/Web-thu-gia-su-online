@@ -40,10 +40,19 @@ public class BrokeragePackage {
     @NotNull
     Instant createdAt;
 
-    @NotNull
     Instant updatedAt;
 
     @OneToMany(mappedBy = "brokeragePackage")
     @Builder.Default
     List<Booking> bookings = new ArrayList<>();
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

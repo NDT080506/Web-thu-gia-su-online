@@ -25,17 +25,10 @@ public class LessonController {
 
     LessonService lessonService;
 
-    @PostMapping
-    ApiResponse<LessonResponse> createLesson(@RequestBody @Valid LessonCreationRequest request) {
+    @PostMapping("/courses/{courseId}")
+    ApiResponse<LessonResponse> createLesson(@RequestBody @Valid LessonCreationRequest request, @PathVariable String courseId) {
         return ApiResponse.<LessonResponse>builder()
-                .result(lessonService.createLesson(request))
-                .build();
-    }
-
-    @GetMapping("/{id}")
-    ApiResponse<LessonResponse> getLesson(@PathVariable String id) {
-        return ApiResponse.<LessonResponse>builder()
-                .result(lessonService.getLesson(id))
+                .result(lessonService.createLesson(request, courseId))
                 .build();
     }
 
@@ -46,7 +39,7 @@ public class LessonController {
                 .build();
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     ApiResponse<LessonResponse> updateLesson(@PathVariable String id, @RequestBody @Valid LessonUpdateRequest request) {
         return ApiResponse.<LessonResponse>builder()
                 .result(lessonService.updateLesson(id, request))

@@ -46,6 +46,8 @@ public class Course {
     @NotNull
     Instant createdAt;
 
+    Instant updatedAt;
+
     @OneToMany(mappedBy = "course")
     @Builder.Default
     List<Lesson> lessons = new ArrayList<>();
@@ -53,4 +55,14 @@ public class Course {
     @OneToMany(mappedBy = "course")
     @Builder.Default
     List<CourseEnrollment> enrollments = new ArrayList<>();
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

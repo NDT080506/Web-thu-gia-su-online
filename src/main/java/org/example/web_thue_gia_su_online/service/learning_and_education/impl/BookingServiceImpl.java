@@ -2,17 +2,24 @@ package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.BookingResponse;
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.BrokeragePackage;
+import org.example.web_thue_gia_su_online.enums.BookingStatus;
+import org.example.web_thue_gia_su_online.exception.AppException;
+import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.BookingMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BrokeragePackageRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BookingService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -30,16 +37,17 @@ public class BookingServiceImpl implements BookingService {
     BookingMapper bookingMapper;
 
     @Override
+    @PreAuthorize("hasRole('STUDENT')")
     public BookingResponse create(BookingCreationRequest request) {
         BrokeragePackage pkg = packageRepository
                 .findById(request.getPackageId())
                 .orElseThrow(() -> new RuntimeException("Package not found"));
 
-        var student = userRepository
+        User student = userRepository
                 .findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        var tutor = request.getTutorId() != null
+        User tutor = request.getTutorId() != null
                 ? userRepository.findById(request.getTutorId()).orElse(null)
                 : null;
 
@@ -53,7 +61,7 @@ public class BookingServiceImpl implements BookingService {
                 .student(student)
                 .tutor(tutor)
                 .subject(request.getSubject())
-                .status("pending_payment")
+                .status(BookingStatus.PENDING_PAYMENT)
                 .totalPrice(totalPrice)
                 .platformFee(platformFee)
                 .tutorIncome(tutorIncome)
@@ -65,6 +73,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
     public BookingResponse getById(String id) {
         return bookingRepository
                 .findById(id)
@@ -73,27 +82,58 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @PreAuthorize("hasRole('STUDENT')")
+    public List<BookingResponse> getByMyId() {
+        String studentId = Objects.requireNonNull(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication())
+                        .getName();
+
+        return bookingRepository
+                .findAllByStudentId(studentId)
+                .stream()
+                .map(bookingMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('TUTOR')")
+    public List<BookingResponse> getByTutorId() {
+
+        String tutorId = Objects.requireNonNull(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication())
+                        .getName();
+
+        return bookingRepository.findAllByTutorId(tutorId).stream()
+                .map(bookingMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<BookingResponse> getByStudentId(String studentId) {
-        return bookingRepository.findByStudentId(studentId).stream()
+        return bookingRepository.findAllByStudentId(studentId).stream()
                 .map(bookingMapper::toResponse)
                 .toList();
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<BookingResponse> getByTutorId(String tutorId) {
-        return bookingRepository.findByTutorId(tutorId).stream()
+        return bookingRepository.findAllByTutorId(tutorId).stream()
                 .map(bookingMapper::toResponse)
                 .toList();
     }
 
     @Override
-    public BookingResponse update(String id, BookingUpdateRequest request) {
+    @PreAuthorize("hasRole('STUDENT')")
+    public BookingResponse update(String id) {
         Booking booking = bookingRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
 
-        bookingMapper.updateEntity(booking, request);
-        booking.setUpdatedAt(Instant.now());
+        booking.setStatus(BookingStatus.CANCELLED);
         return bookingMapper.toResponse(bookingRepository.save(booking));
     }
 }

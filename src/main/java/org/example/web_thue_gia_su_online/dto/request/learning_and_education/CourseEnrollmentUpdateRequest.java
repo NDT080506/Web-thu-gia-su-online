@@ -13,6 +13,4 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseEnrollmentUpdateRequest {
     String status;
-    Integer progressPercent;
-    Instant completedAt;
 }

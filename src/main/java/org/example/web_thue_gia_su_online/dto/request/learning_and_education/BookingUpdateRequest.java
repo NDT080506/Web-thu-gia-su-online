@@ -2,6 +2,7 @@ package org.example.web_thue_gia_su_online.dto.request.learning_and_education;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.web_thue_gia_su_online.enums.BookingStatus;
 
 @Getter
 @Setter
@@ -10,9 +11,5 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingUpdateRequest {
-    String tutorId;
-    String subject;
-    String status;
-    Integer studentRating;
-    String studentReview;
+    BookingStatus status;
 }

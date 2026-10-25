@@ -24,29 +24,22 @@ public class MessageController {
     MessageService messageService;
 
     @PostMapping
-    public ApiResponse<MessageResponse> create(@RequestBody @Valid MessageCreationRequest request) {
+    public ApiResponse<MessageResponse> create(String conversationId, String content, String senderId) {
         return ApiResponse.<MessageResponse>builder()
-                .result(messageService.create(request))
+                .result(messageService.createFromWebSocket(conversationId, content, senderId))
                 .build();
     }
 
-    @GetMapping("/booking/{bookingId}")
-    public ApiResponse<List<MessageResponse>> getByBookingId(@PathVariable String bookingId) {
-        return ApiResponse.<List<MessageResponse>>builder()
-                .result(messageService.getByBookingId(bookingId))
-                .build();
-    }
-
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ApiResponse<MessageResponse> update(
-            @PathVariable Long id, @RequestBody @Valid MessageUpdateRequest request) {
+            @PathVariable String id, @RequestBody @Valid MessageUpdateRequest request) {
         return ApiResponse.<MessageResponse>builder()
                 .result(messageService.update(id, request))
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable Long id) {
+    public ApiResponse<Void> delete(@PathVariable String id) {
         messageService.delete(id);
         return ApiResponse.<Void>builder()
                 .message("Message deleted successfully")

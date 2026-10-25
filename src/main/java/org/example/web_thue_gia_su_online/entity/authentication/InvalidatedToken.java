@@ -1,5 +1,6 @@
 package org.example.web_thue_gia_su_online.entity.authentication;
 
+import java.time.Instant;
 import java.util.Date;
 
 import jakarta.persistence.*;
@@ -25,4 +26,12 @@ public class InvalidatedToken {
     User user;
 
     Date expiryTime;
+
+    @NonNull
+    Instant createdAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
 }

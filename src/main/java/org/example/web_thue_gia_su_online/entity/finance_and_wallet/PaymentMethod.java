@@ -7,6 +7,8 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "payment_method", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "account_number"}))
 @Getter
@@ -36,4 +38,20 @@ public class PaymentMethod {
 
     @Builder.Default
     boolean isDefault = false;
+
+    @NonNull
+    Instant createdAt;
+
+
+    Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

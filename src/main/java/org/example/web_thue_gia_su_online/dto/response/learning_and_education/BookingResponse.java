@@ -23,8 +23,6 @@ public class BookingResponse {
     long tutorIncome;
     Instant contactUnlockedAt;
     Instant studentConfirmedAt;
-    Integer studentRating;
-    String studentReview;
     Instant createdAt;
     Instant updatedAt;
 }

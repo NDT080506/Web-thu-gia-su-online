@@ -13,10 +13,7 @@ import org.example.web_thue_gia_su_online.entity.authentication.InvalidatedToken
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentMethod;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Message;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.*;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
 import org.example.web_thue_gia_su_online.enums.AccountStatus;
@@ -69,10 +66,20 @@ public class User {
     @Column(columnDefinition = "TEXT")
     String zaloLink;
 
+    @NotNull
     Instant createdAt;
 
-    @NotNull
     Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 
     // ─── One-to-One ───────────────────────────────────────────
     @OneToOne(mappedBy = "user")
@@ -126,4 +133,12 @@ public class User {
     @OneToMany(mappedBy = "user")
     @Builder.Default
     List<ArticleComment> articleComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reviewer")
+    List<Review> writtenReviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tutor")
+    List<Review> receivedReviews = new ArrayList<>();
+
+
 }

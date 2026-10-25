@@ -39,10 +39,10 @@ public class CourseEnrollmentController {
                 .build();
     }
 
-    @GetMapping("/student/{studentId}")
-    ApiResponse<List<CourseEnrollmentResponse>> getEnrollmentsByStudent(@PathVariable String studentId) {
+    @GetMapping("/me")
+    ApiResponse<List<CourseEnrollmentResponse>> getEnrollmentsByStudent() {
         return ApiResponse.<List<CourseEnrollmentResponse>>builder()
-                .result(courseEnrollmentService.getEnrollmentsByStudent(studentId))
+                .result(courseEnrollmentService.getEnrollmentsByStudent())
                 .build();
     }
 
@@ -53,19 +53,19 @@ public class CourseEnrollmentController {
                 .build();
     }
 
-    @PutMapping("/{id}")
-    ApiResponse<CourseEnrollmentResponse> updateEnrollment(
-            @PathVariable String id, @RequestBody @Valid CourseEnrollmentUpdateRequest request) {
+    @PatchMapping("/{id}/cancel")
+    ApiResponse<CourseEnrollmentResponse> cancelEnrollment(
+            @PathVariable String id) {
         return ApiResponse.<CourseEnrollmentResponse>builder()
-                .result(courseEnrollmentService.updateEnrollment(id, request))
+                .result(courseEnrollmentService.updateEnrollment(id))
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    ApiResponse<Void> cancelEnrollment(@PathVariable String id) {
-        courseEnrollmentService.cancelEnrollment(id);
+    ApiResponse<Void> deleteEnrollment(@PathVariable String id) {
+        courseEnrollmentService.deleteEnrollment(id);
         return ApiResponse.<Void>builder()
-                .message("Enrollment cancelled successfully")
+                .message("Enrollment deleted successfully")
                 .build();
     }
 }

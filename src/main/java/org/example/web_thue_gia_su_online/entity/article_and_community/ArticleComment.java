@@ -53,4 +53,16 @@ public class ArticleComment {
 
     @NotNull
     Instant createdAt;
+
+    Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

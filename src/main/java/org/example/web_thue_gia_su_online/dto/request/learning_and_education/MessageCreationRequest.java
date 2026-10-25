@@ -13,10 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MessageCreationRequest {
     @NotBlank
-    String bookingId;
-
-    @NotBlank
-    String senderId;
+    String conversationId;
 
     @NotBlank
     String content;

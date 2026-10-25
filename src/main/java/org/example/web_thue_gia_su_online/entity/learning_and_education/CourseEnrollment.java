@@ -9,6 +9,7 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 
 @Entity
 @Table(name = "course_enrollments", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "course_id"}))
@@ -35,15 +36,28 @@ public class CourseEnrollment {
     @NotNull
     long pricePaid;
 
-    @Column(length = 50)
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    String status = "active";
-
-    @Builder.Default
-    int progressPercent = 0;
+    EnrollmentStatus status = EnrollmentStatus.PENDING;
 
     Instant completedAt;
 
     @NotNull
     Instant createdAt;
+
+    Instant updatedAt;
+
+    // ─── One-to-One ──────────────────────────────────────────
+    @OneToOne(mappedBy = "enrollment")
+    private Review review;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }
