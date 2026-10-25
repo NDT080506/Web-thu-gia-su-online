@@ -41,6 +41,10 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS)
                 .permitAll()
+                .requestMatchers(HttpMethod.GET, "/articles", "/articles/*")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/article-comments/**")
+                .permitAll()
                 .anyRequest()
                 .authenticated());
 

@@ -36,13 +36,13 @@ class ArticleControllerTest {
                 .content("Test content")
                 .build();
         ArticleResponse response = ArticleResponse.builder().id("1").build();
-        when(articleService.createArticle(eq(request), eq("author-1"))).thenReturn(response);
+        when(articleService.createArticle(eq(request))).thenReturn(response);
 
-        ApiResponse<ArticleResponse> apiResponse = articleController.createArticle(request, "author-1");
+        ApiResponse<ArticleResponse> apiResponse = articleController.createArticle(request);
 
         assertNotNull(apiResponse);
         assertEquals(1000, apiResponse.getCode());
-        verify(articleService).createArticle(eq(request), eq("author-1"));
+        verify(articleService).createArticle(eq(request));
     }
 
     @Test

@@ -8,6 +8,8 @@ import org.example.web_thue_gia_su_online.dto.response.article_and_community.Art
 
 public interface ArticleCommentService {
 
+    ArticleCommentResponse createComment(ArticleCommentCreationRequest request, String articleId);
+
     ArticleCommentResponse createComment(ArticleCommentCreationRequest request, String articleId, String userId);
 
     ArticleCommentResponse getComment(String id);

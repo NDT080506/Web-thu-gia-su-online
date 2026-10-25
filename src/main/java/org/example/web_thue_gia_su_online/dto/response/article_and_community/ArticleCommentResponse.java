@@ -16,6 +16,8 @@ public class ArticleCommentResponse {
     String id;
     String articleId;
     String userId;
+    String userDisplayName;
+    String userAvatarUrl;
     String parentId;
     String content;
     boolean isHidden;

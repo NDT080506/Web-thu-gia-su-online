@@ -30,7 +30,23 @@ class ArticleCommentControllerTest {
     private ArticleCommentController articleCommentController;
 
     @Test
-    void createComment_shouldReturnCommentResponse() {
+    void createComment_withArticleId_shouldReturnCommentResponse() {
+        ArticleCommentCreationRequest request =
+                ArticleCommentCreationRequest.builder().content("Test comment").build();
+        ArticleCommentResponse response =
+                ArticleCommentResponse.builder().id("1").build();
+        when(articleCommentService.createComment(eq(request), eq("article-1"))).thenReturn(response);
+
+        ApiResponse<ArticleCommentResponse> apiResponse = articleCommentController.createComment("article-1", request);
+
+        assertNotNull(apiResponse);
+        assertEquals(1000, apiResponse.getCode());
+        assertNotNull(apiResponse.getResult());
+        verify(articleCommentService).createComment(eq(request), eq("article-1"));
+    }
+
+    @Test
+    void createComment_legacyWithUserId_shouldReturnCommentResponse() {
         ArticleCommentCreationRequest request =
                 ArticleCommentCreationRequest.builder().content("Test comment").build();
         ArticleCommentResponse response =
