@@ -15,5 +15,5 @@ public class LessonUpdateRequest {
     String title;
     String mediaUrl;
     String meetingUrl;
-    Instant startsAt;
+    Instant endsAt;
 }

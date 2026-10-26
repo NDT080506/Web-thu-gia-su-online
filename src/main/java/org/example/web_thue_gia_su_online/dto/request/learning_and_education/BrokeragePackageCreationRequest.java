@@ -17,11 +17,8 @@ public class BrokeragePackageCreationRequest {
     String name;
 
     @NotNull
-    Long price;
+    long price;
 
-    @Builder.Default
-    Integer platformFeePercent = 10;
-
-    @Builder.Default
-    Boolean isActive = true;
+    @NotNull
+    int platformFeePercent;
 }

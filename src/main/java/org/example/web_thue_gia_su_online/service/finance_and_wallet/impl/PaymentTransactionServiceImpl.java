@@ -3,17 +3,22 @@ package org.example.web_thue_gia_su_online.service.finance_and_wallet.impl;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.PaymentTransactionCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
+import org.example.web_thue_gia_su_online.exception.AppException;
+import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.finance_and_wallet.PaymentTransactionMapper;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentTransactionService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +38,26 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     BookingRepository bookingRepository;
     PaymentTransactionMapper paymentTransactionMapper;
 
+    private String getCurrentUserId() {
+        return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
+                .getName();
+    }
+
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
     public PaymentTransactionResponse createTransaction(PaymentTransactionCreationRequest request) {
         Wallet sourceWallet = null;
         if (request.getSourceWalletId() != null && !request.getSourceWalletId().isBlank()) {
             sourceWallet = walletRepository
                     .findById(request.getSourceWalletId())
-                    .orElseThrow(() -> new RuntimeException("Source wallet not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+
+            // Kiểm tra số dư đủ
+            if (sourceWallet.getAvailableBalance() < request.getAmount()) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+
             sourceWallet.setAvailableBalance(sourceWallet.getAvailableBalance() - request.getAmount());
             sourceWallet.setUpdatedAt(Instant.now());
             walletRepository.save(sourceWallet);
@@ -51,7 +68,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
                 && !request.getDestinationWalletId().isBlank()) {
             destinationWallet = walletRepository
                     .findById(request.getDestinationWalletId())
-                    .orElseThrow(() -> new RuntimeException("Destination wallet not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
             destinationWallet.setAvailableBalance(destinationWallet.getAvailableBalance() + request.getAmount());
             destinationWallet.setUpdatedAt(Instant.now());
             walletRepository.save(destinationWallet);
@@ -81,15 +98,17 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
     public PaymentTransactionResponse getTransaction(String id) {
-        PaymentTransaction transaction = paymentTransactionRepository
-                .findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
-
+        PaymentTransaction transaction =
+                paymentTransactionRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
         return paymentTransactionMapper.toPaymentTransactionResponse(transaction);
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
     public List<PaymentTransactionResponse> getTransactionsByWallet(String walletId) {
         List<PaymentTransaction> results = new ArrayList<>();
         results.addAll(paymentTransactionRepository.findBySourceWalletId(walletId));
@@ -101,6 +120,8 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
     public List<PaymentTransactionResponse> getTransactionsByBooking(String bookingId) {
         return paymentTransactionRepository.findByBookingId(bookingId).stream()
                 .map(paymentTransactionMapper::toPaymentTransactionResponse)
@@ -108,6 +129,8 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<PaymentTransactionResponse> getTransactions() {
         return paymentTransactionRepository.findAll().stream()
                 .map(paymentTransactionMapper::toPaymentTransactionResponse)

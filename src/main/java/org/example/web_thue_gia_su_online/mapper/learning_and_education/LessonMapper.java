@@ -13,7 +13,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface LessonMapper {
 
-    @Mapping(target = "course.id", source = "courseId")
     Lesson toEntity(LessonCreationRequest request);
 
     @Mapping(target = "courseId", source = "course.id")

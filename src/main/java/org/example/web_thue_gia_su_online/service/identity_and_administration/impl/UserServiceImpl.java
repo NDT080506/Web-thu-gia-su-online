@@ -1,6 +1,5 @@
 package org.example.web_thue_gia_su_online.service.identity_and_administration.impl;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,7 +8,6 @@ import org.example.web_thue_gia_su_online.dto.request.identity_and_administratio
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateStatusRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.WalletType;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.identity_and_administration.UserMapper;
@@ -54,15 +52,11 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toUser(request);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-
-        Instant now = Instant.now();
-        user.setCreatedAt(now);
-        user.setUpdatedAt(now);
         user.setEmailVerifiedAt(null);
 
         try {
             userRepository.save(user);
-            walletService.createWallet(user, WalletType.NORMAL);
+            // walletService.createWallet(user, WalletType.NORMAL);
             emailVerificationService.sendVerificationEmail(user);
         } catch (DataIntegrityViolationException e) {
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -102,7 +96,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userMapper.updateUser(user, request);
-        user.setUpdatedAt(Instant.now());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

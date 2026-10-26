@@ -42,6 +42,15 @@ public class TutorProfile {
     @NotNull
     Instant createdAt;
 
-    @NotNull
     Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

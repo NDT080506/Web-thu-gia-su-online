@@ -1,10 +1,7 @@
 package org.example.web_thue_gia_su_online.controller.learning_and_education;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
-import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.MessageResponse;
@@ -23,30 +20,19 @@ public class MessageController {
 
     MessageService messageService;
 
-    @PostMapping
-    public ApiResponse<MessageResponse> create(@RequestBody @Valid MessageCreationRequest request) {
-        return ApiResponse.<MessageResponse>builder()
-                .result(messageService.create(request))
-                .build();
-    }
+    // Message creation chỉ qua WebSocket (ChatWebSocketController)
+    // REST endpoint chỉ dùng cho update và delete
 
-    @GetMapping("/booking/{bookingId}")
-    public ApiResponse<List<MessageResponse>> getByBookingId(@PathVariable String bookingId) {
-        return ApiResponse.<List<MessageResponse>>builder()
-                .result(messageService.getByBookingId(bookingId))
-                .build();
-    }
-
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ApiResponse<MessageResponse> update(
-            @PathVariable Long id, @RequestBody @Valid MessageUpdateRequest request) {
+            @PathVariable String id, @RequestBody @Valid MessageUpdateRequest request) {
         return ApiResponse.<MessageResponse>builder()
                 .result(messageService.update(id, request))
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable Long id) {
+    public ApiResponse<Void> delete(@PathVariable String id) {
         messageService.delete(id);
         return ApiResponse.<Void>builder()
                 .message("Message deleted successfully")

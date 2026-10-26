@@ -14,17 +14,11 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseCreationRequest {
     @NotBlank
-    String tutorId;
-
-    @NotBlank
     String title;
 
     @NotNull
     Long price;
 
-    @Builder.Default
-    Boolean isLive = false;
-
-    @Builder.Default
-    Boolean isActive = true;
+    @NotNull
+    int platformFeePercent;
 }

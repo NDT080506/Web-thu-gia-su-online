@@ -25,9 +25,13 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.frontend-url}")
     String frontendUrl;
 
+    @NonFinal
+    @Value("${app.backend-url}")
+    String backendUrl;
+
     @Override
     public void sendVerificationEmail(String email, String token) {
-        String link = frontendUrl + "/verify-email?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+        String link = backendUrl + "/giasu/auth/verify-email?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);

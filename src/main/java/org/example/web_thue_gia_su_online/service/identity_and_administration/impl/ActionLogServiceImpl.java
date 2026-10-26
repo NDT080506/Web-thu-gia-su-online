@@ -1,6 +1,5 @@
 package org.example.web_thue_gia_su_online.service.identity_and_administration.impl;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.ActionLogCreationRequest;
@@ -45,7 +44,6 @@ public class ActionLogServiceImpl implements ActionLogService {
         ActionLog actionLog = actionLogMapper.toEntity(request);
         actionLog.setAdmin(admin);
         actionLog.setTargetUser(targetUser);
-        actionLog.setCreatedAt(Instant.now());
 
         return actionLogMapper.toResponse(actionLogRepository.save(actionLog));
     }

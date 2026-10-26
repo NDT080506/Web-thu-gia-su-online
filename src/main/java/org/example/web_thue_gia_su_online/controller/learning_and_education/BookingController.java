@@ -5,7 +5,6 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.BookingResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BookingService;
@@ -23,10 +22,17 @@ public class BookingController {
 
     BookingService bookingService;
 
-    @PostMapping
+    @PostMapping("/me")
     public ApiResponse<BookingResponse> create(@RequestBody @Valid BookingCreationRequest request) {
         return ApiResponse.<BookingResponse>builder()
                 .result(bookingService.create(request))
+                .build();
+    }
+
+    @GetMapping("/me")
+    public ApiResponse<List<BookingResponse>> getByMyId() {
+        return ApiResponse.<List<BookingResponse>>builder()
+                .result(bookingService.getByMyId())
                 .build();
     }
 
@@ -34,6 +40,20 @@ public class BookingController {
     public ApiResponse<BookingResponse> getById(@PathVariable String id) {
         return ApiResponse.<BookingResponse>builder()
                 .result(bookingService.getById(id))
+                .build();
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ApiResponse<BookingResponse> cancelBooking(@PathVariable String id) {
+        return ApiResponse.<BookingResponse>builder()
+                .result(bookingService.update(id))
+                .build();
+    }
+
+    @GetMapping("/tutor")
+    public ApiResponse<List<BookingResponse>> getByTutorId() {
+        return ApiResponse.<List<BookingResponse>>builder()
+                .result(bookingService.getByTutorId())
                 .build();
     }
 
@@ -48,14 +68,6 @@ public class BookingController {
     public ApiResponse<List<BookingResponse>> getByTutorId(@PathVariable String tutorId) {
         return ApiResponse.<List<BookingResponse>>builder()
                 .result(bookingService.getByTutorId(tutorId))
-                .build();
-    }
-
-    @PutMapping("/{id}")
-    public ApiResponse<BookingResponse> update(
-            @PathVariable String id, @RequestBody @Valid BookingUpdateRequest request) {
-        return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.update(id, request))
                 .build();
     }
 }

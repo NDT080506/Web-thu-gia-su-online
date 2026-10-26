@@ -1,7 +1,6 @@
 package org.example.web_thue_gia_su_online.entity.identity_and_administration;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -40,7 +39,7 @@ public class ActionLog {
     @Column(length = 50)
     String targetType;
 
-    UUID targetId;
+    String targetId;
 
     @Column(length = 100)
     String actionCode;
@@ -56,4 +55,9 @@ public class ActionLog {
 
     @NotNull
     Instant createdAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
 }

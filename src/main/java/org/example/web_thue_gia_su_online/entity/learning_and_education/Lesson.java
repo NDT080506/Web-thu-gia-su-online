@@ -36,8 +36,24 @@ public class Lesson {
     @Column(length = 500)
     String meetingUrl;
 
+    @Column(name = "lesson_order", nullable = false)
+    Integer lessonOrder;
+
     Instant startsAt;
+    Instant endsAt;
 
     @NotNull
     Instant createdAt;
+
+    Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

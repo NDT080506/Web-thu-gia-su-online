@@ -39,4 +39,9 @@ public class EmailVerificationToken {
     @Builder.Default
     @Column(name = "created_at", nullable = false)
     Instant createdAt = Instant.now();
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
 }

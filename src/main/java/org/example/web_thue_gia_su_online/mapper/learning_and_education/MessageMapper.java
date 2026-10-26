@@ -9,11 +9,10 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface MessageMapper {
 
-    @Mapping(target = "booking.id", source = "bookingId")
-    @Mapping(target = "sender.id", source = "senderId")
+    @Mapping(target = "conversation.id", source = "conversationId")
     Message toEntity(MessageCreationRequest request);
 
-    @Mapping(target = "bookingId", source = "booking.id")
+    @Mapping(target = "conversationId", source = "conversation.id")
     @Mapping(target = "senderId", source = "sender.id")
     MessageResponse toResponse(Message entity);
 

@@ -1,19 +1,24 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseEnrollmentCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseEnrollmentUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseEnrollmentResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
+import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
+import org.example.web_thue_gia_su_online.exception.AppException;
+import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseEnrollmentMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseEnrollmentService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,53 +38,88 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     CourseRepository courseRepository;
     CourseEnrollmentMapper courseEnrollmentMapper;
 
+    private String getCurrentUserId() {
+        return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
+                .getName();
+    }
+
     @Override
     @Transactional
+    @PreAuthorize("hasRole('STUDENT')")
     public CourseEnrollmentResponse enrollCourse(CourseEnrollmentCreationRequest request) {
-        User student = userRepository
-                .findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found: " + request.getStudentId()));
+        // 1. Lấy studentId từ JWT
+        String studentId = getCurrentUserId();
+        User student = userRepository.findById(studentId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        // 2. Kiểm tra course tồn tại và đang active
         Course course = courseRepository
                 .findById(request.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found: " + request.getCourseId()));
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
 
+        if (!course.isActive()) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 3. Không cho phép đăng ký trùng
         courseEnrollmentRepository
                 .findByStudentIdAndCourseId(student.getId(), course.getId())
                 .ifPresent(existing -> {
-                    throw new RuntimeException("Student is already enrolled in this course");
+                    throw new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND);
                 });
 
-        Instant now = Instant.now();
+        // 4. Tính giá từ course price, không tin client
+        long totalPrice = course.getPrice();
+        long platformFee = totalPrice * course.getPlatformFeePercent() / 100;
+        long tutorIncome = totalPrice - platformFee;
+
         CourseEnrollment enrollment = CourseEnrollment.builder()
                 .student(student)
                 .course(course)
-                .pricePaid(request.getPricePaid())
-                .status("active")
-                .progressPercent(0)
-                .createdAt(now)
+                .totalPrice(totalPrice)
+                .platformFee(platformFee)
+                .tutorIncome(tutorIncome)
+                .status(EnrollmentStatus.PENDING)
                 .build();
 
         return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public CourseEnrollmentResponse getEnrollment(String id) {
         CourseEnrollment enrollment = courseEnrollmentRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Enrollment not found: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
         return courseEnrollmentMapper.toResponse(enrollment);
     }
 
     @Override
-    public List<CourseEnrollmentResponse> getEnrollmentsByStudent(String studentId) {
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('STUDENT')")
+    public List<CourseEnrollmentResponse> getEnrollmentsByStudent() {
+        String studentId = getCurrentUserId();
         return courseEnrollmentRepository.findByStudentId(studentId).stream()
                 .map(courseEnrollmentMapper::toResponse)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
     public List<CourseEnrollmentResponse> getEnrollmentsByCourse(String courseId) {
+        // Tutor chỉ được xem enrollment của course mình sở hữu
+        String currentUserId = getCurrentUserId();
+        Course course = courseRepository
+                .findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+
+        // Nếu là tutor, kiểm tra ownership
+        boolean isOwner = course.getTutor().getId().equals(currentUserId);
+        if (!isOwner) {
+            throw new AccessDeniedException("Bạn không có quyền xem enrollment của khóa học này");
+        }
+
         return courseEnrollmentRepository.findByCourseId(courseId).stream()
                 .map(courseEnrollmentMapper::toResponse)
                 .toList();
@@ -87,26 +127,29 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
 
     @Override
     @Transactional
-    public CourseEnrollmentResponse updateEnrollment(String id, CourseEnrollmentUpdateRequest request) {
+    @PreAuthorize("hasRole('STUDENT')")
+    public CourseEnrollmentResponse updateEnrollment(String id) {
         CourseEnrollment enrollment = courseEnrollmentRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Enrollment not found: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
 
-        courseEnrollmentMapper.updateEntity(enrollment, request);
-        if (enrollment.getProgressPercent() >= 100 && enrollment.getCompletedAt() == null) {
-            enrollment.setCompletedAt(Instant.now());
-            enrollment.setStatus("completed");
+        // Resource-level authorization
+        String currentUserId = getCurrentUserId();
+        if (!enrollment.getStudent().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Bạn không có quyền hủy enrollment này");
         }
 
+        enrollment.setStatus(EnrollmentStatus.CANCELLED);
         return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
     }
 
     @Override
     @Transactional
-    public void cancelEnrollment(String id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteEnrollment(String id) {
         CourseEnrollment enrollment = courseEnrollmentRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Enrollment not found: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
         courseEnrollmentRepository.delete(enrollment);
     }
 }

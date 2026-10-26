@@ -13,10 +13,7 @@ import org.example.web_thue_gia_su_online.entity.authentication.InvalidatedToken
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentMethod;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
-import org.example.web_thue_gia_su_online.entity.learning_and_education.Message;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.*;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
 import org.example.web_thue_gia_su_online.enums.AccountStatus;
@@ -69,61 +66,81 @@ public class User {
     @Column(columnDefinition = "TEXT")
     String zaloLink;
 
+    @NotNull
     Instant createdAt;
 
-    @NotNull
     Instant updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 
     // ─── One-to-One ───────────────────────────────────────────
     @OneToOne(mappedBy = "user")
     TutorProfile tutorProfile;
 
     // ─── One-to-Many ──────────────────────────────────────────
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<InvalidatedToken> invalidatedTokens = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<PaymentMethod> paymentMethods = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<TutorApplication> tutorApplications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", orphanRemoval = true)
     @Builder.Default
     List<Booking> studentBookings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
     @Builder.Default
     List<Booking> tutorBookings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sender")
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
+    @Builder.Default
+    List<BrokeragePackage> tutorBrokeragePackages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender", orphanRemoval = true)
     @Builder.Default
     List<Message> sentMessages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
     @Builder.Default
     List<Course> courses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", orphanRemoval = true)
     @Builder.Default
     List<CourseEnrollment> courseEnrollments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", orphanRemoval = true)
     @Builder.Default
     List<Dispute> disputes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<Wallet> wallets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", orphanRemoval = true)
     @Builder.Default
     List<Article> articles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<ArticleComment> articleComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reviewer", orphanRemoval = true)
+    List<Review> writtenReviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
+    List<Review> receivedReviews = new ArrayList<>();
 }

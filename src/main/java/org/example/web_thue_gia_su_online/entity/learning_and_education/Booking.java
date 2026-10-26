@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.BookingStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -40,12 +41,10 @@ public class Booking {
     @JoinColumn(name = "tutor_id")
     User tutor;
 
-    @Column(length = 100)
-    String subject;
-
-    @Column(length = 50, nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull
     @Builder.Default
-    String status = "pending_payment";
+    BookingStatus status = BookingStatus.PENDING;
 
     @NotNull
     long totalPrice;
@@ -56,30 +55,34 @@ public class Booking {
     @NotNull
     long tutorIncome;
 
-    Instant contactUnlockedAt;
-
-    Instant studentConfirmedAt;
-
-    Integer studentRating;
-
-    @Column(columnDefinition = "TEXT")
-    String studentReview;
-
     @NotNull
     Instant createdAt;
 
-    @NotNull
     Instant updatedAt;
 
-    // ─── One-to-Many ──────────────────────────────────────────
-    @OneToMany(mappedBy = "booking")
-    @Builder.Default
-    List<Message> messages = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "conversation_id", nullable = false)
+    private Conversation conversation;
 
+    // ─── One-to-Many ──────────────────────────────────────────
+    @OneToOne(mappedBy = "booking")
+    Review review;
+
+    // ─── One-to-Many ──────────────────────────────────────────
     @OneToOne(mappedBy = "booking")
     Dispute dispute;
 
     @OneToMany(mappedBy = "booking")
     @Builder.Default
     List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

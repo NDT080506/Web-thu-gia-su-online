@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -33,17 +34,36 @@ public class CourseEnrollment {
     Course course;
 
     @NotNull
-    long pricePaid;
+    long totalPrice;
 
-    @Column(length = 50)
-    @Builder.Default
-    String status = "active";
+    @NotNull
+    long platformFee;
 
+    @NotNull
+    long tutorIncome;
+
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    int progressPercent = 0;
+    EnrollmentStatus status = EnrollmentStatus.PENDING;
 
     Instant completedAt;
 
     @NotNull
     Instant createdAt;
+
+    Instant updatedAt;
+
+    // ─── One-to-One ──────────────────────────────────────────
+    @OneToOne(mappedBy = "enrollment")
+    private Review review;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }
