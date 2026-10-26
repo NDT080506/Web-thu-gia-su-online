@@ -43,9 +43,8 @@ public class LessonServiceImpl implements LessonService {
 
     private void verifyCourseOwner(String courseId) {
         String currentUserId = getCurrentUserId();
-        Course course = courseRepository
-                .findById(courseId)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        Course course =
+                courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         // ADMIN được phép, TUTOR phải là chủ sở hữu
         if (!course.getTutor().getId().equals(currentUserId)) {
@@ -57,9 +56,8 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
     public LessonResponse createLesson(LessonCreationRequest request, String courseId) {
-        Course course = courseRepository
-                .findById(courseId)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        Course course =
+                courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         // Kiểm tra ownership — chỉ tutor sở hữu course mới được tạo lesson
         String currentUserId = getCurrentUserId();
@@ -87,9 +85,7 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
     public LessonResponse updateLesson(String id, LessonUpdateRequest request) {
-        Lesson lesson = lessonRepository
-                .findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+        Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
         // Kiểm tra ownership
         verifyCourseOwner(lesson.getCourse().getId());
@@ -102,9 +98,7 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
     public void deleteLesson(String id) {
-        Lesson lesson = lessonRepository
-                .findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+        Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
         // Kiểm tra ownership
         verifyCourseOwner(lesson.getCourse().getId());
