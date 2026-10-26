@@ -14,4 +14,5 @@ public class ArticleUpdateRequest {
     String title;
     String content;
     Boolean isPublished;
+    Integer minRoleLevel;
 }

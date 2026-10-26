@@ -40,7 +40,7 @@ public class ArticleComment {
     @JoinColumn(name = "parent_id")
     ArticleComment parent;
 
-    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     List<ArticleComment> replies = new ArrayList<>();
 

@@ -32,7 +32,9 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND(1019, "Message not found", HttpStatus.NOT_FOUND),
     CONVERSATION_NOT_FOUND(1020, "Conversation not found", HttpStatus.NOT_FOUND),
     COURSE_NOT_FOUND(1021, "Course not found", HttpStatus.NOT_FOUND),
-    LESSON_NOT_FOUND(1022, "Lesson not found", HttpStatus.NOT_FOUND);
+    LESSON_NOT_FOUND(1022, "Lesson not found", HttpStatus.NOT_FOUND),
+    ARTICLE_NOT_FOUND(1023, "Article not found", HttpStatus.NOT_FOUND),
+    COMMENT_NOT_FOUND(1024, "Comment not found", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

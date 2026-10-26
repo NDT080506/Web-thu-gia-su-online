@@ -57,7 +57,9 @@ public class Article {
 
     @PrePersist
     void onCreate() {
-        createdAt = Instant.now();
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
     }
 
     @PreUpdate
@@ -65,7 +67,7 @@ public class Article {
         updatedAt = Instant.now();
     }
 
-    @OneToMany(mappedBy = "article", orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     List<ArticleComment> comments = new ArrayList<>();
 }
