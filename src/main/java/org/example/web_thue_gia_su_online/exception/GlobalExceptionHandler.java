@@ -3,6 +3,7 @@ package org.example.web_thue_gia_su_online.exception;
 import java.util.Map;
 import java.util.Objects;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
@@ -23,6 +24,7 @@ public class GlobalExceptionHandler {
     // Exception handling
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse<Void>> handlingRunTimeException(RuntimeException exception) {
+        log.error("Unhandled exception: {}", exception.getMessage(), exception);
         ApiResponse<Void> apiResponse = new ApiResponse<>();
 
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
@@ -62,6 +64,33 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(errorCode.getMessage());
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
+    // Bắt EntityNotFoundException (dùng trong ConversationService)
+    @ExceptionHandler(value = EntityNotFoundException.class)
+    ResponseEntity<ApiResponse<Void>> handlingEntityNotFoundException(EntityNotFoundException exception) {
+        ApiResponse<Void> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(ErrorCode.USER_NOT_FOUND.getCode());
+        apiResponse.setMessage(exception.getMessage());
+        return ResponseEntity.status(ErrorCode.USER_NOT_FOUND.getStatusCode()).body(apiResponse);
+    }
+
+    // Bắt IllegalArgumentException
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    ResponseEntity<ApiResponse<Void>> handlingIllegalArgumentException(IllegalArgumentException exception) {
+        ApiResponse<Void> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(ErrorCode.INVALID_KEY.getCode());
+        apiResponse.setMessage(exception.getMessage());
+        return ResponseEntity.status(ErrorCode.INVALID_KEY.getStatusCode()).body(apiResponse);
+    }
+
+    // Bắt IllegalStateException
+    @ExceptionHandler(value = IllegalStateException.class)
+    ResponseEntity<ApiResponse<Void>> handlingIllegalStateException(IllegalStateException exception) {
+        ApiResponse<Void> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(ErrorCode.INVALID_KEY.getCode());
+        apiResponse.setMessage(exception.getMessage());
+        return ResponseEntity.status(ErrorCode.INVALID_KEY.getStatusCode()).body(apiResponse);
     }
 
     // Invalid Handling

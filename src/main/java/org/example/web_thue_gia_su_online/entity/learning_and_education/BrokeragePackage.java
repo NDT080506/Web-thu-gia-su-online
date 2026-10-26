@@ -7,6 +7,8 @@ import java.util.List;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -24,7 +26,6 @@ public class BrokeragePackage {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @NotNull
     @Column(nullable = false, length = 255)
     String name;
 
@@ -35,7 +36,8 @@ public class BrokeragePackage {
     int platformFeePercent;
 
     @NotNull
-    boolean isActive;
+    @Column(name = "is_active")
+    boolean active;
 
     @NotNull
     Instant createdAt;
@@ -45,6 +47,10 @@ public class BrokeragePackage {
     @OneToMany(mappedBy = "brokeragePackage")
     @Builder.Default
     List<Booking> bookings = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tutor_id")
+    User tutor;
 
     @PrePersist
     void onCreate() {

@@ -26,7 +26,8 @@ public class LessonController {
     LessonService lessonService;
 
     @PostMapping("/courses/{courseId}")
-    ApiResponse<LessonResponse> createLesson(@RequestBody @Valid LessonCreationRequest request, @PathVariable String courseId) {
+    ApiResponse<LessonResponse> createLesson(
+            @RequestBody @Valid LessonCreationRequest request, @PathVariable String courseId) {
         return ApiResponse.<LessonResponse>builder()
                 .result(lessonService.createLesson(request, courseId))
                 .build();

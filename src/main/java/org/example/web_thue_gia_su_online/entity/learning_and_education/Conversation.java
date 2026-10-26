@@ -3,9 +3,11 @@ package org.example.web_thue_gia_su_online.entity.learning_and_education;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import jakarta.persistence.*;
+
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.ConversationStatus;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,23 +16,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.ConversationStatus;
 
 @Entity
 @Table(
         name = "conversations",
         indexes = {
-                @Index(
-                        name = "idx_conversations_student_updated",
-                        columnList = "student_id, updated_at"
-                ),
-                @Index(
-                        name = "idx_conversations_tutor_updated",
-                        columnList = "tutor_id, updated_at"
-                )
-        }
-)
+            @Index(name = "idx_conversations_student_updated", columnList = "student_id, updated_at"),
+            @Index(name = "idx_conversations_tutor_updated", columnList = "tutor_id, updated_at")
+        })
 @Getter
 @Setter
 @Builder

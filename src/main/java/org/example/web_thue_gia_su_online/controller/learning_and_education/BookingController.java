@@ -5,7 +5,6 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.BookingResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BookingService;
@@ -19,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class  BookingController {
+public class BookingController {
 
     BookingService bookingService;
 
@@ -45,13 +44,11 @@ public class  BookingController {
     }
 
     @PatchMapping("/{id}/cancel")
-    public ApiResponse<BookingResponse> cancelBooking(
-            @PathVariable String id) {
+    public ApiResponse<BookingResponse> cancelBooking(@PathVariable String id) {
         return ApiResponse.<BookingResponse>builder()
                 .result(bookingService.update(id))
                 .build();
     }
-
 
     @GetMapping("/tutor")
     public ApiResponse<List<BookingResponse>> getByTutorId() {

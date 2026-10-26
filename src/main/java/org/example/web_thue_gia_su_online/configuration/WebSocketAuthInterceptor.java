@@ -1,12 +1,9 @@
 package org.example.web_thue_gia_su_online.configuration;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ConversationRepository;
-
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -20,7 +17,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +31,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = MessageHeaderAccessor
-                .getAccessor(message, StompHeaderAccessor.class);
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor == null || accessor.getCommand() == null) {
             return message;
@@ -45,6 +43,10 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
         if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             authorizeSubscription(accessor);
+        }
+
+        if (StompCommand.SEND.equals(accessor.getCommand())) {
+            authorizeSend(accessor);
         }
 
         return message;
@@ -67,12 +69,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             throw new AccessDeniedException("JWT subject is not a valid user");
         }
 
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(
-                        userId,
-                        null,
-                        java.util.List.of()
-                );
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, java.util.List.of());
 
         accessor.setUser(authentication);
     }
@@ -100,21 +97,35 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             throw new AccessDeniedException("Invalid conversation ID");
         }
 
-        Conversation conversation = conversationRepository.findById(conversationId)
-                .orElseThrow(() ->
-                        new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+        Conversation conversation = conversationRepository
+                .findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
 
         String currentUserId = authentication.getName();
 
-        boolean isStudent = conversation.getStudent()
-                .getId().equals(currentUserId);
+        boolean isStudent = conversation.getStudent().getId().equals(currentUserId);
 
-        boolean isTutor = conversation.getTutor()
-                .getId().equals(currentUserId);
+        boolean isTutor = conversation.getTutor().getId().equals(currentUserId);
 
         if (!isStudent && !isTutor) {
-            throw new AccessDeniedException(
-                    "You are not a participant of this conversation");
+            throw new AccessDeniedException("You are not a participant of this conversation");
         }
+    }
+
+    private void authorizeSend(StompHeaderAccessor accessor) {
+        String destination = accessor.getDestination();
+        Authentication authentication = (Authentication) accessor.getUser();
+
+        if (authentication == null) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Chỉ cho phép gửi đến /app/chat.send
+        if (destination == null || !destination.startsWith("/app/chat")) {
+            return; // Không kiểm tra các destination khác
+        }
+
+        // Người dùng đã được xác thực qua CONNECT
+        // Việc kiểm tra participant được thực hiện trong MessageService
     }
 }

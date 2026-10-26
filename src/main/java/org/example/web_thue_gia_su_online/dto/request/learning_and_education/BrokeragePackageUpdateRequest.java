@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BrokeragePackageUpdateRequest {
     String name;
-    Long price;
-    Integer platformFeePercent;
-    Boolean isActive;
+    long price;
+    int platformFeePercent;
+    boolean active;
 }

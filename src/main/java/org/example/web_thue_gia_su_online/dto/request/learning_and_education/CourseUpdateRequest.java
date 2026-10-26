@@ -1,7 +1,5 @@
 package org.example.web_thue_gia_su_online.dto.request.learning_and_education;
 
-import java.time.Instant;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,6 +9,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CourseEnrollmentUpdateRequest {
-    String status;
+public class CourseUpdateRequest {
+    String title;
+    long price;
+    int platformFeePercent;
+    boolean active;
 }

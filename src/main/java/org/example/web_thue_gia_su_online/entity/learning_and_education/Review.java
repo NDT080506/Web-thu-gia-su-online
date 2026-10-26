@@ -1,26 +1,20 @@
 package org.example.web_thue_gia_su_online.entity.learning_and_education;
 
+import java.time.Instant;
 
 import jakarta.persistence.*;
-import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import lombok.*;
 
-import java.time.Instant;
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+
+import lombok.*;
 
 @Entity
 @Table(
         name = "reviews",
         indexes = {
-                @Index(
-                        name = "idx_reviews_tutor_created",
-                        columnList = "tutor_id, created_at"
-                ),
-                @Index(
-                        name = "idx_reviews_reviewer_created",
-                        columnList = "reviewer_id, created_at"
-                )
-        }
-)
+            @Index(name = "idx_reviews_tutor_created", columnList = "tutor_id, created_at"),
+            @Index(name = "idx_reviews_reviewer_created", columnList = "reviewer_id, created_at")
+        })
 @Getter
 @Setter
 @Builder
@@ -55,16 +49,11 @@ public class Review {
     @Column(name = "comment", columnDefinition = "text")
     String comment;
 
-    @Column(
-            name = "created_at",
-            nullable = false,
-            updatable = false
-    )
+    @Column(name = "created_at", nullable = false, updatable = false)
     Instant createdAt;
 
     @Column(name = "updated_at")
     Instant updatedAt;
-
 
     @PrePersist
     void onCreate() {

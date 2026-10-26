@@ -37,22 +37,23 @@ public class Course {
     @NotNull
     long price;
 
-    @Builder.Default
-    boolean isLive = false;
+    @NotNull
+    int platformFeePercent;
 
-    @Builder.Default
-    boolean isActive = true;
+    @NotNull
+    @Column(name = "is_active")
+    boolean active;
 
     @NotNull
     Instant createdAt;
 
     Instant updatedAt;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", orphanRemoval = true)
     @Builder.Default
     List<Lesson> lessons = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", orphanRemoval = true)
     @Builder.Default
     List<CourseEnrollment> enrollments = new ArrayList<>();
 

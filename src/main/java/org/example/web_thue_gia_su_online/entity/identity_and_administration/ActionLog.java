@@ -1,7 +1,6 @@
 package org.example.web_thue_gia_su_online.entity.identity_and_administration;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

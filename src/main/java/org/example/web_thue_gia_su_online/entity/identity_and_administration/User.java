@@ -86,59 +86,61 @@ public class User {
     TutorProfile tutorProfile;
 
     // ─── One-to-Many ──────────────────────────────────────────
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<InvalidatedToken> invalidatedTokens = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<PaymentMethod> paymentMethods = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<TutorApplication> tutorApplications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", orphanRemoval = true)
     @Builder.Default
     List<Booking> studentBookings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
     @Builder.Default
     List<Booking> tutorBookings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sender")
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
+    @Builder.Default
+    List<BrokeragePackage> tutorBrokeragePackages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender", orphanRemoval = true)
     @Builder.Default
     List<Message> sentMessages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
     @Builder.Default
     List<Course> courses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", orphanRemoval = true)
     @Builder.Default
     List<CourseEnrollment> courseEnrollments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", orphanRemoval = true)
     @Builder.Default
     List<Dispute> disputes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<Wallet> wallets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", orphanRemoval = true)
     @Builder.Default
     List<Article> articles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
     List<ArticleComment> articleComments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "reviewer")
+    @OneToMany(mappedBy = "reviewer", orphanRemoval = true)
     List<Review> writtenReviews = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
     List<Review> receivedReviews = new ArrayList<>();
-
-
 }

@@ -19,9 +19,6 @@ public class CourseCreationRequest {
     @NotNull
     Long price;
 
-    @Builder.Default
-    Boolean isLive = false;
-
-    @Builder.Default
-    Boolean isActive = true;
+    @NotNull
+    int platformFeePercent;
 }

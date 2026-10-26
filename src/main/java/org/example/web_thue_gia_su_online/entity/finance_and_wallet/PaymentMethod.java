@@ -1,13 +1,13 @@
 package org.example.web_thue_gia_su_online.entity.finance_and_wallet;
 
+import java.time.Instant;
+
 import jakarta.persistence.*;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Entity
 @Table(name = "payment_method", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "account_number"}))
@@ -41,7 +41,6 @@ public class PaymentMethod {
 
     @NonNull
     Instant createdAt;
-
 
     Instant updatedAt;
 

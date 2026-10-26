@@ -6,10 +6,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 
 @Entity
 @Table(name = "course_enrollments", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "course_id"}))
@@ -34,7 +34,13 @@ public class CourseEnrollment {
     Course course;
 
     @NotNull
-    long pricePaid;
+    long totalPrice;
+
+    @NotNull
+    long platformFee;
+
+    @NotNull
+    long tutorIncome;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

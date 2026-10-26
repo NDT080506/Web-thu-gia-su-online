@@ -16,7 +16,6 @@ public class CourseResponse {
     String tutorId;
     String title;
     long price;
-    boolean isLive;
     boolean isActive;
     Instant createdAt;
 }

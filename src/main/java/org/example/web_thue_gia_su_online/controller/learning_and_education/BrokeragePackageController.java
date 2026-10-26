@@ -30,14 +30,14 @@ public class BrokeragePackageController {
                 .build();
     }
 
-    @GetMapping("/admin/{id}")
+    @GetMapping("/{id}")
     public ApiResponse<BrokeragePackageResponse> getById(@PathVariable String id) {
         return ApiResponse.<BrokeragePackageResponse>builder()
                 .result(packageService.getById(id))
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("/admin/get-all")
     public ApiResponse<List<BrokeragePackageResponse>> getAll() {
         return ApiResponse.<List<BrokeragePackageResponse>>builder()
                 .result(packageService.getAll())

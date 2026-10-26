@@ -10,10 +10,10 @@ import jakarta.validation.constraints.NotNull;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.BookingStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.example.web_thue_gia_su_online.enums.BookingStatus;
 
 @Entity
 @Table(name = "bookings")
@@ -41,9 +41,6 @@ public class Booking {
     @JoinColumn(name = "tutor_id")
     User tutor;
 
-    @Column(length = 100)
-    String subject;
-
     @Enumerated(EnumType.STRING)
     @NotNull
     @Builder.Default
@@ -57,10 +54,6 @@ public class Booking {
 
     @NotNull
     long tutorIncome;
-
-    Instant contactUnlockedAt;
-
-    Instant studentConfirmedAt;
 
     @NotNull
     Instant createdAt;
@@ -82,7 +75,6 @@ public class Booking {
     @OneToMany(mappedBy = "booking")
     @Builder.Default
     List<PaymentTransaction> paymentTransactions = new ArrayList<>();
-
 
     @PrePersist
     void onCreate() {

@@ -30,7 +30,9 @@ public enum ErrorCode {
     COURSE_ENROLLMENT_NOT_FOUND(1017, "Course enrollment not found", HttpStatus.NOT_FOUND),
     REVIEW_NOT_FOUND(1018, "Review not found", HttpStatus.NOT_FOUND),
     MESSAGE_NOT_FOUND(1019, "Message not found", HttpStatus.NOT_FOUND),
-    CONVERSATION_NOT_FOUND(1020, "Conversation not found", HttpStatus.NOT_FOUND);
+    CONVERSATION_NOT_FOUND(1020, "Conversation not found", HttpStatus.NOT_FOUND),
+    COURSE_NOT_FOUND(1021, "Course not found", HttpStatus.NOT_FOUND),
+    LESSON_NOT_FOUND(1022, "Lesson not found", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

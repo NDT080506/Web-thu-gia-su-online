@@ -16,13 +16,10 @@ public class BookingResponse {
     String packageId;
     String studentId;
     String tutorId;
-    String subject;
     String status;
     long totalPrice;
     long platformFee;
     long tutorIncome;
-    Instant contactUnlockedAt;
-    Instant studentConfirmedAt;
     Instant createdAt;
     Instant updatedAt;
 }
