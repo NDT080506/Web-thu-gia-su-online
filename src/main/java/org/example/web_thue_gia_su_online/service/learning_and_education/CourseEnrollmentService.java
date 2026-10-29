@@ -16,5 +16,7 @@ public interface CourseEnrollmentService {
 
     CourseEnrollmentResponse updateEnrollment(String id);
 
+    CourseEnrollmentResponse completeEnrollment(String id);
+
     void deleteEnrollment(String id);
 }

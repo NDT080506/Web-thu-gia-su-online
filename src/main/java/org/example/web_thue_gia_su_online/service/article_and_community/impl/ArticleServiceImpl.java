@@ -2,6 +2,7 @@ package org.example.web_thue_gia_su_online.service.article_and_community.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.article_and_community.ArticleCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.article_and_community.ArticleUpdateRequest;
@@ -15,6 +16,7 @@ import org.example.web_thue_gia_su_online.mapper.article_and_community.ArticleMa
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,11 +37,16 @@ public class ArticleServiceImpl implements ArticleService {
     UserRepository userRepository;
     ArticleMapper articleMapper;
 
+    private String getCurrentUserId() {
+        return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
+                .getName();
+    }
+
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     public ArticleResponse createArticle(ArticleCreationRequest request) {
-        String currentUserId =
-                SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUserId = getCurrentUserId();
         User author =
                 userRepository.findById(currentUserId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -109,9 +116,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public List<ArticleResponse> getMyArticles() {
-        String currentUserId =
-                SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUserId = getCurrentUserId();
         return articleRepository.findByAuthorIdOrderByCreatedAtDesc(currentUserId).stream()
                 .map(articleMapper::toArticleResponse)
                 .toList();
@@ -119,12 +126,12 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public ArticleResponse updateArticle(ArticleUpdateRequest request, String id) {
         Article article =
                 articleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        String currentUserId =
-                SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUserId = getCurrentUserId();
         User currentUser =
                 userRepository.findById(currentUserId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -143,6 +150,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public void deleteArticle(String id) {
         Article article =
                 articleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ARTICLE_NOT_FOUND));
@@ -163,11 +171,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private int getCurrentUserRoleLevel() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
-            return 0;
-        }
-        String userId = auth.getName();
+
+        String userId = getCurrentUserIdOrNull();
+        assert userId != null;
         return userRepository
                 .findById(userId)
                 .map(user -> switch (user.getRole()) {

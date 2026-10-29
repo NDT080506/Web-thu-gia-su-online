@@ -36,17 +36,24 @@ public class BookingController {
                 .build();
     }
 
-    @GetMapping("/{id}")
-    public ApiResponse<BookingResponse> getById(@PathVariable String id) {
+    @GetMapping("/{bookingId}")
+    public ApiResponse<BookingResponse> getById(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.getById(id))
+                .result(bookingService.getById(bookingId))
                 .build();
     }
 
-    @PatchMapping("/{id}/cancel")
-    public ApiResponse<BookingResponse> cancelBooking(@PathVariable String id) {
+    @PatchMapping("/{bookingId}/cancel")
+    public ApiResponse<BookingResponse> cancelBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.update(id))
+                .result(bookingService.cancelBooking(bookingId))
+                .build();
+    }
+
+    @PatchMapping("/{bookingId}/complete")
+    public ApiResponse<BookingResponse> completeBooking(@PathVariable String bookingId) {
+        return ApiResponse.<BookingResponse>builder()
+                .result(bookingService.completeBooking(bookingId))
                 .build();
     }
 

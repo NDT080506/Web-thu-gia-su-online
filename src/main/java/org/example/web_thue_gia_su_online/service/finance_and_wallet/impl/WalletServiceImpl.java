@@ -32,7 +32,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public Wallet createWallet(User user, WalletType type) {
 
-        if (user != null && walletRepository.existsByUserIdAndType(user.getId(), type)) {
+        if (user != null && walletRepository.existsByUser_IdAndType(user.getId(), type)) {
             throw new RuntimeException("User đã có ví loại này");
         }
 

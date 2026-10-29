@@ -47,6 +47,8 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers("/ws", "/ws/**")
                 .permitAll()
+                .requestMatchers("/mock-payment/**")
+                .permitAll()
                 .anyRequest()
                 .authenticated());
 

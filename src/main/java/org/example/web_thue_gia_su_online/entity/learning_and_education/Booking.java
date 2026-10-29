@@ -62,7 +62,7 @@ public class Booking {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "conversation_id", nullable = false)
-    private Conversation conversation;
+    Conversation conversation;
 
     // ─── One-to-Many ──────────────────────────────────────────
     @OneToOne(mappedBy = "booking")

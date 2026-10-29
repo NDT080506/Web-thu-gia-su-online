@@ -30,6 +30,9 @@ spring:
           starttls:
             enable: true
 
+  profiles:
+    active: dev
+
 app:
   frontend-url: http://localhost:3000
   backend-url: http://localhost:8080

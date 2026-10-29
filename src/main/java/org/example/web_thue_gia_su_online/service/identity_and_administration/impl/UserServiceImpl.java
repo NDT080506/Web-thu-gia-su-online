@@ -8,6 +8,7 @@ import org.example.web_thue_gia_su_online.dto.request.identity_and_administratio
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateStatusRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.WalletType;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.identity_and_administration.UserMapper;
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(user);
-            // walletService.createWallet(user, WalletType.NORMAL);
+            walletService.createWallet(user, WalletType.NORMAL);
             emailVerificationService.sendVerificationEmail(user);
         } catch (DataIntegrityViolationException e) {
             throw new AppException(ErrorCode.USER_EXISTED);

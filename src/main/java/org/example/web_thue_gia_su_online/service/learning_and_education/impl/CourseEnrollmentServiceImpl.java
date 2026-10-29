@@ -1,5 +1,6 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseEn
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
+import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseEnrollmentService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +39,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     UserRepository userRepository;
     CourseRepository courseRepository;
     CourseEnrollmentMapper courseEnrollmentMapper;
+    EscrowReleaseService escrowReleaseService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -141,6 +144,45 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
 
         enrollment.setStatus(EnrollmentStatus.CANCELLED);
         return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('TUTOR')")
+    public CourseEnrollmentResponse completeEnrollment(String enrollmentId) {
+        // 1. Lấy enrollment
+        CourseEnrollment enrollment = courseEnrollmentRepository
+                .findByIdForUpdate(enrollmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+
+        // 2. Lấy ID người đang đăng nhập
+        String currentUserId = getCurrentUserId();
+
+        // 3. Kiểm tra gia sư sở hữu khóa học
+        String tutorId = enrollment.getCourse().getTutor().getId();
+
+        if (!tutorId.equals(currentUserId)) {
+            throw new AccessDeniedException("Bạn không có quyền xác nhận hoàn thành khóa học này");
+        }
+
+        // 4. Chỉ cho phép hoàn thành enrollment đang ACTIVE
+        if (enrollment.getStatus() == EnrollmentStatus.COMPLETED) {
+            throw new AppException(ErrorCode.COURSE_ENROLLMENT_ALREADY_COMPLETED);
+        }
+
+        if (enrollment.getStatus() != EnrollmentStatus.ACTIVE) {
+            throw new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE);
+        }
+
+        // 5. Cập nhật trạng thái hoàn thành
+        enrollment.setStatus(EnrollmentStatus.COMPLETED);
+        enrollment.setCompletedAt(Instant.now());
+        courseEnrollmentRepository.save(enrollment);
+
+        // 6. Giải ngân tiền đã giữ cho enrollment
+        escrowReleaseService.releaseEnrollmentEscrow(enrollment);
+
+        return courseEnrollmentMapper.toResponse(enrollment);
     }
 
     @Override
