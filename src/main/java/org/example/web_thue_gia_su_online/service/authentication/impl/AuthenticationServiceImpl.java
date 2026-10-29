@@ -85,6 +85,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // log.info(request.getDisplayName());
         User user = userRepository
                 .findByDisplayName(request.getDisplayName())
+                .or(() -> userRepository.findByEmail(request.getDisplayName()))
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getStatus() != AccountStatus.ACTIVE) {

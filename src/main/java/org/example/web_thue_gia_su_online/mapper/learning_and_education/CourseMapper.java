@@ -12,6 +12,7 @@ public interface CourseMapper {
     Course toEntity(CourseCreationRequest request);
 
     @Mapping(target = "tutorId", source = "tutor.id")
+    @Mapping(target = "tutorName", source = "tutor.displayName")
     CourseResponse toResponse(Course entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

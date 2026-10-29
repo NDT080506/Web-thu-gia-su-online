@@ -12,7 +12,9 @@ public interface BookingMapper {
     Booking toEntity(BookingCreationRequest request);
 
     @Mapping(target = "packageId", source = "brokeragePackage.id")
+    @Mapping(target = "packageName", source = "brokeragePackage.name")
     @Mapping(target = "studentId", source = "student.id")
+    @Mapping(target = "studentName", source = "student.displayName")
     @Mapping(target = "tutorId", source = "tutor.id")
     BookingResponse toResponse(Booking entity);
 }

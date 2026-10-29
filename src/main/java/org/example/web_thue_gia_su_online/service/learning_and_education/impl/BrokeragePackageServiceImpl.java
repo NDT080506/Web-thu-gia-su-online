@@ -55,17 +55,17 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
     public BrokeragePackageResponse getById(String id) {
         BrokeragePackage pkg = repository.findById(id).orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
-
-        // Resource-level: tutor chỉ xem package của mình
-        String currentUserId = getCurrentUserId();
-        if (pkg.getTutor() != null && !pkg.getTutor().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("Bạn không có quyền xem gói dịch vụ này");
-        }
-
         return mapper.toResponse(pkg);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BrokeragePackageResponse> getByTutorId(String tutorId) {
+        return repository.findByTutorIdAndActiveTrue(tutorId).stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 
     @Override
@@ -88,21 +88,14 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
         }
 
         mapper.updateEntity(pkg, request);
-        return mapper.toResponse(repository.save(pkg));
+        repository.save(pkg);
+        return mapper.toResponse(pkg);
     }
 
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(String id) {
-        BrokeragePackage pkg = repository.findById(id).orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
-
-        // Kiểm tra ownership
-        String currentUserId = getCurrentUserId();
-        if (pkg.getTutor() != null && !pkg.getTutor().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("Bạn không có quyền xóa gói dịch vụ này");
-        }
-
         repository.deleteById(id);
     }
 }

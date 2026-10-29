@@ -7,11 +7,13 @@ import org.example.web_thue_gia_su_online.dto.request.article_and_community.Arti
 import org.example.web_thue_gia_su_online.dto.request.article_and_community.ArticleUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.article_and_community.ArticleResponse;
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
+import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.enums.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.article_and_community.ArticleMapper;
+import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleCommentRepository;
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleService;
@@ -32,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ArticleServiceImpl implements ArticleService {
 
     ArticleRepository articleRepository;
+    ArticleCommentRepository articleCommentRepository;
     UserRepository userRepository;
     ArticleMapper articleMapper;
 
@@ -128,7 +131,8 @@ public class ArticleServiceImpl implements ArticleService {
         User currentUser =
                 userRepository.findById(currentUserId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        boolean isAuthor = article.getAuthor().getId().equals(currentUserId);
+        boolean isAuthor =
+                article.getAuthor() != null && article.getAuthor().getId().equals(currentUserId);
         boolean isAdmin = currentUser.getRole() == UserRole.ADMIN;
 
         if (!isAuthor && !isAdmin) {
@@ -152,11 +156,26 @@ public class ArticleServiceImpl implements ArticleService {
         User currentUser =
                 userRepository.findById(currentUserId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        boolean isAuthor = article.getAuthor().getId().equals(currentUserId);
+        boolean isAuthor =
+                article.getAuthor() != null && article.getAuthor().getId().equals(currentUserId);
         boolean isAdmin = currentUser.getRole() == UserRole.ADMIN;
 
         if (!isAuthor && !isAdmin) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        List<ArticleComment> comments = articleCommentRepository.findByArticleId(id);
+        if (comments != null && !comments.isEmpty()) {
+            List<ArticleComment> replies =
+                    comments.stream().filter(c -> c.getParent() != null).toList();
+            if (!replies.isEmpty()) {
+                articleCommentRepository.deleteAll(replies);
+            }
+            List<ArticleComment> rootComments =
+                    comments.stream().filter(c -> c.getParent() == null).toList();
+            if (!rootComments.isEmpty()) {
+                articleCommentRepository.deleteAll(rootComments);
+            }
         }
 
         articleRepository.delete(article);

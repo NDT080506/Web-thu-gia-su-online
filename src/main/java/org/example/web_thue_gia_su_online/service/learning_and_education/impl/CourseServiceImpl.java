@@ -57,7 +57,6 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN', 'STUDENT')")
     public CourseResponse getById(String id) {
         return courseRepository
                 .findById(id)
@@ -67,14 +66,12 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN', 'STUDENT')")
     public List<CourseResponse> getCourses() {
         return courseRepository.findAll().stream().map(courseMapper::toResponse).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN', 'STUDENT')")
     public List<CourseResponse> getAllByTutorId(String tutorId) {
         return courseRepository.findAllByTutorId(tutorId).stream()
                 .map(courseMapper::toResponse)

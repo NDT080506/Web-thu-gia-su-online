@@ -55,10 +55,11 @@ public class UserServiceImpl implements UserService {
         user.setEmailVerifiedAt(null);
 
         try {
-            userRepository.save(user);
+            user = userRepository.saveAndFlush(user);
             // walletService.createWallet(user, WalletType.NORMAL);
             emailVerificationService.sendVerificationEmail(user);
         } catch (DataIntegrityViolationException e) {
+            log.error("DataIntegrityViolationException when creating user: {}", e.getMessage());
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     public UserResponse getMyUser() {
 
         String id = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())

@@ -14,5 +14,6 @@ public interface CourseEnrollmentMapper {
 
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "courseId", source = "course.id")
+    @Mapping(target = "pricePaid", source = "totalPrice")
     CourseEnrollmentResponse toResponse(CourseEnrollment entity);
 }

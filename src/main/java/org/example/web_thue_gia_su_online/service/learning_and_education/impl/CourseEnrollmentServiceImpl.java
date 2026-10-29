@@ -54,7 +54,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         // 2. Kiểm tra course tồn tại và đang active
         Course course = courseRepository
                 .findById(request.getCourseId())
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         if (!course.isActive()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
@@ -64,7 +64,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         courseEnrollmentRepository
                 .findByStudentIdAndCourseId(student.getId(), course.getId())
                 .ifPresent(existing -> {
-                    throw new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND);
+                    throw new AppException(ErrorCode.USER_EXISTED);
                 });
 
         // 4. Tính giá từ course price, không tin client
@@ -76,9 +76,11 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
                 .student(student)
                 .course(course)
                 .totalPrice(totalPrice)
+                .pricePaid(totalPrice)
+                .progressPercent(0)
                 .platformFee(platformFee)
                 .tutorIncome(tutorIncome)
-                .status(EnrollmentStatus.PENDING)
+                .status(EnrollmentStatus.ACTIVE)
                 .build();
 
         return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
@@ -88,9 +90,8 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public CourseEnrollmentResponse getEnrollment(String id) {
-        CourseEnrollment enrollment = courseEnrollmentRepository
-                .findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+        CourseEnrollment enrollment =
+                courseEnrollmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         return courseEnrollmentMapper.toResponse(enrollment);
     }
 
@@ -110,9 +111,8 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     public List<CourseEnrollmentResponse> getEnrollmentsByCourse(String courseId) {
         // Tutor chỉ được xem enrollment của course mình sở hữu
         String currentUserId = getCurrentUserId();
-        Course course = courseRepository
-                .findById(courseId)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+        Course course =
+                courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         // Nếu là tutor, kiểm tra ownership
         boolean isOwner = course.getTutor().getId().equals(currentUserId);
@@ -129,9 +129,8 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     @Transactional
     @PreAuthorize("hasRole('STUDENT')")
     public CourseEnrollmentResponse updateEnrollment(String id) {
-        CourseEnrollment enrollment = courseEnrollmentRepository
-                .findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+        CourseEnrollment enrollment =
+                courseEnrollmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         // Resource-level authorization
         String currentUserId = getCurrentUserId();
@@ -147,9 +146,8 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteEnrollment(String id) {
-        CourseEnrollment enrollment = courseEnrollmentRepository
-                .findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+        CourseEnrollment enrollment =
+                courseEnrollmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         courseEnrollmentRepository.delete(enrollment);
     }
 }

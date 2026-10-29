@@ -1,7 +1,9 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
+import java.util.List;
 import java.util.Objects;
 
+import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.MessageResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
@@ -14,6 +16,7 @@ import org.example.web_thue_gia_su_online.repository.identity_and_administration
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ConversationRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.MessageRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.MessageService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +36,7 @@ public class MessageServiceImpl implements MessageService {
     ConversationRepository conversationRepository;
     UserRepository userRepository;
     MessageMapper messageMapper;
+    SimpMessagingTemplate messagingTemplate;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -56,8 +60,6 @@ public class MessageServiceImpl implements MessageService {
             throw new AppException(ErrorCode.MESSAGE_NOT_FOUND);
         }
 
-        // senderId từ WebSocket Controller đã lấy từ Principal — an toàn
-        // Nhưng vẫn cần xác minh lại để đảm bảo
         Conversation conversation = conversationRepository
                 .findById(conversationId)
                 .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
@@ -74,6 +76,32 @@ public class MessageServiceImpl implements MessageService {
 
         Message savedMessage = messageRepository.save(message);
         return messageMapper.toResponse(savedMessage);
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
+    public MessageResponse sendMessage(MessageCreationRequest request) {
+        String senderId = getCurrentUserId();
+        MessageResponse response = createFromWebSocket(request.getConversationId(), request.getContent(), senderId);
+        messagingTemplate.convertAndSend("/topic/conversations/" + request.getConversationId(), response);
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
+    public List<MessageResponse> getMessagesByConversation(String conversationId) {
+        Conversation conversation = conversationRepository
+                .findById(conversationId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+
+        String currentUserId = getCurrentUserId();
+        checkParticipant(conversation, currentUserId);
+
+        return messageRepository.findAllByConversation_IdOrderByCreatedAtAsc(conversationId).stream()
+                .map(messageMapper::toResponse)
+                .toList();
     }
 
     @Override

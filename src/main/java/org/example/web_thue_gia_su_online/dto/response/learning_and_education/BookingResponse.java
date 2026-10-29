@@ -14,7 +14,9 @@ import lombok.experimental.FieldDefaults;
 public class BookingResponse {
     String id;
     String packageId;
+    String packageName;
     String studentId;
+    String studentName;
     String tutorId;
     String status;
     long totalPrice;

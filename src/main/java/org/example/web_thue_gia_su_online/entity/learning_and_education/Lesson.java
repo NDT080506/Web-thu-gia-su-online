@@ -50,6 +50,7 @@ public class Lesson {
     @PrePersist
     void onCreate() {
         createdAt = Instant.now();
+        updatedAt = Instant.now();
     }
 
     @PreUpdate

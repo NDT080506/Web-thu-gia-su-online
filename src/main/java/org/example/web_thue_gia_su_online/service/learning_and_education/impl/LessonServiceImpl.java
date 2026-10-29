@@ -74,7 +74,6 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN', 'STUDENT')")
     public List<LessonResponse> getLessonsByCourseId(String courseId) {
         return lessonRepository.findByCourseId(courseId).stream()
                 .map(lessonMapper::toResponse)

@@ -37,6 +37,13 @@ public class BrokeragePackageController {
                 .build();
     }
 
+    @GetMapping("/tutor/{tutorId}")
+    public ApiResponse<List<BrokeragePackageResponse>> getByTutorId(@PathVariable String tutorId) {
+        return ApiResponse.<List<BrokeragePackageResponse>>builder()
+                .result(packageService.getByTutorId(tutorId))
+                .build();
+    }
+
     @GetMapping("/admin/get-all")
     public ApiResponse<List<BrokeragePackageResponse>> getAll() {
         return ApiResponse.<List<BrokeragePackageResponse>>builder()

@@ -36,6 +36,11 @@ public class CourseEnrollment {
     @NotNull
     long totalPrice;
 
+    Long pricePaid;
+
+    @Builder.Default
+    int progressPercent = 0;
+
     @NotNull
     long platformFee;
 
@@ -58,12 +63,17 @@ public class CourseEnrollment {
     private Review review;
 
     @PrePersist
-    void onCreate() {
-        createdAt = Instant.now();
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = Instant.now();
+        }
     }
 
     @PreUpdate
-    void onUpdate() {
+    protected void onUpdate() {
         updatedAt = Instant.now();
     }
 }

@@ -14,6 +14,8 @@ public interface BrokeragePackageService {
 
     List<BrokeragePackageResponse> getAll();
 
+    List<BrokeragePackageResponse> getByTutorId(String tutorId);
+
     BrokeragePackageResponse update(String id, BrokeragePackageUpdateRequest request);
 
     void delete(String id);

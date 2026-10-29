@@ -18,10 +18,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Configuration
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -44,6 +47,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/articles", "/articles/*")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/article-comments/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/courses", "/courses/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/lessons/course/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/brokerage-packages/**")
                 .permitAll()
                 .requestMatchers("/ws", "/ws/**")
                 .permitAll()

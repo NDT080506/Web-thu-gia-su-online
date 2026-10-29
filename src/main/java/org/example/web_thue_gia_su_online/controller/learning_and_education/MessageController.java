@@ -1,7 +1,10 @@
 package org.example.web_thue_gia_su_online.controller.learning_and_education;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
+import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.MessageResponse;
@@ -20,8 +23,19 @@ public class MessageController {
 
     MessageService messageService;
 
-    // Message creation chỉ qua WebSocket (ChatWebSocketController)
-    // REST endpoint chỉ dùng cho update và delete
+    @GetMapping("/conversation/{conversationId}")
+    public ApiResponse<List<MessageResponse>> getMessagesByConversation(@PathVariable String conversationId) {
+        return ApiResponse.<List<MessageResponse>>builder()
+                .result(messageService.getMessagesByConversation(conversationId))
+                .build();
+    }
+
+    @PostMapping
+    public ApiResponse<MessageResponse> sendMessage(@RequestBody @Valid MessageCreationRequest request) {
+        return ApiResponse.<MessageResponse>builder()
+                .result(messageService.sendMessage(request))
+                .build();
+    }
 
     @PatchMapping("/{id}")
     public ApiResponse<MessageResponse> update(

@@ -12,9 +12,10 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MessageResponse {
-    Long id;
+    String id;
     String conversationId;
     String senderId;
+    String senderName;
     String content;
     Instant createdAt;
 }

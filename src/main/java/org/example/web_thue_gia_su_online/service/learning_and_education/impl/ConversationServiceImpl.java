@@ -80,7 +80,7 @@ public class ConversationServiceImpl implements ConversationService {
         if (existing.isPresent()) {
             Conversation conversation = existing.get();
 
-            if (conversation.getStatus() == ConversationStatus.DECLINED
+            if (conversation.getStatus() == ConversationStatus.NEGOTIATING
                     || conversation.getStatus() == ConversationStatus.AGREED) {
                 return conversationMapper.toResponse(conversation);
             }
@@ -145,6 +145,10 @@ public class ConversationServiceImpl implements ConversationService {
 
         checkParticipant(conversation, userId);
 
+        if (conversation.getStatus() == ConversationStatus.AGREED) {
+            return conversationMapper.toResponse(conversation);
+        }
+
         ensureNegotiating(conversation);
 
         conversation.setStudentAgreedAt(Instant.now());
@@ -161,6 +165,11 @@ public class ConversationServiceImpl implements ConversationService {
         String userId = getCurrentUserId();
 
         checkParticipant(conversation, userId);
+
+        if (conversation.getStatus() == ConversationStatus.AGREED) {
+            return conversationMapper.toResponse(conversation);
+        }
+
         ensureNegotiating(conversation);
 
         conversation.setStatus(ConversationStatus.DECLINED);

@@ -68,7 +68,6 @@ public class Booking {
     @OneToOne(mappedBy = "booking")
     Review review;
 
-    // ─── One-to-Many ──────────────────────────────────────────
     @OneToOne(mappedBy = "booking")
     Dispute dispute;
 
@@ -78,7 +77,12 @@ public class Booking {
 
     @PrePersist
     void onCreate() {
-        createdAt = Instant.now();
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = Instant.now();
+        }
     }
 
     @PreUpdate

@@ -14,6 +14,7 @@ public interface MessageMapper {
 
     @Mapping(target = "conversationId", source = "conversation.id")
     @Mapping(target = "senderId", source = "sender.id")
+    @Mapping(target = "senderName", source = "sender.displayName")
     MessageResponse toResponse(Message entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

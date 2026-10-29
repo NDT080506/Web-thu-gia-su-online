@@ -22,6 +22,13 @@ public class BookingController {
 
     BookingService bookingService;
 
+    @PostMapping
+    public ApiResponse<BookingResponse> createRoot(@RequestBody @Valid BookingCreationRequest request) {
+        return ApiResponse.<BookingResponse>builder()
+                .result(bookingService.create(request))
+                .build();
+    }
+
     @PostMapping("/me")
     public ApiResponse<BookingResponse> create(@RequestBody @Valid BookingCreationRequest request) {
         return ApiResponse.<BookingResponse>builder()
@@ -31,6 +38,13 @@ public class BookingController {
 
     @GetMapping("/me")
     public ApiResponse<List<BookingResponse>> getByMyId() {
+        return ApiResponse.<List<BookingResponse>>builder()
+                .result(bookingService.getByMyId())
+                .build();
+    }
+
+    @GetMapping("/student")
+    public ApiResponse<List<BookingResponse>> getByStudent() {
         return ApiResponse.<List<BookingResponse>>builder()
                 .result(bookingService.getByMyId())
                 .build();
