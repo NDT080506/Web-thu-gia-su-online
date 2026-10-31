@@ -65,4 +65,6 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
             @Param("bookingId") String bookingId,
             @Param("type") TransactionType type,
             @Param("status") TransactionStatus status);
+
+    Optional<PaymentTransaction> findByWithdrawal_Id(String withdrawalId);
 }

@@ -10,9 +10,12 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
 import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
+import org.example.web_thue_gia_su_online.enums.TransactionStatus;
+import org.example.web_thue_gia_su_online.enums.TransactionType;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseEnrollmentMapper;
+import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
@@ -40,6 +43,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     CourseRepository courseRepository;
     CourseEnrollmentMapper courseEnrollmentMapper;
     EscrowReleaseService escrowReleaseService;
+    PaymentTransactionRepository paymentTransactionRepository;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -111,16 +115,22 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
     public List<CourseEnrollmentResponse> getEnrollmentsByCourse(String courseId) {
-        // Tutor chỉ được xem enrollment của course mình sở hữu
-        String currentUserId = getCurrentUserId();
         Course course = courseRepository
                 .findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
 
-        // Nếu là tutor, kiểm tra ownership
-        boolean isOwner = course.getTutor().getId().equals(currentUserId);
-        if (!isOwner) {
-            throw new AccessDeniedException("Bạn không có quyền xem enrollment của khóa học này");
+        // Admin được xem tất cả; tutor chỉ xem course mình sở hữu
+        boolean isAdmin =
+                Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ADMIN")
+                                || a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            String currentUserId = getCurrentUserId();
+            boolean isOwner = course.getTutor().getId().equals(currentUserId);
+            if (!isOwner) {
+                throw new AccessDeniedException("Bạn không có quyền xem enrollment của khóa học này");
+            }
         }
 
         return courseEnrollmentRepository.findByCourseId(courseId).stream()
@@ -140,6 +150,19 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         String currentUserId = getCurrentUserId();
         if (!enrollment.getStudent().getId().equals(currentUserId)) {
             throw new AccessDeniedException("Bạn không có quyền hủy enrollment này");
+        }
+
+        // Không cho hủy enrollment đã hoàn thành
+        if (enrollment.getStatus() == EnrollmentStatus.COMPLETED) {
+            throw new AppException(ErrorCode.COURSE_ENROLLMENT_ALREADY_COMPLETED);
+        }
+
+        // Không cho hủy enrollment đã có escrow hold — tiền đang được giữ, cần flow refund
+        boolean hasEscrowHold = paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
+                id, TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS);
+
+        if (hasEscrowHold) {
+            throw new AppException(ErrorCode.ENROLLMENT_HAS_ESCROW_HOLD);
         }
 
         enrollment.setStatus(EnrollmentStatus.CANCELLED);

@@ -8,6 +8,7 @@ import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.Payment
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentTransactionService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;

@@ -19,6 +19,7 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Cour
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.EnrollmentPaymentService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,43 +40,56 @@ public class EnrollmentPaymentServiceImpl implements EnrollmentPaymentService {
     }
 
     @Override
+    @Transactional
     public EnrollmentPaymentResponse payForEnrollment(String enrollmentId) {
         String userId = getCurrentUserId();
 
+        // 1. Tìm và khóa enrollment
         CourseEnrollment enrollment = courseEnrollmentRepository
                 .findByIdForUpdate(enrollmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
 
+        // 2. Chỉ student sở hữu enrollment mới được thanh toán
         if (enrollment.getStudent() == null
                 || !userId.equals(enrollment.getStudent().getId())) {
-            throw new IllegalArgumentException("Bạn không có quyền thanh toán booking này");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        // 3. Chỉ enrollment ở trạng thái PENDING mới được thanh toán
+        if (enrollment.getStatus() != EnrollmentStatus.PENDING) {
+            throw new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE);
+        }
+
+        // 4. Kiểm tra số tiền
         long amount = enrollment.getTotalPrice();
 
         if (amount <= 0) {
             throw new IllegalStateException("Số tiền thanh toán không hợp lệ");
         }
 
+        // 5. Kiểm tra đã có escrow hold chưa (idempotency)
         boolean alreadyHeld = paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
                 enrollmentId, TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS);
 
         if (alreadyHeld) {
-            throw new IllegalStateException("Booking này đã được thanh toán");
+            throw new IllegalStateException("Enrollment này đã được thanh toán");
         }
 
+        // 6. Tìm và khóa ví của student
         Wallet wallet = walletRepository
                 .findByUserIdAndTypeForUpdate(userId, WalletType.NORMAL)
                 .orElseThrow(() -> new IllegalStateException("Bạn chưa có ví thanh toán"));
 
+        // 7. Kiểm tra số dư khả dụng
         if (wallet.getAvailableBalance() < amount) {
             throw new IllegalStateException("Số dư khả dụng không đủ để thanh toán");
         }
 
-        wallet.setAvailableBalance(wallet.getAvailableBalance() - amount);
-
+        // 8. Chuyển tiền từ available sang holding (chống overflow)
+        wallet.setAvailableBalance(Math.subtractExact(wallet.getAvailableBalance(), amount));
         wallet.setHoldingBalance(Math.addExact(wallet.getHoldingBalance(), amount));
 
+        // 9. Tạo giao dịch escrow hold
         PaymentTransaction transaction = PaymentTransaction.builder()
                 .sourceWallet(wallet)
                 .destinationWallet(null)
@@ -90,8 +104,12 @@ public class EnrollmentPaymentServiceImpl implements EnrollmentPaymentService {
 
         PaymentTransaction savedTransaction = paymentTransactionRepository.save(transaction);
 
+        // 10. Cập nhật enrollment sang ACTIVE (đã thanh toán)
         enrollment.setStatus(EnrollmentStatus.ACTIVE);
         courseEnrollmentRepository.save(enrollment);
+
+        // 11. Lưu wallet (bắt buộc để persist thay đổi balance)
+        walletRepository.save(wallet);
 
         return new EnrollmentPaymentResponse(
                 savedTransaction.getId(),

@@ -173,6 +173,19 @@ public class BookingServiceImpl implements BookingService {
             throw new AccessDeniedException("Bạn không có quyền hủy booking này");
         }
 
+        // Không cho hủy booking đã hoàn thành
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new AppException(ErrorCode.BOOKING_ALREADY_COMPLETED);
+        }
+
+        // Không cho hủy booking đã có escrow hold — tiền đang được giữ, cần flow refund
+        boolean hasEscrowHold = paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
+                bookingId, TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS);
+
+        if (hasEscrowHold) {
+            throw new AppException(ErrorCode.BOOKING_HAS_ESCROW_HOLD);
+        }
+
         booking.setStatus(BookingStatus.CANCELLED);
         return bookingMapper.toResponse(bookingRepository.save(booking));
     }
@@ -187,7 +200,7 @@ public class BookingServiceImpl implements BookingService {
 
         String currentUserId = getCurrentUserId();
         if (!booking.getStudent().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("Bạn không có quyền hủy booking này");
+            throw new AccessDeniedException("Bạn không có quyền hoàn thành booking này");
         }
 
         // 3. Kiểm tra trạng thái booking

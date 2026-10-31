@@ -6,6 +6,8 @@ import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.Payment
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentMethodResponse;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentMethod;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.exception.AppException;
+import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.finance_and_wallet.PaymentMethodMapper;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentMethodRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
@@ -33,7 +35,7 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     public PaymentMethodResponse createPaymentMethod(PaymentMethodCreationRequest request) {
         User user = userRepository
                 .findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found: " + request.getUserId()));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         PaymentMethod paymentMethod = paymentMethodMapper.toEntity(request);
         paymentMethod.setUser(user);

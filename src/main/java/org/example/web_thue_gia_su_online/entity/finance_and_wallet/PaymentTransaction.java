@@ -44,6 +44,10 @@ public class PaymentTransaction {
     @JoinColumn(name = "enrollment_id")
     CourseEnrollment enrollment;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "withdrawal_id", unique = true)
+    private Withdrawal withdrawal;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     TransactionType type;

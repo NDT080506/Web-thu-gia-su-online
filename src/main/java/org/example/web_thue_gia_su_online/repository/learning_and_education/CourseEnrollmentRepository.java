@@ -18,7 +18,14 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
     List<CourseEnrollment> findByCourseId(String courseId);
 
-    Optional<CourseEnrollment> findByStudentIdAndCourseId(String studentId, String courseId);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+		SELECT c
+		FROM CourseEnrollment c
+		WHERE c.student.id = :studentId
+		AND c.course.id = :courseId
+		""")
+    Optional<CourseEnrollment> findByStudentIdAndCourseId(@Param("studentId") String studentId, @Param("courseId") String courseId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""

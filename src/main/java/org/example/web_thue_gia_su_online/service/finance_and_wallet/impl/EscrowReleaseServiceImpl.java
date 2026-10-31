@@ -36,13 +36,18 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
             throw new IllegalStateException("Chỉ được giải ngân khi khóa học đã hoàn thành");
         }
 
-        // 2. Kiểm tra số tiền cần phân chia
+        // 2. Kiểm tra số tiền cần phân chia (chống overflow)
         long tutorIncome = enrollment.getTutorIncome();
         long platformFee = enrollment.getPlatformFee();
         long totalPrice = enrollment.getTotalPrice();
 
-        if (tutorIncome < 0 || platformFee < 0 || tutorIncome + platformFee != totalPrice) {
+        if (tutorIncome < 0 || platformFee < 0 || totalPrice <= 0) {
             throw new IllegalStateException("Số tiền phân chia không hợp lệ");
+        }
+
+
+        if (tutorIncome + platformFee != totalPrice) {
+            throw new IllegalStateException("Số tiền phân chia không khớp với tổng giá");
         }
 
         // 3. Lấy giao dịch giữ tiền thành công và khóa bản ghi
@@ -98,23 +103,28 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
             throw new IllegalStateException("Enrollment đã có giao dịch giải ngân; cần kiểm tra trạng thái giao dịch");
         }
 
-        // 8. Kiểm tra tiền đang giữ
+        // 8. Kiểm tra hold amount khớp với total price
+        if (holdTransaction.getAmount() != totalPrice) {
+            throw new IllegalStateException("Hold amount không khớp với tổng giá của enrollment");
+        }
+
+        // 9. Kiểm tra tiền đang giữ
         if (studentWallet.getHoldingBalance() < totalPrice) {
             throw new IllegalStateException("Số dư đang giữ không đủ để giải ngân");
         }
 
-        // 9. Chuyển tiền từ số dư đang giữ
-        studentWallet.setHoldingBalance(studentWallet.getHoldingBalance() - totalPrice);
+        // 10. Chuyển tiền từ số dư đang giữ (chống overflow)
+        studentWallet.setHoldingBalance(Math.subtractExact(studentWallet.getHoldingBalance(), totalPrice));
 
-        tutorWallet.setAvailableBalance(tutorWallet.getAvailableBalance() + tutorIncome);
+        tutorWallet.setAvailableBalance(Math.addExact(tutorWallet.getAvailableBalance(), tutorIncome));
 
-        platformWallet.setAvailableBalance(platformWallet.getAvailableBalance() + platformFee);
+        platformWallet.setAvailableBalance(Math.addExact(platformWallet.getAvailableBalance(), platformFee));
 
         walletRepository.save(studentWallet);
         walletRepository.save(tutorWallet);
         walletRepository.save(platformWallet);
 
-        // 10. Tạo giao dịch giải ngân cho gia sư
+        // 11. Tạo giao dịch giải ngân cho gia sư
         PaymentTransaction tutorRelease = PaymentTransaction.builder()
                 .sourceWallet(studentWallet)
                 .destinationWallet(tutorWallet)
@@ -128,7 +138,7 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
                 .note("Giải ngân thu nhập gia sư cho enrollment " + enrollmentId)
                 .build();
 
-        // 11. Tạo giao dịch phí nền tảng
+        // 12. Tạo giao dịch phí nền tảng
         PaymentTransaction platformRelease = PaymentTransaction.builder()
                 .sourceWallet(studentWallet)
                 .destinationWallet(platformWallet)
@@ -156,13 +166,17 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
             throw new IllegalStateException("Booking chưa hoàn thành, không thể giải ngân");
         }
 
-        // 2. Kiểm tra số tiền phân chia
+        // 2. Kiểm tra số tiền phân chia (chống overflow)
         long totalPrice = booking.getTotalPrice();
         long tutorIncome = booking.getTutorIncome();
         long platformFee = booking.getPlatformFee();
 
-        if (tutorIncome < 0 || platformFee < 0 || tutorIncome + platformFee != totalPrice) {
+        if (tutorIncome < 0 || platformFee < 0 || totalPrice <= 0) {
             throw new IllegalStateException("Số tiền phân chia của booking không hợp lệ");
+        }
+
+        if (tutorIncome + platformFee != totalPrice) {
+            throw new IllegalStateException("Số tiền phân chia không khớp với tổng giá của booking");
         }
 
         // 3. Tìm giao dịch giữ tiền thành công
@@ -173,7 +187,7 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
             throw new IllegalStateException("Booking phải có đúng một giao dịch ESCROW_HOLD thành công");
         }
 
-        PaymentTransaction holdTransaction = holdTransactions.get(0);
+        PaymentTransaction holdTransaction = holdTransactions.getFirst();
 
         Wallet studentWallet = holdTransaction.getSourceWallet();
 
@@ -215,23 +229,28 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
             throw new IllegalStateException("Booking đã có giao dịch giải ngân, cần kiểm tra dữ liệu");
         }
 
-        // 8. Kiểm tra số dư đang giữ
+        // 8. Kiểm tra hold amount khớp với total price
+        if (holdTransaction.getAmount() != totalPrice) {
+            throw new IllegalStateException("Hold amount không khớp với tổng giá của booking");
+        }
+
+        // 9. Kiểm tra số dư đang giữ
         if (studentWallet.getHoldingBalance() < totalPrice) {
             throw new IllegalStateException("Số dư đang giữ không đủ để giải ngân");
         }
 
-        // 9. Cập nhật số dư
-        studentWallet.setHoldingBalance(studentWallet.getHoldingBalance() - totalPrice);
+        // 10. Cập nhật số dư (chống overflow)
+        studentWallet.setHoldingBalance(Math.subtractExact(studentWallet.getHoldingBalance(), totalPrice));
 
-        tutorWallet.setAvailableBalance(tutorWallet.getAvailableBalance() + tutorIncome);
+        tutorWallet.setAvailableBalance(Math.addExact(tutorWallet.getAvailableBalance(), tutorIncome));
 
-        platformWallet.setAvailableBalance(platformWallet.getAvailableBalance() + platformFee);
+        platformWallet.setAvailableBalance(Math.addExact(platformWallet.getAvailableBalance(), platformFee));
 
         walletRepository.save(studentWallet);
         walletRepository.save(tutorWallet);
         walletRepository.save(platformWallet);
 
-        // 10. Tạo giao dịch giải ngân cho gia sư
+        // 11. Tạo giao dịch giải ngân cho gia sư
         PaymentTransaction tutorRelease = PaymentTransaction.builder()
                 .sourceWallet(studentWallet)
                 .destinationWallet(tutorWallet)
@@ -244,7 +263,7 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
                 .note("Giải ngân thu nhập gia sư cho booking " + bookingId)
                 .build();
 
-        // 11. Tạo giao dịch phí nền tảng
+        // 12. Tạo giao dịch phí nền tảng
         PaymentTransaction platformRelease = PaymentTransaction.builder()
                 .sourceWallet(studentWallet)
                 .destinationWallet(platformWallet)

@@ -41,4 +41,3 @@ jwt:
   signer-key: e7efae460b9d557389d4dfa025bc40d4166a7c8fbf72031d483b185e7e547ada
   valid-duration: 1
   refreshable-duration: 30
-

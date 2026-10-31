@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     public final String[] PUBLIC_ENDPOINTS = {
-        "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/verify-email"
+            "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/verify-email"
     };
 
     @Value("${jwt.signer-key}")
@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers("/ws", "/ws/**")
                 .permitAll()
-                .requestMatchers("/mock-payment/**")
+                .requestMatchers("/mock-payments/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated());

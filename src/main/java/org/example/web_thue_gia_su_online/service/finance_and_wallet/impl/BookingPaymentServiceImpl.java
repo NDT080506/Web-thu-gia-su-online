@@ -84,8 +84,8 @@ public class BookingPaymentServiceImpl implements BookingPaymentService {
             throw new IllegalStateException("Số dư khả dụng không đủ để thanh toán");
         }
 
-        // 8. Chuyển tiền từ khả dụng sang đang giữ.
-        wallet.setAvailableBalance(wallet.getAvailableBalance() - amount);
+        // 8. Chuyển tiền từ khả dụng sang đang giữ (chống overflow).
+        wallet.setAvailableBalance(Math.subtractExact(wallet.getAvailableBalance(), amount));
 
         wallet.setHoldingBalance(Math.addExact(wallet.getHoldingBalance(), amount));
 
@@ -104,9 +104,14 @@ public class BookingPaymentServiceImpl implements BookingPaymentService {
 
         PaymentTransaction savedTransaction = paymentTransactionRepository.save(transaction);
 
-        // 10. Trả kết quả.
-        // Chưa đổi trạng thái booking ở đây vì cần xác định
-        // quy trình xác nhận thanh toán của toàn bộ hệ thống.
+        // 10. Chuyển booking sang PAID — tiền đã được giữ trong escrow.
+        booking.setStatus(BookingStatus.PENDING_CONFIRMATION);
+        bookingRepository.save(booking);
+
+        // 11. Lưu wallet (bắt buộc để persist thay đổi balance)
+        walletRepository.save(wallet);
+
+        // 12. Trả kết quả.
         return new BookingPaymentResponse(
                 savedTransaction.getId(),
                 booking.getId(),
