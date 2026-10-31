@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${DB_URL}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -13,6 +13,3 @@ spring:
   flyway:
     enabled: true
 
-app:
-  frontend-url: ${FRONTEND_URL}
-  backend-url: ${BACKEND_URL}
