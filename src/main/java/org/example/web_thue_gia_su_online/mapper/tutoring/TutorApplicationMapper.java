@@ -12,5 +12,7 @@ public interface TutorApplicationMapper {
     TutorApplication toTutorApplication(TutorApplicationCreationRequest request);
 
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "userName", source = "user.displayName")
+    @Mapping(target = "userEmail", source = "user.email")
     TutorApplicationResponse toTutorApplicationResponse(TutorApplication tutorApplication);
 }

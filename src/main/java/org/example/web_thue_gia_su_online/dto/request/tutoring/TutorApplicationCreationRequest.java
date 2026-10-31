@@ -22,6 +22,5 @@ public class TutorApplicationCreationRequest {
     @NotBlank
     String cvUrl;
 
-    @NotBlank
     String testSubmission;
 }

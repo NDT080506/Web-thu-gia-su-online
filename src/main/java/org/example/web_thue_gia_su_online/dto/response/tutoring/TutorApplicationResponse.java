@@ -17,6 +17,10 @@ public class TutorApplicationResponse {
 
     String id;
     String userId;
+    String userName;
+    String userEmail;
+    String bio;
+    String subjectsCanTeach;
     String cvUrl;
     String testSubmission;
     RequestStatus status;
