@@ -4,8 +4,6 @@ import java.time.Instant;
 
 import org.example.web_thue_gia_su_online.enums.RequestStatus;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,7 +13,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TutorApplicationResponse {
 
     String id;

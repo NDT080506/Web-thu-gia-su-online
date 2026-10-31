@@ -19,5 +19,7 @@ public interface BookingService {
 
     List<BookingResponse> getByTutorId(String tutorId);
 
-    BookingResponse update(String id);
+    BookingResponse cancelBooking(String bookingId);
+
+    BookingResponse completeBooking(String bookingId);
 }

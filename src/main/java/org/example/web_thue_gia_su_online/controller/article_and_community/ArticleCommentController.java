@@ -9,7 +9,6 @@ import org.example.web_thue_gia_su_online.dto.request.article_and_community.Arti
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.article_and_community.ArticleCommentResponse;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleCommentService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -27,7 +26,6 @@ public class ArticleCommentController {
     ArticleCommentService articleCommentService;
 
     @PostMapping("/{articleId}")
-    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     ApiResponse<ArticleCommentResponse> createComment(
             @PathVariable String articleId, @RequestBody @Valid ArticleCommentCreationRequest request) {
         return ApiResponse.<ArticleCommentResponse>builder()
@@ -37,7 +35,6 @@ public class ArticleCommentController {
 
     // Support legacy path /{articleId}/{userId} for backward compatibility
     @PostMapping("/{articleId}/{userId}")
-    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     ApiResponse<ArticleCommentResponse> createComment(
             @RequestBody @Valid ArticleCommentCreationRequest request,
             @PathVariable String articleId,
@@ -62,7 +59,6 @@ public class ArticleCommentController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     ApiResponse<ArticleCommentResponse> updateComment(
             @PathVariable String id, @RequestBody @Valid ArticleCommentUpdateRequest request) {
         return ApiResponse.<ArticleCommentResponse>builder()
@@ -71,7 +67,6 @@ public class ArticleCommentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     ApiResponse<Void> deleteComment(@PathVariable String id) {
         articleCommentService.deleteComment(id);
         return ApiResponse.<Void>builder().message("Comment has been deleted").build();

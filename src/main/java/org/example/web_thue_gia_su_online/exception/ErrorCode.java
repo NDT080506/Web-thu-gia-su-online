@@ -34,7 +34,20 @@ public enum ErrorCode {
     COURSE_NOT_FOUND(1021, "Course not found", HttpStatus.NOT_FOUND),
     LESSON_NOT_FOUND(1022, "Lesson not found", HttpStatus.NOT_FOUND),
     ARTICLE_NOT_FOUND(1023, "Article not found", HttpStatus.NOT_FOUND),
-    COMMENT_NOT_FOUND(1024, "Comment not found", HttpStatus.NOT_FOUND);
+    COMMENT_NOT_FOUND(1024, "Comment not found", HttpStatus.NOT_FOUND),
+    PACKAGE_NOT_FOUND(1025, "Package not found", HttpStatus.NOT_FOUND),
+    BOOKING_ALREADY_COMPLETED(1026, "Booking already completed", HttpStatus.BAD_REQUEST),
+    BOOKING_CANCELLED(1027, "Booking has been cancelled", HttpStatus.BAD_REQUEST),
+    BOOKING_NOT_PAID(1028, "Booking not paid", HttpStatus.BAD_REQUEST),
+    COURSE_ENROLLMENT_ALREADY_COMPLETED(1029, "Course enrollment already completed", HttpStatus.BAD_REQUEST),
+    COURSE_ENROLLMENT_NOT_ACTIVE(1030, "Course enrollment not active", HttpStatus.BAD_REQUEST),
+    WALLET_NOT_FOUND(1031, "Wallet not found", HttpStatus.NOT_FOUND),
+    TRANSACTION_NOT_FOUND(1032, "Transaction not found", HttpStatus.NOT_FOUND),
+    BOOKING_HAS_ESCROW_HOLD(1033, "Cannot cancel booking with escrow hold", HttpStatus.BAD_REQUEST),
+    ENROLLMENT_HAS_ESCROW_HOLD(1034, "Cannot cancel enrollment with escrow hold", HttpStatus.BAD_REQUEST),
+    WITHDRAWAL_NOT_FOUND(1035, "Withdrawal not found", HttpStatus.NOT_FOUND),
+    INSUFFICIENT_BALANCE(1036, "Insufficient balance", HttpStatus.BAD_REQUEST),
+    ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

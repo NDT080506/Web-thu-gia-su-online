@@ -43,22 +43,50 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
                 .getName();
     }
 
+    private boolean isAdmin() {
+        return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getAuthorities().stream()
+                .anyMatch(a ->
+                        a.getAuthority().equals("ADMIN") || a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    /**
+     * Kiểm tra transaction có thuộc về current user không.
+     * Một transaction thuộc về user nếu source wallet hoặc destination wallet thuộc về user.
+     */
+    private boolean isTransactionOwner(PaymentTransaction transaction) {
+        String currentUserId = getCurrentUserId();
+        if (transaction.getSourceWallet() != null
+                && transaction.getSourceWallet().getUser().getId().equals(currentUserId)) {
+            return true;
+        }
+        if (transaction.getDestinationWallet() != null
+                && transaction.getDestinationWallet().getUser().getId().equals(currentUserId)) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public PaymentTransactionResponse createTransaction(PaymentTransactionCreationRequest request) {
+        // Chỉ admin mới có thể tạo transaction thủ công.
+        // Student/Tutor KHÔNG được tự tạo transaction làm thay đổi balance.
+        // Balance chỉ được thay đổi qua các use case domain (payForBooking, payForEnrollment, escrow release, deposit).
+
         Wallet sourceWallet = null;
         if (request.getSourceWalletId() != null && !request.getSourceWalletId().isBlank()) {
             sourceWallet = walletRepository
                     .findById(request.getSourceWalletId())
-                    .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+                    .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
 
             // Kiểm tra số dư đủ
             if (sourceWallet.getAvailableBalance() < request.getAmount()) {
                 throw new AppException(ErrorCode.UNAUTHORIZED);
             }
 
-            sourceWallet.setAvailableBalance(sourceWallet.getAvailableBalance() - request.getAmount());
+            sourceWallet.setAvailableBalance(
+                    Math.subtractExact(sourceWallet.getAvailableBalance(), request.getAmount()));
             sourceWallet.setUpdatedAt(Instant.now());
             walletRepository.save(sourceWallet);
         }
@@ -68,8 +96,9 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
                 && !request.getDestinationWalletId().isBlank()) {
             destinationWallet = walletRepository
                     .findById(request.getDestinationWalletId())
-                    .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
-            destinationWallet.setAvailableBalance(destinationWallet.getAvailableBalance() + request.getAmount());
+                    .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
+            destinationWallet.setAvailableBalance(
+                    Math.addExact(destinationWallet.getAvailableBalance(), request.getAmount()));
             destinationWallet.setUpdatedAt(Instant.now());
             walletRepository.save(destinationWallet);
         }
@@ -101,8 +130,15 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
     public PaymentTransactionResponse getTransaction(String id) {
-        PaymentTransaction transaction =
-                paymentTransactionRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+        PaymentTransaction transaction = paymentTransactionRepository
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.TRANSACTION_NOT_FOUND));
+
+        // Authorization: chỉ owner của source/destination wallet hoặc admin mới được xem
+        if (!isAdmin() && !isTransactionOwner(transaction)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         return paymentTransactionMapper.toPaymentTransactionResponse(transaction);
     }
 
@@ -110,6 +146,13 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
     public List<PaymentTransactionResponse> getTransactionsByWallet(String walletId) {
+        // Authorization: chỉ owner của wallet hoặc admin mới được xem
+        Wallet wallet =
+                walletRepository.findById(walletId).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
+        if (!isAdmin() && !wallet.getUser().getId().equals(getCurrentUserId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         List<PaymentTransaction> results = new ArrayList<>();
         results.addAll(paymentTransactionRepository.findBySourceWalletId(walletId));
         results.addAll(paymentTransactionRepository.findByDestinationWalletId(walletId));
@@ -121,7 +164,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public List<PaymentTransactionResponse> getTransactionsByBooking(String bookingId) {
         return paymentTransactionRepository.findByBookingId(bookingId).stream()
                 .map(paymentTransactionMapper::toPaymentTransactionResponse)

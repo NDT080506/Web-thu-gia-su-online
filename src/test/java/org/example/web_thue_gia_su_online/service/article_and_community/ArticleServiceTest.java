@@ -20,6 +20,7 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 import org.example.web_thue_gia_su_online.enums.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.mapper.article_and_community.ArticleMapper;
+import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleCommentRepository;
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.impl.ArticleServiceImpl;
@@ -39,6 +40,9 @@ class ArticleServiceTest {
 
     @Mock
     private ArticleRepository repository;
+
+    @Mock
+    private ArticleCommentRepository articleCommentRepository;
 
     @Mock
     private UserRepository userRepository;

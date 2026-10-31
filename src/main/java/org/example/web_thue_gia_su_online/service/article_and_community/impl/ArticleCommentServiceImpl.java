@@ -2,6 +2,7 @@ package org.example.web_thue_gia_su_online.service.article_and_community.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.article_and_community.ArticleCommentCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.article_and_community.ArticleCommentUpdateRequest;
@@ -17,6 +18,7 @@ import org.example.web_thue_gia_su_online.repository.article_and_community.Artic
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleCommentService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,21 +40,25 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     UserRepository userRepository;
     ArticleCommentMapper articleCommentMapper;
 
+    private String getCurrentUserId() {
+        return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
+                .getName();
+    }
+
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     public ArticleCommentResponse createComment(ArticleCommentCreationRequest request, String articleId) {
-        String currentUserId =
-                SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUserId = getCurrentUserId();
         return createCommentInternal(request, articleId, currentUserId);
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     public ArticleCommentResponse createComment(
             ArticleCommentCreationRequest request, String articleId, String userId) {
-        String effectiveUserId = (userId != null && !userId.isBlank())
-                ? userId
-                : SecurityContextHolder.getContext().getAuthentication().getName();
+        String effectiveUserId = (userId != null && !userId.isBlank()) ? userId : getCurrentUserId();
         return createCommentInternal(request, articleId, effectiveUserId);
     }
 
@@ -160,12 +166,12 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public ArticleCommentResponse updateComment(ArticleCommentUpdateRequest request, String id) {
         ArticleComment comment =
                 articleCommentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
 
-        String currentUserId =
-                SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUserId = getCurrentUserId();
         User currentUser =
                 userRepository.findById(currentUserId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -190,12 +196,12 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public void deleteComment(String id) {
         ArticleComment comment =
                 articleCommentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
 
-        String currentUserId =
-                SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUserId = getCurrentUserId();
         User currentUser =
                 userRepository.findById(currentUserId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 

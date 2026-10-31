@@ -16,9 +16,11 @@ import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEn
 import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseEnrollmentMapper;
+import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
+import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,12 @@ class CourseEnrollmentServiceImplTest {
 
     @Mock
     CourseEnrollmentMapper courseEnrollmentMapper;
+
+    @Mock
+    PaymentTransactionRepository paymentTransactionRepository;
+
+    @Mock
+    EscrowReleaseService escrowReleaseService;
 
     @InjectMocks
     CourseEnrollmentServiceImpl courseEnrollmentService;

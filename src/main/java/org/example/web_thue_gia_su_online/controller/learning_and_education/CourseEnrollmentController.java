@@ -52,6 +52,13 @@ public class CourseEnrollmentController {
                 .build();
     }
 
+    @PatchMapping("/tutor/{enrollmentId}/complete")
+    public ApiResponse<CourseEnrollmentResponse> completeEnrollment(@PathVariable String enrollmentId) {
+        return ApiResponse.<CourseEnrollmentResponse>builder()
+                .result(courseEnrollmentService.completeEnrollment(enrollmentId))
+                .build();
+    }
+
     @PatchMapping("/{id}/cancel")
     ApiResponse<CourseEnrollmentResponse> cancelEnrollment(@PathVariable String id) {
         return ApiResponse.<CourseEnrollmentResponse>builder()

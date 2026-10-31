@@ -17,10 +17,12 @@ import org.example.web_thue_gia_su_online.enums.BookingStatus;
 import org.example.web_thue_gia_su_online.enums.ConversationStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.BookingMapper;
+import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BrokeragePackageRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ConversationRepository;
+import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +51,12 @@ class BookingServiceImplTest {
 
     @Mock
     BookingMapper bookingMapper;
+
+    @Mock
+    PaymentTransactionRepository paymentTransactionRepository;
+
+    @Mock
+    EscrowReleaseService escrowReleaseService;
 
     @InjectMocks
     BookingServiceImpl bookingService;
@@ -276,7 +284,7 @@ class BookingServiceImplTest {
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toResponse(booking)).thenReturn(new BookingResponse());
 
-        BookingResponse response = bookingService.update("booking-1");
+        BookingResponse response = bookingService.cancelBooking("booking-1");
 
         assertThat(response).isNotNull();
         assertThat(booking.getStatus()).isEqualTo(BookingStatus.CANCELLED);
@@ -289,7 +297,7 @@ class BookingServiceImplTest {
         Booking booking = createBooking();
         when(bookingRepository.findById("booking-1")).thenReturn(Optional.of(booking));
 
-        assertThatThrownBy(() -> bookingService.update("booking-1")).isInstanceOf(AccessDeniedException.class);
+        assertThatThrownBy(() -> bookingService.cancelBooking("booking-1")).isInstanceOf(AccessDeniedException.class);
 
         verify(bookingRepository, never()).save(any());
     }
