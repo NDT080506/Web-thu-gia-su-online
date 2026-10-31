@@ -87,7 +87,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
                 .progressPercent(0)
                 .platformFee(platformFee)
                 .tutorIncome(tutorIncome)
-                .status(EnrollmentStatus.ACTIVE)
+                .status(totalPrice > 0 ? EnrollmentStatus.PENDING : EnrollmentStatus.ACTIVE)
                 .build();
 
         return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
