@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:18
     container_name: webthuegiasuonline
-    restart: "no"
+    restart: unless-stopped
 
     environment:
       POSTGRES_USER: postgres
