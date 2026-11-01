@@ -1,5 +1,7 @@
 package org.example.web_thue_gia_su_online.configuration;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,8 +23,6 @@ import org.springframework.web.filter.CorsFilter;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -76,30 +76,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsFilter corsFilter(
-            @Value("${app.frontend-url}") String frontendUrl
-    ) {
+    public CorsFilter corsFilter(@Value("${app.frontend-url}") String frontendUrl) {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(
-                frontendUrl,
-                "http://localhost:3000"
-        ));
+        config.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000"));
 
-        config.setAllowedMethods(List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE",
-                "OPTIONS"
-        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", config);
 
