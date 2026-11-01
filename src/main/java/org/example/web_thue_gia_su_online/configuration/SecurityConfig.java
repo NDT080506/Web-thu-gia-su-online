@@ -1,5 +1,7 @@
 package org.example.web_thue_gia_su_online.configuration;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,60 +16,81 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 @Configuration
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-//    public final String[] PUBLIC_ENDPOINTS = {
-//            "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
-//    };
+    public final String[] PUBLIC_ENDPOINTS = {
+        "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/verify-email"
+    };
 
     @Value("${jwt.signer-key}")
     private String signerKey;
 
-    //private CustomJwtDecoder customJwtDecoder;
+    private CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-//       httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-//                .permitAll()
-//                .anyRequest()
-//                .authenticated());
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS)
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/articles", "/articles/*")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/article-comments/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/courses", "/courses/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/lessons/course/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/brokerage-packages/**")
+                .permitAll()
+                .requestMatchers("/ws", "/ws/**")
+                .permitAll()
+                .requestMatchers("/mock-payments/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated());
 
-         httpSecurity.authorizeHttpRequests(request -> request.anyRequest().permitAll());
+        // httpSecurity.authorizeHttpRequests(request -> request.anyRequest().permitAll());
 
-//       httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-//                        .decoder(customJwtDecoder)
-//                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-//                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
-        httpSecurity
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
+        httpSecurity.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
     }
 
     @Bean
-    public CorsFilter corsFilter(){
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
+    public CorsFilter corsFilter(@Value("${app.frontend-url}") String frontendUrl) {
+        CorsConfiguration config = new CorsConfiguration();
 
-        corsConfiguration.addAllowedOrigin("http://localhost:3000");
-        corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addAllowedHeader("*");
+        config.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000"));
 
-        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
-        return new CorsFilter(urlBasedCorsConfigurationSource);
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
     }
 
     @Bean

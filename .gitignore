@@ -3,6 +3,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+.env
 
 ### STS ###
 .apt_generated
@@ -31,3 +32,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+# Ignore Junie model configs containing API keys
+.junie/models/*.json
+.aider*
+CONVENTIONS.md
+conventions.md
+*.docx
+
+# Ignore markdown files except README
+*.md
+!README.md
+!readme.md

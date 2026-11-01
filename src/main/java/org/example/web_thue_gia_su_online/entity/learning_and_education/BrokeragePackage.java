@@ -1,0 +1,69 @@
+package org.example.web_thue_gia_su_online.entity.learning_and_education;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Entity
+@Table(name = "brokerage_packages")
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class BrokeragePackage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
+
+    @Column(nullable = false, length = 255)
+    String name;
+
+    @NotNull
+    long price;
+
+    @NotNull
+    int platformFeePercent;
+
+    @NotNull
+    @Column(name = "is_active")
+    boolean active;
+
+    @NotNull
+    Instant createdAt;
+
+    Instant updatedAt;
+
+    @OneToMany(mappedBy = "brokeragePackage")
+    @Builder.Default
+    List<Booking> bookings = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tutor_id")
+    User tutor;
+
+    @PrePersist
+    void onCreate() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = Instant.now();
+        }
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
+}
