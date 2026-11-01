@@ -5,9 +5,11 @@ import java.nio.charset.StandardCharsets;
 
 import org.example.web_thue_gia_su_online.service.authentication.EmailService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailServiceImpl implements EmailService {
 
-    JavaMailSender mailSender;
+    Resend resend;
 
     @NonFinal
-    @Value("${spring.mail.username}")
+    @Value("${app.mail.from}")
     String fromEmail;
-
-    @NonFinal
-    @Value("${app.frontend-url}")
-    String frontendUrl;
 
     @NonFinal
     @Value("${app.backend-url}")
@@ -39,15 +37,34 @@ public class EmailServiceImpl implements EmailService {
     public void sendVerificationEmail(String email, String token) {
         String link = backendUrl + "/giasu/auth/verify-email?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(email);
-        message.setSubject("Verify your email - EduTutor");
-        message.setText("Chào bạn,\n\nVui lòng nhấn vào đường link dưới đây để xác thực tài khoản của bạn:\n" + link
-                + "\n\nĐường link này sẽ hết hạn trong 15 phút.\n\nTrân trọng,\nĐội ngũ EduTutor");
+        String content = """
+				Chào bạn,
 
-        log.info("Sending verification email from {} to {}", fromEmail, email);
-        mailSender.send(message);
-        log.info("Verification email sent successfully to {}", email);
+				Vui lòng nhấn vào đường link dưới đây để xác thực tài khoản của bạn:
+				%s
+
+				Đường link này sẽ hết hạn trong 15 phút.
+
+				Trân trọng,
+				Đội ngũ EduTutor
+				""".formatted(link);
+
+        CreateEmailOptions params = CreateEmailOptions.builder()
+                .from(fromEmail)
+                .to(email)
+                .subject("Verify your email - EduTutor")
+                .text(content)
+                .build();
+
+        try {
+            log.info("Sending verification email from {} to {}", fromEmail, email);
+
+            resend.emails().send(params);
+
+            log.info("Verification email sent successfully to {}", email);
+        } catch (ResendException e) {
+            log.error("Failed to send verification email to {}", email, e);
+            throw new IllegalStateException("Could not send verification email", e);
+        }
     }
 }
