@@ -76,21 +76,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsFilter corsFilter(@Value("${app.frontend-url}") String frontendUrl) {
-        CorsConfiguration config = new CorsConfiguration();
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000"));
+        corsConfiguration.addAllowedOrigin("http://localhost:3000");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
 
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
 
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", config);
-
-        return new CorsFilter(source);
+        return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 
     @Bean
