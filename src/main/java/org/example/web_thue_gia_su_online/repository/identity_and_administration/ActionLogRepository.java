@@ -1,14 +1,32 @@
 package org.example.web_thue_gia_su_online.repository.identity_and_administration;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.ActionLog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ActionLogRepository extends JpaRepository<ActionLog, String> {
-    List<ActionLog> findByTargetUserId(String targetUserId);
 
-    List<ActionLog> findByAdminId(String adminId);
+    @Query("""
+		SELECT a
+		FROM ActionLog a
+		LEFT JOIN a.user u
+		WHERE (:userId IS NULL OR u.id = :userId)
+		AND (:action IS NULL OR a.action = :action)
+		AND (:targetType IS NULL OR a.targetType = :targetType)
+		AND (:fromDate IS NULL OR a.createdAt >= :fromDate)
+		AND (:toDate IS NULL OR a.createdAt <= :toDate)
+		ORDER BY a.createdAt DESC
+		""")
+    List<ActionLog> searchActionLogs(
+            @Param("userId") String userId,
+            @Param("action") String action,
+            @Param("targetType") String targetType,
+            @Param("fromDate") Instant fromDate,
+            @Param("toDate") Instant toDate);
 }

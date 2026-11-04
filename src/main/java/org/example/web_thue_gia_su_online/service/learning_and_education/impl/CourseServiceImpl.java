@@ -7,11 +7,13 @@ import java.util.Objects;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseResponse;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +32,7 @@ public class CourseServiceImpl implements CourseService {
     CourseRepository courseRepository;
     UserRepository userRepository;
     CourseMapper courseMapper;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -52,7 +55,9 @@ public class CourseServiceImpl implements CourseService {
                 .createdAt(Instant.now())
                 .build();
 
-        return courseMapper.toResponse(courseRepository.save(course));
+        Course savedCourse = courseRepository.save(course);
+        actionLogService.log(ActionCode.CREATE_COURSE, tutor, "Course", savedCourse.getId());
+        return courseMapper.toResponse(savedCourse);
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Review;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.BookingStatus;
 import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
@@ -23,6 +24,7 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Book
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ReviewRepository;
 import org.example.web_thue_gia_su_online.repository.tutoring.TutorProfileRepository;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.ReviewService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,6 +46,7 @@ public class ReviewServiceImpl implements ReviewService {
     CourseEnrollmentRepository courseEnrollmentRepository;
     TutorProfileRepository tutorProfileRepository;
     ReviewMapper reviewMapper;
+    ActionLogService actionLogService;
 
     @Override
     @PreAuthorize("hasRole('STUDENT')")
@@ -71,6 +74,8 @@ public class ReviewServiceImpl implements ReviewService {
                     .findById(request.getBookingId())
                     .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
 
+            tutor = booking.getBrokeragePackage().getTutor();
+
             if (!booking.getStudent().getId().equals(reviewerId)) {
                 throw new AccessDeniedException("Bạn không phải học viên của booking này");
             }
@@ -79,15 +84,13 @@ public class ReviewServiceImpl implements ReviewService {
                 throw new IllegalStateException("Chỉ booking đã hoàn thành mới được đánh giá");
             }
 
-            if (booking.getTutor() == null) {
+            if (tutor == null) {
                 throw new IllegalStateException("Booking chưa xác định gia sư");
             }
 
             if (reviewRepository.existsByBooking_Id(booking.getId())) {
                 throw new IllegalStateException("Booking này đã được đánh giá");
             }
-
-            tutor = booking.getTutor();
 
         } else {
             enrollment = courseEnrollmentRepository
@@ -121,6 +124,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review savedReview = reviewRepository.save(review);
 
         updateTutorRating(tutor.getId());
+        actionLogService.log(ActionCode.CREATE_REVIEW, reviewer, "Review", savedReview.getId());
 
         return reviewMapper.toResponse(savedReview);
     }
@@ -145,6 +149,9 @@ public class ReviewServiceImpl implements ReviewService {
                         SecurityContextHolder.getContext().getAuthentication())
                 .getName();
 
+        User reviewer =
+                userRepository.findById(reviewerId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         Review review = reviewRepository
                 .findByReviewer_Id(reviewerId)
                 .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
@@ -152,6 +159,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewMapper.updateReview(request, review);
         reviewRepository.save(review);
         updateTutorRating(review.getTutor().getId());
+        actionLogService.log(ActionCode.UPDATE_REVIEW, reviewer, "Review", review.getId());
 
         return reviewMapper.toResponse(review);
     }
@@ -167,6 +175,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .findByReviewer_Id(reviewerId)
                 .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
         reviewRepository.delete(review);
+        actionLogService.log(ActionCode.DELETE_REVIEW, review.getReviewer(), "Review", review.getId());
     }
 
     private void updateTutorRating(String tutorId) {

@@ -21,7 +21,9 @@ public interface WalletRepository extends JpaRepository<Wallet, String> {
 
     Boolean existsByUser_IdAndType(String userId, WalletType type);
 
-    Optional<Wallet> findFirstByType(WalletType type);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT w FROM Wallet w WHERE w.user.id = :userId")
+    Optional<Wallet> findByUser_IdForUpdate(@Param("userId") String userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT w FROM Wallet w WHERE w.id = :walletId")

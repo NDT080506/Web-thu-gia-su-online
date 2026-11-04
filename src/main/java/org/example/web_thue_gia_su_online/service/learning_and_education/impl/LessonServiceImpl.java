@@ -9,11 +9,13 @@ import org.example.web_thue_gia_su_online.dto.request.learning_and_education.Les
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.LessonResponse;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Lesson;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.LessonMapper;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.LessonRepository;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.LessonService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,13 +37,14 @@ public class LessonServiceImpl implements LessonService {
     LessonRepository lessonRepository;
     CourseRepository courseRepository;
     LessonMapper lessonMapper;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
                 .getName();
     }
 
-    private void verifyCourseOwner(String courseId) {
+    private Course verifyCourseOwnerAndGet(String courseId) {
         String currentUserId = getCurrentUserId();
         Course course =
                 courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
@@ -50,6 +53,7 @@ public class LessonServiceImpl implements LessonService {
         if (!course.getTutor().getId().equals(currentUserId)) {
             throw new AccessDeniedException("Chỉ gia sư sở hữu khóa học mới được thao tác");
         }
+        return course;
     }
 
     @Override
@@ -69,7 +73,9 @@ public class LessonServiceImpl implements LessonService {
         lesson.setCourse(course);
         lesson.setCreatedAt(Instant.now());
 
-        return lessonMapper.toResponse(lessonRepository.save(lesson));
+        Lesson savedLesson = lessonRepository.save(lesson);
+        actionLogService.log(ActionCode.CREATE_LESSON, course.getTutor(), "Lesson", savedLesson.getId());
+        return lessonMapper.toResponse(savedLesson);
     }
 
     @Override
@@ -87,10 +93,12 @@ public class LessonServiceImpl implements LessonService {
         Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
         // Kiểm tra ownership
-        verifyCourseOwner(lesson.getCourse().getId());
+        Course course = verifyCourseOwnerAndGet(lesson.getCourse().getId());
 
         lessonMapper.updateEntity(lesson, request);
-        return lessonMapper.toResponse(lessonRepository.save(lesson));
+        lessonRepository.save(lesson);
+        actionLogService.log(ActionCode.UPDATE_LESSON, course.getTutor(), "Lesson", id);
+        return lessonMapper.toResponse(lesson);
     }
 
     @Override
@@ -100,8 +108,9 @@ public class LessonServiceImpl implements LessonService {
         Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
         // Kiểm tra ownership
-        verifyCourseOwner(lesson.getCourse().getId());
+        Course course = verifyCourseOwnerAndGet(lesson.getCourse().getId());
 
         lessonRepository.delete(lesson);
+        actionLogService.log(ActionCode.DELETE_LESSON, course.getTutor(), "Lesson", id);
     }
 }

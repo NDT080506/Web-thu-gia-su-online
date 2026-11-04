@@ -9,11 +9,13 @@ import org.example.web_thue_gia_su_online.dto.request.learning_and_education.Con
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.ConversationResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.ConversationStatus;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.ConversationMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ConversationRepository;
 import org.example.web_thue_gia_su_online.repository.tutoring.TutorProfileRepository;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.ConversationService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +37,7 @@ public class ConversationServiceImpl implements ConversationService {
     UserRepository userRepository;
     TutorProfileRepository tutorProfileRepository;
     ConversationMapper conversationMapper;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -92,7 +95,9 @@ public class ConversationServiceImpl implements ConversationService {
                 .status(ConversationStatus.NEGOTIATING)
                 .build();
 
-        return conversationMapper.toResponse(conversationRepository.save(conversation));
+        Conversation savedConversation = conversationRepository.save(conversation);
+        actionLogService.log(ActionCode.CREATE_CONVERSATION, student, "Conversation", savedConversation.getId());
+        return conversationMapper.toResponse(savedConversation);
     }
 
     @Override
@@ -153,6 +158,8 @@ public class ConversationServiceImpl implements ConversationService {
 
         conversation.setStudentAgreedAt(Instant.now());
         conversation.setStatus(ConversationStatus.AGREED);
+        conversationRepository.save(conversation);
+        actionLogService.log(ActionCode.AGREE_CONVERSATION, conversation.getStudent(), "Conversation", id);
 
         return conversationMapper.toResponse(conversation);
     }
@@ -174,6 +181,8 @@ public class ConversationServiceImpl implements ConversationService {
 
         conversation.setStatus(ConversationStatus.DECLINED);
         conversation.setStudentAgreedAt(null);
+        conversationRepository.save(conversation);
+        actionLogService.log(ActionCode.DECLINE_CONVERSATION, conversation.getStudent(), "Conversation", id);
 
         return conversationMapper.toResponse(conversation);
     }

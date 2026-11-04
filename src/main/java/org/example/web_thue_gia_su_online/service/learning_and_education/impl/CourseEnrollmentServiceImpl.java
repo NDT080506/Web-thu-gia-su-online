@@ -9,6 +9,7 @@ import org.example.web_thue_gia_su_online.dto.response.learning_and_education.Co
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.enums.TransactionStatus;
 import org.example.web_thue_gia_su_online.enums.TransactionType;
@@ -20,6 +21,7 @@ import org.example.web_thue_gia_su_online.repository.identity_and_administration
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseEnrollmentService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,6 +46,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     CourseEnrollmentMapper courseEnrollmentMapper;
     EscrowReleaseService escrowReleaseService;
     PaymentTransactionRepository paymentTransactionRepository;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -90,7 +93,9 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
                 .status(totalPrice > 0 ? EnrollmentStatus.PENDING : EnrollmentStatus.ACTIVE)
                 .build();
 
-        return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
+        CourseEnrollment savedEnrollment = courseEnrollmentRepository.save(enrollment);
+        actionLogService.log(ActionCode.ENROLL_COURSE, student, "CourseEnrollment", savedEnrollment.getId());
+        return courseEnrollmentMapper.toResponse(savedEnrollment);
     }
 
     @Override
@@ -165,7 +170,9 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         }
 
         enrollment.setStatus(EnrollmentStatus.CANCELLED);
-        return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
+        courseEnrollmentRepository.save(enrollment);
+        actionLogService.log(ActionCode.CANCEL_ENROLLMENT, enrollment.getStudent(), "CourseEnrollment", id);
+        return courseEnrollmentMapper.toResponse(enrollment);
     }
 
     @Override
@@ -203,6 +210,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
 
         // 6. Giải ngân tiền đã giữ cho enrollment
         escrowReleaseService.releaseEnrollmentEscrow(enrollment);
+        actionLogService.log(ActionCode.COMPLETE_ENROLLMENT, enrollment.getStudent(), "CourseEnrollment", enrollmentId);
 
         return courseEnrollmentMapper.toResponse(enrollment);
     }
@@ -214,5 +222,6 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         CourseEnrollment enrollment =
                 courseEnrollmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         courseEnrollmentRepository.delete(enrollment);
+        actionLogService.log(ActionCode.DELETE_ENROLLMENT, enrollment.getStudent(), "CourseEnrollment", id);
     }
 }

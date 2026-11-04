@@ -9,6 +9,7 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.BrokeragePackage;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.BookingStatus;
 import org.example.web_thue_gia_su_online.enums.ConversationStatus;
 import org.example.web_thue_gia_su_online.enums.TransactionStatus;
@@ -22,6 +23,7 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Book
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BrokeragePackageRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ConversationRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BookingService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +47,7 @@ public class BookingServiceImpl implements BookingService {
     BookingMapper bookingMapper;
     PaymentTransactionRepository paymentTransactionRepository;
     EscrowReleaseService escrowReleaseService;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -92,7 +95,6 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = Booking.builder()
                 .brokeragePackage(pkg)
                 .student(student)
-                .tutor(tutor)
                 .conversation(conversation)
                 .status(BookingStatus.PENDING_PAYMENT)
                 .totalPrice(totalPrice)
@@ -100,7 +102,9 @@ public class BookingServiceImpl implements BookingService {
                 .tutorIncome(tutorIncome)
                 .build();
 
-        return bookingMapper.toResponse(bookingRepository.save(booking));
+        Booking savedBooking = bookingRepository.save(booking);
+        actionLogService.log(ActionCode.CREATE_BOOKING, student, "Booking", savedBooking.getId());
+        return bookingMapper.toResponse(savedBooking);
     }
 
     @Override
@@ -113,8 +117,8 @@ public class BookingServiceImpl implements BookingService {
         // Resource-level authorization: chỉ student/tutor thuộc booking mới được xem
         String currentUserId = getCurrentUserId();
         boolean isStudent = booking.getStudent().getId().equals(currentUserId);
-        boolean isTutor =
-                booking.getTutor() != null && booking.getTutor().getId().equals(currentUserId);
+        boolean isTutor = booking.getBrokeragePackage().getTutor() != null
+                && booking.getBrokeragePackage().getTutor().getId().equals(currentUserId);
 
         if (!isStudent && !isTutor) {
             throw new AccessDeniedException("Bạn không có quyền xem booking này");
@@ -187,7 +191,9 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setStatus(BookingStatus.CANCELLED);
-        return bookingMapper.toResponse(bookingRepository.save(booking));
+        bookingRepository.save(booking);
+        actionLogService.log(ActionCode.CANCEL_BOOKING, booking.getStudent(), "Booking", bookingId);
+        return bookingMapper.toResponse(booking);
     }
 
     @Override
@@ -225,6 +231,7 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.save(booking);
 
         escrowReleaseService.releaseBookingEscrow(booking);
+        actionLogService.log(ActionCode.COMPLETE_BOOKING, booking.getStudent(), "Booking", bookingId);
 
         return bookingMapper.toResponse(booking);
     }

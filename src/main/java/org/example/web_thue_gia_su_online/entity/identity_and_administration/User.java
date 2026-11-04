@@ -104,10 +104,6 @@ public class User {
 
     @OneToMany(mappedBy = "tutor", orphanRemoval = true)
     @Builder.Default
-    List<Booking> tutorBookings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "tutor", orphanRemoval = true)
-    @Builder.Default
     List<BrokeragePackage> tutorBrokeragePackages = new ArrayList<>();
 
     @OneToMany(mappedBy = "sender", orphanRemoval = true)
@@ -122,7 +118,7 @@ public class User {
     @Builder.Default
     List<CourseEnrollment> courseEnrollments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student", orphanRemoval = true)
+    @OneToMany(mappedBy = "createdBy", orphanRemoval = true)
     @Builder.Default
     List<Dispute> disputes = new ArrayList<>();
 
@@ -143,4 +139,7 @@ public class User {
 
     @OneToMany(mappedBy = "tutor", orphanRemoval = true)
     List<Review> receivedReviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    List<ActionLog> actionLogs = new ArrayList<>();
 }

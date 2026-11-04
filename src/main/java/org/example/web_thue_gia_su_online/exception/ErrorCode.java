@@ -47,7 +47,14 @@ public enum ErrorCode {
     ENROLLMENT_HAS_ESCROW_HOLD(1034, "Cannot cancel enrollment with escrow hold", HttpStatus.BAD_REQUEST),
     WITHDRAWAL_NOT_FOUND(1035, "Withdrawal not found", HttpStatus.NOT_FOUND),
     INSUFFICIENT_BALANCE(1036, "Insufficient balance", HttpStatus.BAD_REQUEST),
-    ;
+    INVALID_DISPUTE_TARGET(1037, "Invalid dispute target", HttpStatus.BAD_REQUEST),
+    DISPUTE_ALREADY_ACTIVE(1038, "Dispute already active", HttpStatus.BAD_REQUEST),
+    INVALID_PARTICIPANT(1039, "Invalid participant", HttpStatus.BAD_REQUEST),
+    DISPUTE_NOT_FOUND(1040, "Dispute not found", HttpStatus.NOT_FOUND),
+    DISPUTE_CANNOT_BE_CANCELLED(1041, "Dispute can not be cancelled", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_TUTOR_BALANCE(1042, "Insufficient tutor balance", HttpStatus.BAD_REQUEST),
+    REFUND_ALREADY_PROCESSED(1043, "Refund already processed", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_COMPLETED(1044, "Payment not completed", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

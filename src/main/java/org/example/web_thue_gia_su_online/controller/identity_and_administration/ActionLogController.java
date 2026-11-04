@@ -1,61 +1,39 @@
 package org.example.web_thue_gia_su_online.controller.identity_and_administration;
 
+import java.time.Instant;
 import java.util.List;
 
-import jakarta.validation.Valid;
-
-import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.ActionLogCreationRequest;
-import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.ActionLogResponse;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/action-logs")
+@RequestMapping("/admin/action-logs")
 public class ActionLogController {
 
     ActionLogService actionLogService;
 
-    @PostMapping
-    ApiResponse<ActionLogResponse> logAction(@RequestBody @Valid ActionLogCreationRequest request) {
-        return ApiResponse.<ActionLogResponse>builder()
-                .result(actionLogService.logAction(request))
-                .build();
+    @GetMapping
+    public List<ActionLogResponse> getActionLogs(
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String action,
+            @RequestParam(required = false) String targetType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant toDate) {
+
+        return actionLogService.getActionLogs(userId, action, targetType, fromDate, toDate);
     }
 
     @GetMapping("/{id}")
-    ApiResponse<ActionLogResponse> getLog(@PathVariable String id) {
-        return ApiResponse.<ActionLogResponse>builder()
-                .result(actionLogService.getLog(id))
-                .build();
-    }
+    public ActionLogResponse getActionLogById(@PathVariable String id) {
 
-    @GetMapping("/target-user/{targetUserId}")
-    ApiResponse<List<ActionLogResponse>> getLogsByTargetUser(@PathVariable String targetUserId) {
-        return ApiResponse.<List<ActionLogResponse>>builder()
-                .result(actionLogService.getLogsByTargetUser(targetUserId))
-                .build();
-    }
-
-    @GetMapping("/admin/{adminId}")
-    ApiResponse<List<ActionLogResponse>> getLogsByAdmin(@PathVariable String adminId) {
-        return ApiResponse.<List<ActionLogResponse>>builder()
-                .result(actionLogService.getLogsByAdmin(adminId))
-                .build();
-    }
-
-    @GetMapping
-    ApiResponse<List<ActionLogResponse>> getAllLogs() {
-        return ApiResponse.<List<ActionLogResponse>>builder()
-                .result(actionLogService.getAllLogs())
-                .build();
+        return actionLogService.getActionLogById(id);
     }
 }

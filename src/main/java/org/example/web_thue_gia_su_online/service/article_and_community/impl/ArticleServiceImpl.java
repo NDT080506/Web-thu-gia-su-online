@@ -10,6 +10,7 @@ import org.example.web_thue_gia_su_online.dto.response.article_and_community.Art
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
@@ -18,6 +19,7 @@ import org.example.web_thue_gia_su_online.repository.article_and_community.Artic
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleService;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +41,7 @@ public class ArticleServiceImpl implements ArticleService {
     ArticleCommentRepository articleCommentRepository;
     UserRepository userRepository;
     ArticleMapper articleMapper;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -81,7 +84,9 @@ public class ArticleServiceImpl implements ArticleService {
         article.setCreatedAt(now);
         article.setUpdatedAt(now);
 
-        return articleMapper.toArticleResponse(articleRepository.save(article));
+        Article savedArticle = articleRepository.save(article);
+        actionLogService.log(ActionCode.CREATE_ARTICLE, author, "Article", savedArticle.getId());
+        return articleMapper.toArticleResponse(savedArticle);
     }
 
     @Override
@@ -148,8 +153,9 @@ public class ArticleServiceImpl implements ArticleService {
 
         articleMapper.updateArticle(article, request);
         article.setUpdatedAt(Instant.now());
-
-        return articleMapper.toArticleResponse(articleRepository.save(article));
+        articleRepository.save(article);
+        actionLogService.log(ActionCode.UPDATE_ARTICLE, currentUser, "Article", id);
+        return articleMapper.toArticleResponse(article);
     }
 
     @Override
@@ -187,6 +193,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         articleRepository.delete(article);
+        actionLogService.log(ActionCode.DELETE_ARTICLE, currentUser, "Article", id);
     }
 
     private int getCurrentUserRoleLevel() {

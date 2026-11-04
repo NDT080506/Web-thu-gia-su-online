@@ -8,12 +8,14 @@ import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.Withdra
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.WithdrawalResponse;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PayoutResult;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Withdrawal;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WithdrawalRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PayoutGateway;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.WithdrawalPersistenceService;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.WithdrawalService;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
     WithdrawalPersistenceService persistenceService;
     WithdrawalRepository withdrawalRepository;
     PayoutGateway payoutGateway;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -63,6 +66,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
         // Giai đoạn 3: cập nhật kết quả và hoàn tiền nếu thất bại
         persistenceService.complete(withdrawal.getId(), result);
 
+        actionLogService.log(ActionCode.WITHDRAW_MONEY, withdrawal.getUser(), "Withdrawal", withdrawal.getId());
         return findWithdrawalResponse(userId, withdrawal.getId());
     }
 

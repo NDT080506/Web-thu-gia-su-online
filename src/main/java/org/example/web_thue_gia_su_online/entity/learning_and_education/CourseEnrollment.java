@@ -1,10 +1,12 @@
 package org.example.web_thue_gia_su_online.entity.learning_and_education;
 
 import java.time.Instant;
+import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 
@@ -58,9 +60,12 @@ public class CourseEnrollment {
 
     Instant updatedAt;
 
-    // ─── One-to-One ──────────────────────────────────────────
+    // ─── One-to-One/Many ──────────────────────────────────────────
     @OneToOne(mappedBy = "enrollment")
     private Review review;
+
+    @OneToMany(mappedBy = "enrollment", orphanRemoval = true)
+    List<Dispute> disputes;
 
     @PrePersist
     protected void onCreate() {

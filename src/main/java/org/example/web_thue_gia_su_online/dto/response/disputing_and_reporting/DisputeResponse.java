@@ -17,8 +17,10 @@ public class DisputeResponse {
 
     String id;
     String bookingId;
-    String studentId;
+    String enrollmentId;
+    String createdBy;
     String reason;
+    String evidenceUrl;
     DisputeStatus status;
     long refundAmount;
     String adminNote;

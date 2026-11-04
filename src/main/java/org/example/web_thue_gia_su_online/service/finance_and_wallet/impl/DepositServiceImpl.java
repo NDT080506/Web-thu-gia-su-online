@@ -9,6 +9,7 @@ import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.Paymen
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentVerificationResult;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.TransactionStatus;
 import org.example.web_thue_gia_su_online.enums.TransactionType;
 import org.example.web_thue_gia_su_online.enums.WalletType;
@@ -16,6 +17,7 @@ import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentT
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.DepositService;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentGateway;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ public class DepositServiceImpl implements DepositService {
     WalletRepository walletRepository;
     PaymentTransactionRepository transactionRepository;
     PaymentGateway paymentGateway;
+    ActionLogService actionLogService;
 
     @NonFinal
     @Value("${app.frontend-url}")
@@ -63,6 +66,9 @@ public class DepositServiceImpl implements DepositService {
                 .build();
 
         transaction = transactionRepository.save(transaction);
+
+        // Lấy user từ wallet để log
+        actionLogService.log(ActionCode.DEPOSIT_MONEY, wallet.getUser(), "PaymentTransaction", transaction.getId());
 
         PaymentInitiationRequest gatewayRequest = PaymentInitiationRequest.builder()
                 .transactionId(transaction.getId())
@@ -151,6 +157,7 @@ public class DepositServiceImpl implements DepositService {
         walletRepository.save(wallet);
         transactionRepository.save(transaction);
 
+        actionLogService.log(ActionCode.DEPOSIT_CONFIRMED, wallet.getUser(), "PaymentTransaction", transaction.getId());
         return toResponse(transaction, null);
     }
 

@@ -10,8 +10,6 @@ public interface ArticleCommentService {
 
     ArticleCommentResponse createComment(ArticleCommentCreationRequest request, String articleId);
 
-    ArticleCommentResponse createComment(ArticleCommentCreationRequest request, String articleId, String userId);
-
     ArticleCommentResponse getComment(String id);
 
     List<ArticleCommentResponse> getCommentsByArticle(String articleId);

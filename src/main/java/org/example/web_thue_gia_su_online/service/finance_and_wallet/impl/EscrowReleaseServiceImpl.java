@@ -195,7 +195,7 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
         }
 
         // 4. Tìm và khóa ví gia sư
-        String tutorId = booking.getTutor().getId();
+        String tutorId = booking.getBrokeragePackage().getTutor().getId();
 
         Wallet tutorWallet = walletRepository
                 .findByUserIdAndTypeForUpdate(tutorId, WalletType.NORMAL)
