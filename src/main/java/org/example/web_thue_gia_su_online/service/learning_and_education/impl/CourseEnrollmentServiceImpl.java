@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseEnrollmentCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseProgressUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseEnrollmentResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
@@ -205,6 +206,75 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         escrowReleaseService.releaseEnrollmentEscrow(enrollment);
 
         return courseEnrollmentMapper.toResponse(enrollment);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('STUDENT')")
+    public CourseEnrollmentResponse getMyEnrollmentByCourse(String courseId) {
+        String studentId = getCurrentUserId();
+        CourseEnrollment enrollment = courseEnrollmentRepository
+                .findByStudentIdAndCourseId(studentId, courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+        return courseEnrollmentMapper.toResponse(enrollment);
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('STUDENT')")
+    public CourseEnrollmentResponse updateProgress(String id, CourseProgressUpdateRequest request) {
+        CourseEnrollment enrollment = courseEnrollmentRepository
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+
+        String currentUserId = getCurrentUserId();
+        if (!enrollment.getStudent().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Bạn không có quyền cập nhật tiến độ của khóa học này");
+        }
+
+        if (enrollment.getStatus() == EnrollmentStatus.PENDING
+                || enrollment.getStatus() == EnrollmentStatus.CANCELLED) {
+            throw new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE);
+        }
+
+        int newProgress = request.getProgressPercent();
+        enrollment.setProgressPercent(newProgress);
+
+        if (newProgress >= 100) {
+            enrollment.setProgressPercent(100);
+            if (enrollment.getCompletedAt() == null) {
+                enrollment.setCompletedAt(Instant.now());
+            }
+        }
+
+        return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('STUDENT')")
+    public CourseEnrollmentResponse updateProgressByCourseId(String courseId, CourseProgressUpdateRequest request) {
+        String studentId = getCurrentUserId();
+        CourseEnrollment enrollment = courseEnrollmentRepository
+                .findByStudentIdAndCourseId(studentId, courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
+
+        if (enrollment.getStatus() == EnrollmentStatus.PENDING
+                || enrollment.getStatus() == EnrollmentStatus.CANCELLED) {
+            throw new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE);
+        }
+
+        int newProgress = request.getProgressPercent();
+        enrollment.setProgressPercent(newProgress);
+
+        if (newProgress >= 100) {
+            enrollment.setProgressPercent(100);
+            if (enrollment.getCompletedAt() == null) {
+                enrollment.setCompletedAt(Instant.now());
+            }
+        }
+
+        return courseEnrollmentMapper.toResponse(courseEnrollmentRepository.save(enrollment));
     }
 
     @Override

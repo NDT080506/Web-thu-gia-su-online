@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseEnrollmentCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseProgressUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseEnrollmentResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseEnrollmentService;
@@ -63,6 +64,29 @@ public class CourseEnrollmentController {
     ApiResponse<CourseEnrollmentResponse> cancelEnrollment(@PathVariable String id) {
         return ApiResponse.<CourseEnrollmentResponse>builder()
                 .result(courseEnrollmentService.updateEnrollment(id))
+                .build();
+    }
+
+    @GetMapping("/me/course/{courseId}")
+    ApiResponse<CourseEnrollmentResponse> getMyEnrollmentByCourse(@PathVariable String courseId) {
+        return ApiResponse.<CourseEnrollmentResponse>builder()
+                .result(courseEnrollmentService.getMyEnrollmentByCourse(courseId))
+                .build();
+    }
+
+    @PatchMapping("/{id}/progress")
+    ApiResponse<CourseEnrollmentResponse> updateProgress(
+            @PathVariable String id, @RequestBody @Valid CourseProgressUpdateRequest request) {
+        return ApiResponse.<CourseEnrollmentResponse>builder()
+                .result(courseEnrollmentService.updateProgress(id, request))
+                .build();
+    }
+
+    @PatchMapping("/course/{courseId}/progress")
+    ApiResponse<CourseEnrollmentResponse> updateProgressByCourseId(
+            @PathVariable String courseId, @RequestBody @Valid CourseProgressUpdateRequest request) {
+        return ApiResponse.<CourseEnrollmentResponse>builder()
+                .result(courseEnrollmentService.updateProgressByCourseId(courseId, request))
                 .build();
     }
 
