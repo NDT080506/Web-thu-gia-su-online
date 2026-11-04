@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
+import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
 import org.example.web_thue_gia_su_online.enums.DisputeStatus;
 
 import lombok.*;
@@ -26,22 +27,29 @@ public class Dispute {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id")
     Booking booking;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    User student;
+    @JoinColumn(name = "enrollment_id")
+    CourseEnrollment enrollment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_id", nullable = false)
+    User createdBy;
 
     @NotNull
     @Column(columnDefinition = "TEXT")
     String reason;
 
+    @NotNull
+    @Column(columnDefinition = "TEXT")
+    String evidenceUrl;
+
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     @Column(length = 50, nullable = false)
-    DisputeStatus status = DisputeStatus.PENDING;
+    DisputeStatus status;
 
     @Builder.Default
     long refundAmount = 0;
@@ -55,7 +63,7 @@ public class Dispute {
     Instant resolvedAt;
 
     @PrePersist
-    void onCreate() {
+    protected void onCreate() {
         createdAt = Instant.now();
     }
 }

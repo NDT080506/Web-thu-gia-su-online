@@ -3,7 +3,8 @@ package org.example.web_thue_gia_su_online.entity.identity_and_administration;
 import java.time.Instant;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,9 +13,9 @@ import lombok.experimental.FieldDefaults;
 @Table(
         name = "action_logs",
         indexes = {
-            @Index(columnList = "target_user_id"),
-            @Index(columnList = "target_id"),
-            @Index(columnList = "created_at")
+            @Index(name = "idx_action_log_user", columnList = "user_id"),
+            @Index(name = "idx_action_log_created_at", columnList = "created_at"),
+            @Index(name = "idx_action_log_target", columnList = "target_type, target_id")
         })
 @Getter
 @Setter
@@ -29,31 +30,25 @@ public class ActionLog {
     String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id")
-    User admin;
+    @JoinColumn(name = "user_id")
+    User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target_user_id")
-    User targetUser;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 100)
+    ActionCode action;
 
-    @Column(length = 50)
+    @Column(name = "target_type", length = 50)
     String targetType;
 
+    @Column(name = "target_id")
     String targetId;
 
-    @Column(length = 100)
-    String actionCode;
-
-    @Column(columnDefinition = "jsonb")
-    String oldValue;
-
-    @Column(columnDefinition = "jsonb")
-    String newValue;
+    String ipAddress;
 
     @Column(columnDefinition = "TEXT")
-    String reason;
+    String userAgent;
 
-    @NotNull
+    @Column(name = "created_at", nullable = false, updatable = false)
     Instant createdAt;
 
     @PrePersist

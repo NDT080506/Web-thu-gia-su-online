@@ -9,12 +9,14 @@ import org.example.web_thue_gia_su_online.dto.response.learning_and_education.Me
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Message;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.MessageMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ConversationRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.MessageRepository;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.MessageService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -37,6 +39,7 @@ public class MessageServiceImpl implements MessageService {
     UserRepository userRepository;
     MessageMapper messageMapper;
     SimpMessagingTemplate messagingTemplate;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -75,6 +78,7 @@ public class MessageServiceImpl implements MessageService {
                 .build();
 
         Message savedMessage = messageRepository.save(message);
+        actionLogService.log(ActionCode.SEND_MESSAGE, sender, "Message", savedMessage.getId());
         return messageMapper.toResponse(savedMessage);
     }
 
@@ -118,7 +122,9 @@ public class MessageServiceImpl implements MessageService {
         }
 
         messageMapper.updateEntity(message, request);
-        return messageMapper.toResponse(messageRepository.save(message));
+        messageRepository.save(message);
+        actionLogService.log(ActionCode.UPDATE_MESSAGE, message.getSender(), "Message", id);
+        return messageMapper.toResponse(message);
     }
 
     @Override
@@ -135,5 +141,6 @@ public class MessageServiceImpl implements MessageService {
         }
 
         messageRepository.delete(message);
+        actionLogService.log(ActionCode.DELETE_MESSAGE, message.getSender(), "Message", id);
     }
 }

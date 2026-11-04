@@ -13,12 +13,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DisputeCreationRequest {
 
-    @NotBlank
     String bookingId;
 
-    @NotBlank
-    String studentId;
+    String enrollmentId;
 
     @NotBlank
     String reason;
+
+    @NotBlank
+    String evidenceUrl;
 }

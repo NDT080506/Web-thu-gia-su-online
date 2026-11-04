@@ -10,6 +10,7 @@ import org.example.web_thue_gia_su_online.dto.response.article_and_community.Art
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
@@ -18,6 +19,7 @@ import org.example.web_thue_gia_su_online.repository.article_and_community.Artic
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleCommentService;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +41,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     ArticleRepository articleRepository;
     UserRepository userRepository;
     ArticleCommentMapper articleCommentMapper;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -50,16 +53,8 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     public ArticleCommentResponse createComment(ArticleCommentCreationRequest request, String articleId) {
         String currentUserId = getCurrentUserId();
-        return createCommentInternal(request, articleId, currentUserId);
-    }
 
-    @Override
-    @Transactional
-    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
-    public ArticleCommentResponse createComment(
-            ArticleCommentCreationRequest request, String articleId, String userId) {
-        String effectiveUserId = (userId != null && !userId.isBlank()) ? userId : getCurrentUserId();
-        return createCommentInternal(request, articleId, effectiveUserId);
+        return createCommentInternal(request, articleId, currentUserId);
     }
 
     private ArticleCommentResponse createCommentInternal(
@@ -106,7 +101,9 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         comment.setHidden(false);
         comment.setCreatedAt(Instant.now());
 
-        return articleCommentMapper.toArticleCommentResponse(articleCommentRepository.save(comment));
+        ArticleComment savedComment = articleCommentRepository.save(comment);
+        actionLogService.log(ActionCode.CREATE_COMMENT, user, "ArticleComment", savedComment.getId());
+        return articleCommentMapper.toArticleCommentResponse(savedComment);
     }
 
     @Override
@@ -191,7 +188,9 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
             articleCommentMapper.updateArticleComment(comment, request);
         }
 
-        return articleCommentMapper.toArticleCommentResponse(articleCommentRepository.save(comment));
+        articleCommentRepository.save(comment);
+        actionLogService.log(ActionCode.UPDATE_COMMENT, currentUser, "ArticleComment", id);
+        return articleCommentMapper.toArticleCommentResponse(comment);
     }
 
     @Override
@@ -214,6 +213,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         }
 
         articleCommentRepository.delete(comment);
+        actionLogService.log(ActionCode.DELETE_COMMENT, currentUser, "ArticleComment", id);
     }
 
     private int getCurrentUserRoleLevel() {

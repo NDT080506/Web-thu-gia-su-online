@@ -3,18 +3,24 @@ package org.example.web_thue_gia_su_online.service.disputing_and_reporting;
 import java.util.List;
 
 import org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting.DisputeCreationRequest;
-import org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting.DisputeUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.disputing_and_reporting.DisputeResponse;
+import org.example.web_thue_gia_su_online.enums.DisputeStatus;
 
 public interface DisputeService {
 
-    DisputeResponse createDispute(DisputeCreationRequest request);
+    public DisputeResponse createDispute(DisputeCreationRequest request);
 
-    DisputeResponse getDispute(String id);
+    public List<DisputeResponse> getMyDisputes();
 
-    List<DisputeResponse> getDisputes();
+    public DisputeResponse getMyDispute(String disputeId);
 
-    DisputeResponse updateDispute(DisputeUpdateRequest request, String id);
+    public void cancelDispute(String disputeId);
 
-    void deleteDispute(String id);
+    public List<DisputeResponse> getAllDisputes(DisputeStatus status);
+
+    public DisputeResponse getDisputeDetail(String disputeId);
+
+    public DisputeResponse approveDispute(String disputeId);
+
+    public DisputeResponse rejectDispute(String disputeId);
 }

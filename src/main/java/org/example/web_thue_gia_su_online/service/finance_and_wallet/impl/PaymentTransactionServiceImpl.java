@@ -10,6 +10,7 @@ import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.Paymen
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.finance_and_wallet.PaymentTransactionMapper;
@@ -17,6 +18,7 @@ import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentT
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentTransactionService;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     WalletRepository walletRepository;
     BookingRepository bookingRepository;
     PaymentTransactionMapper paymentTransactionMapper;
+    ActionLogService actionLogService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -123,7 +126,16 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
                 .createdAt(Instant.now())
                 .build();
 
-        return paymentTransactionMapper.toPaymentTransactionResponse(paymentTransactionRepository.save(transaction));
+        PaymentTransaction savedTransaction = paymentTransactionRepository.save(transaction);
+        // Log với user của source wallet (người thực hiện giao dịch)
+        if (sourceWallet != null) {
+            actionLogService.log(
+                    ActionCode.CREATE_PAYMENT_TRANSACTION,
+                    sourceWallet.getUser(),
+                    "PaymentTransaction",
+                    savedTransaction.getId());
+        }
+        return paymentTransactionMapper.toPaymentTransactionResponse(savedTransaction);
     }
 
     @Override

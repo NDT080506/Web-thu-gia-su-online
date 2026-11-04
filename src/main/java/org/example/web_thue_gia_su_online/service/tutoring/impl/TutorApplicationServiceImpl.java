@@ -8,6 +8,7 @@ import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorApplicationC
 import org.example.web_thue_gia_su_online.dto.response.tutoring.TutorApplicationResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.RequestStatus;
 import org.example.web_thue_gia_su_online.enums.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
@@ -15,6 +16,7 @@ import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.tutoring.TutorApplicationMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.tutoring.TutorApplicationRepository;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorApplicationService;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorProfileService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +39,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
     TutorApplicationRepository tutorApplicationRepository;
     TutorApplicationMapper tutorApplicationMapper;
     TutorProfileService tutorProfileService;
+    ActionLogService actionLogService;
 
     @Override
     @PreAuthorize("hasRole('STUDENT')")
@@ -58,7 +61,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         tutorApplication.setUpdatedAt(now);
 
         tutorApplicationRepository.save(tutorApplication);
-
+        actionLogService.log(ActionCode.APPLY_TUTOR, user, "TutorApplication", tutorApplication.getId());
         return tutorApplicationMapper.toTutorApplicationResponse(tutorApplication);
     }
 
@@ -116,6 +119,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         userRepository.save(user);
         tutorApplicationRepository.save(tutorApplication);
         tutorProfileService.createTutorProfile(user, tutorApplication);
+        actionLogService.log(ActionCode.APPROVE_TUTOR_APPLICATION, user, "TutorApplication", id);
 
         return tutorApplicationMapper.toTutorApplicationResponse(tutorApplication);
     }
@@ -133,6 +137,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         tutorApplication.setUpdatedAt(Instant.now());
 
         tutorApplicationRepository.save(tutorApplication);
+        actionLogService.log(ActionCode.REJECT_TUTOR_APPLICATION, tutorApplication.getUser(), "TutorApplication", id);
 
         return tutorApplicationMapper.toTutorApplicationResponse(tutorApplication);
     }
@@ -147,6 +152,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
                 .orElseThrow(() -> new AppException(ErrorCode.TUTOR_APPLICATION_NOT_FOUND));
 
         tutorApplicationRepository.delete(tutorApplication);
+        actionLogService.log(ActionCode.DELETE_TUTOR_APPLICATION, tutorApplication.getUser(), "TutorApplication", id);
     }
 
     @Override
@@ -163,5 +169,10 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
                 .orElseThrow(() -> new AppException(ErrorCode.TUTOR_APPLICATION_NOT_FOUND));
 
         tutorApplicationRepository.delete(tutorApplication);
+        actionLogService.log(
+                ActionCode.DELETE_TUTOR_APPLICATION,
+                tutorApplication.getUser(),
+                "TutorApplication",
+                tutorApplication.getId());
     }
 }

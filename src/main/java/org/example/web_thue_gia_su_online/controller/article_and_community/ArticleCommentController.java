@@ -33,17 +33,6 @@ public class ArticleCommentController {
                 .build();
     }
 
-    // Support legacy path /{articleId}/{userId} for backward compatibility
-    @PostMapping("/{articleId}/{userId}")
-    ApiResponse<ArticleCommentResponse> createComment(
-            @RequestBody @Valid ArticleCommentCreationRequest request,
-            @PathVariable String articleId,
-            @PathVariable String userId) {
-        return ApiResponse.<ArticleCommentResponse>builder()
-                .result(articleCommentService.createComment(request, articleId, userId))
-                .build();
-    }
-
     @GetMapping("/{id}")
     ApiResponse<ArticleCommentResponse> getComment(@PathVariable String id) {
         return ApiResponse.<ArticleCommentResponse>builder()

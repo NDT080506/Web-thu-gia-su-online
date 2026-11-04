@@ -46,24 +46,6 @@ class ArticleCommentControllerTest {
     }
 
     @Test
-    void createComment_legacyWithUserId_shouldReturnCommentResponse() {
-        ArticleCommentCreationRequest request =
-                ArticleCommentCreationRequest.builder().content("Test comment").build();
-        ArticleCommentResponse response =
-                ArticleCommentResponse.builder().id("1").build();
-        when(articleCommentService.createComment(eq(request), eq("article-1"), eq("user-1")))
-                .thenReturn(response);
-
-        ApiResponse<ArticleCommentResponse> apiResponse =
-                articleCommentController.createComment(request, "article-1", "user-1");
-
-        assertNotNull(apiResponse);
-        assertEquals(1000, apiResponse.getCode());
-        assertNotNull(apiResponse.getResult());
-        verify(articleCommentService).createComment(eq(request), eq("article-1"), eq("user-1"));
-    }
-
-    @Test
     void getComment_shouldReturnCommentResponse() {
         ArticleCommentResponse response =
                 ArticleCommentResponse.builder().id("1").build();

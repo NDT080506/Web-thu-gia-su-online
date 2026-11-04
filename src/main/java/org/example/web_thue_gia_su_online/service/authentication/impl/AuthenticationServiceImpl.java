@@ -17,11 +17,13 @@ import org.example.web_thue_gia_su_online.dto.response.authentication.RefreshTok
 import org.example.web_thue_gia_su_online.entity.authentication.InvalidatedToken;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.enums.AccountStatus;
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.repository.authentication.InvalidatedTokenRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.authentication.AuthenticationService;
+import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
     PasswordEncoder passwordEncoder;
+    ActionLogService actionLogService;
 
     @NonFinal
     @Value("${jwt.signer-key}")
@@ -99,9 +102,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
 
         if (!authenticated) {
+            actionLogService.log(ActionCode.LOGIN_FAILED, user, "Authentication", user.getId());
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
+        actionLogService.log(ActionCode.LOGIN_SUCCESS, user, "Authentication", user.getId());
         String accessToken = generateToken(user, "access", VALID_DURATION);
 
         String refreshToken = generateToken(user, "refresh", REFRESHABLE_DURATION);
@@ -145,6 +150,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .user(user)
                     .expiryTime(refreshClaims.getExpirationTime())
                     .build());
+
+            actionLogService.log(ActionCode.LOGOUT, user, "Authentication", userId);
 
         } catch (AppException | ParseException | JOSEException e) {
             throw new RuntimeException(e);

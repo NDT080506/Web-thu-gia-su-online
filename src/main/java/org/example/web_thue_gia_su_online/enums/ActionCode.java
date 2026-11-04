@@ -1,0 +1,89 @@
+package org.example.web_thue_gia_su_online.enums;
+
+public enum ActionCode {
+    // Authentication
+    LOGIN_SUCCESS,
+    LOGIN_FAILED,
+    LOGOUT,
+    REGISTER,
+
+    // User
+    UPDATE_PROFILE,
+    CHANGE_PASSWORD,
+    CREATE_USER,
+    UPDATE_USER,
+    DELETE_USER,
+    UPDATE_USER_STATUS,
+
+    // Booking
+    CREATE_BOOKING,
+    CONFIRM_BOOKING,
+    COMPLETE_BOOKING,
+    CANCEL_BOOKING,
+
+    // Course
+    CREATE_COURSE,
+    UPDATE_COURSE,
+    DELETE_COURSE,
+    ENROLL_COURSE,
+    CANCEL_ENROLLMENT,
+    COMPLETE_ENROLLMENT,
+    DELETE_ENROLLMENT,
+
+    // Lesson
+    CREATE_LESSON,
+    UPDATE_LESSON,
+    DELETE_LESSON,
+
+    // Tutor application
+    APPLY_TUTOR,
+    APPROVE_TUTOR_APPLICATION,
+    REJECT_TUTOR_APPLICATION,
+    DELETE_TUTOR_APPLICATION,
+
+    // Dispute
+    CREATE_DISPUTE,
+    CANCEL_DISPUTE,
+    APPROVE_DISPUTE,
+    REJECT_DISPUTE,
+
+    // Comment
+    CREATE_COMMENT,
+    UPDATE_COMMENT,
+    DELETE_COMMENT,
+
+    // Article
+    CREATE_ARTICLE,
+    UPDATE_ARTICLE,
+    DELETE_ARTICLE,
+
+    // Review
+    CREATE_REVIEW,
+    UPDATE_REVIEW,
+    DELETE_REVIEW,
+
+    // Conversation
+    CREATE_CONVERSATION,
+    AGREE_CONVERSATION,
+    DECLINE_CONVERSATION,
+
+    // Message
+    SEND_MESSAGE,
+    UPDATE_MESSAGE,
+    DELETE_MESSAGE,
+
+    // Wallet & Payment
+    DEPOSIT_MONEY,
+    DEPOSIT_CONFIRMED,
+    WITHDRAW_MONEY,
+    CREATE_PAYMENT_TRANSACTION,
+
+    // Brokerage Package
+    CREATE_PACKAGE,
+    UPDATE_PACKAGE,
+
+    // Admin
+    SUSPEND_USER,
+    BAN_USER,
+    UNBAN_USER
+}

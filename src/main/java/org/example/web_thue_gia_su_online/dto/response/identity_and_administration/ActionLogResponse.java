@@ -1,7 +1,8 @@
 package org.example.web_thue_gia_su_online.dto.response.identity_and_administration;
 
 import java.time.Instant;
-import java.util.UUID;
+
+import org.example.web_thue_gia_su_online.enums.ActionCode;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,13 +16,20 @@ import lombok.experimental.FieldDefaults;
 public class ActionLogResponse {
 
     String id;
-    String adminId;
-    String targetUserId;
+
+    String userId;
+
+    String userDisplayName;
+
+    ActionCode action;
+
     String targetType;
-    UUID targetId;
-    String actionCode;
-    String oldValue;
-    String newValue;
-    String reason;
+
+    String targetId;
+
+    String ipAddress;
+
+    String userAgent;
+
     Instant createdAt;
 }

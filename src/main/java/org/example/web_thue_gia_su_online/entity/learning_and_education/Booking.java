@@ -37,10 +37,6 @@ public class Booking {
     @JoinColumn(name = "student_id", nullable = false)
     User student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tutor_id")
-    User tutor;
-
     @Enumerated(EnumType.STRING)
     @NotNull
     @Builder.Default
@@ -64,12 +60,12 @@ public class Booking {
     @JoinColumn(name = "conversation_id", nullable = false)
     Conversation conversation;
 
-    // ─── One-to-Many ──────────────────────────────────────────
+    // ─── One-to-One/Many ──────────────────────────────────────────
     @OneToOne(mappedBy = "booking")
     Review review;
 
-    @OneToOne(mappedBy = "booking")
-    Dispute dispute;
+    @OneToMany(mappedBy = "booking", orphanRemoval = true)
+    List<Dispute> disputes;
 
     @OneToMany(mappedBy = "booking")
     @Builder.Default

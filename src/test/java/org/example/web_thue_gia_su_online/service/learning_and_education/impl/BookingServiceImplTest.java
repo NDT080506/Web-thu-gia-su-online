@@ -122,7 +122,6 @@ class BookingServiceImplTest {
         return Booking.builder()
                 .id("booking-uuid-111")
                 .student(createStudent())
-                .tutor(createTutor())
                 .brokeragePackage(createActivePackage())
                 .conversation(createAgreedConversation())
                 .status(BookingStatus.PENDING_PAYMENT)
