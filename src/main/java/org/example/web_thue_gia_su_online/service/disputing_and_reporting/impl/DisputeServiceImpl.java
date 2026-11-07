@@ -48,14 +48,14 @@ public class DisputeServiceImpl implements DisputeService {
     RefundService refundService;
     ActionLogService actionLogService;
 
-    private String getCurrentStudentId() {
+    private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
                 .getName();
     }
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
     public DisputeResponse createDispute(DisputeCreationRequest request) {
         boolean hasBooking = request.getBookingId() != null;
         boolean hasEnrollment = request.getEnrollmentId() != null;
@@ -64,9 +64,9 @@ public class DisputeServiceImpl implements DisputeService {
             throw new AppException(ErrorCode.INVALID_DISPUTE_TARGET);
         }
 
-        String studentId = getCurrentStudentId();
+        String userId = getCurrentUserId();
 
-        User creator = userRepository.findById(studentId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User creator = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Dispute.DisputeBuilder builder = Dispute.builder()
                 .createdBy(creator)
@@ -79,7 +79,7 @@ public class DisputeServiceImpl implements DisputeService {
                     .findById(request.getBookingId())
                     .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
 
-            validateBookingParticipant(booking, studentId);
+            validateBookingParticipant(booking, userId);
             validateBookingPayment(booking);
 
             boolean exists = disputeRepository.existsByBooking_IdAndStatus(booking.getId(), DisputeStatus.UNDER_REVIEW);
@@ -97,7 +97,7 @@ public class DisputeServiceImpl implements DisputeService {
                     .findById(request.getEnrollmentId())
                     .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE));
 
-            validateEnrollmentParticipant(enrollment, studentId);
+            validateEnrollmentParticipant(enrollment, userId);
             validateEnrollmentPayment(enrollment);
 
             boolean exists =
@@ -116,14 +116,26 @@ public class DisputeServiceImpl implements DisputeService {
         return disputeMapper.toResponse(dispute);
     }
 
-    private void validateBookingParticipant(Booking booking, String studentId) {
-        if (!booking.getStudent().getId().equals(studentId)) {
+    private void validateBookingParticipant(Booking booking, String userId) {
+        boolean isStudent =
+                booking.getStudent() != null && booking.getStudent().getId().equals(userId);
+        boolean isTutor = booking.getBrokeragePackage() != null
+                && booking.getBrokeragePackage().getTutor() != null
+                && booking.getBrokeragePackage().getTutor().getId().equals(userId);
+
+        if (!isStudent && !isTutor) {
             throw new AppException(ErrorCode.INVALID_PARTICIPANT);
         }
     }
 
-    private void validateEnrollmentParticipant(CourseEnrollment enrollment, String studentId) {
-        if (!enrollment.getStudent().getId().equals(studentId)) {
+    private void validateEnrollmentParticipant(CourseEnrollment enrollment, String userId) {
+        boolean isStudent = enrollment.getStudent() != null
+                && enrollment.getStudent().getId().equals(userId);
+        boolean isTutor = enrollment.getCourse() != null
+                && enrollment.getCourse().getTutor() != null
+                && enrollment.getCourse().getTutor().getId().equals(userId);
+
+        if (!isStudent && !isTutor) {
             throw new AppException(ErrorCode.INVALID_PARTICIPANT);
         }
     }
@@ -152,22 +164,22 @@ public class DisputeServiceImpl implements DisputeService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
     public List<DisputeResponse> getMyDisputes() {
-        String studentId = getCurrentStudentId();
-        return disputeRepository.findByCreatedBy_Id(studentId).stream()
+        String userId = getCurrentUserId();
+        return disputeRepository.findByCreatedBy_Id(userId).stream()
                 .map(disputeMapper::toResponse)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
     public DisputeResponse getMyDispute(String disputeId) {
-        String studentId = getCurrentStudentId();
+        String userId = getCurrentUserId();
 
         Dispute dispute = disputeRepository
-                .findByIdAndCreatedBy_Id(disputeId, studentId)
+                .findByIdAndCreatedBy_Id(disputeId, userId)
                 .orElseThrow(() -> new AppException(ErrorCode.DISPUTE_NOT_FOUND));
 
         return disputeMapper.toResponse(dispute);
@@ -175,12 +187,12 @@ public class DisputeServiceImpl implements DisputeService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
     public void cancelDispute(String disputeId) {
-        String studentId = getCurrentStudentId();
+        String userId = getCurrentUserId();
 
         Dispute dispute = disputeRepository
-                .findByIdAndCreatedBy_Id(disputeId, studentId)
+                .findByIdAndCreatedBy_Id(disputeId, userId)
                 .orElseThrow(() -> new AppException(ErrorCode.DISPUTE_NOT_FOUND));
 
         if (dispute.getStatus() == DisputeStatus.REJECTED
