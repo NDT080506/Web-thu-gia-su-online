@@ -89,6 +89,7 @@ public class DisputeServiceImpl implements DisputeService {
             }
 
             builder.booking(booking);
+            builder.refundAmount(booking.getTotalPrice());
         }
 
         if (hasEnrollment) {
@@ -107,6 +108,7 @@ public class DisputeServiceImpl implements DisputeService {
             }
 
             builder.enrollment(enrollment);
+            builder.refundAmount(enrollment.getTotalPrice());
         }
 
         Dispute dispute = disputeRepository.save(builder.build());
@@ -127,21 +129,23 @@ public class DisputeServiceImpl implements DisputeService {
     }
 
     private void validateBookingPayment(Booking booking) {
-
-        boolean paymentCompleted = paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
+        boolean hasHold = paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
+                booking.getId(), TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS);
+        boolean hasRelease = paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
                 booking.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
 
-        if (!paymentCompleted) {
+        if (!hasHold && !hasRelease) {
             throw new AppException(ErrorCode.PAYMENT_NOT_COMPLETED);
         }
     }
 
     private void validateEnrollmentPayment(CourseEnrollment enrollment) {
-
-        boolean paymentCompleted = paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
+        boolean hasHold = paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
+                enrollment.getId(), TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS);
+        boolean hasRelease = paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
                 enrollment.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
 
-        if (!paymentCompleted) {
+        if (!hasHold && !hasRelease) {
             throw new AppException(ErrorCode.PAYMENT_NOT_COMPLETED);
         }
     }
@@ -222,7 +226,7 @@ public class DisputeServiceImpl implements DisputeService {
 
         refundService.refundDispute(dispute);
 
-        dispute.setAdminNote("Your dispute has been approved by the creator");
+        dispute.setAdminNote("Khiếu nại đã được Quản trị viên phê duyệt và hoàn tiền thành công.");
         dispute.setStatus(DisputeStatus.APPROVED);
         dispute.setResolvedAt(Instant.now());
         disputeRepository.save(dispute);
@@ -242,7 +246,7 @@ public class DisputeServiceImpl implements DisputeService {
             throw new AppException(ErrorCode.DISPUTE_NOT_FOUND);
         }
 
-        dispute.setAdminNote("Your dispute has been rejected by the creator");
+        dispute.setAdminNote("Khiếu nại bị bác bỏ do bằng chứng chưa đủ căn cứ xác minh.");
         dispute.setStatus(DisputeStatus.REJECTED);
         dispute.setResolvedAt(Instant.now());
         disputeRepository.save(dispute);
