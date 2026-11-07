@@ -35,6 +35,9 @@ public class TutorProfile {
     @Column(columnDefinition = "TEXT")
     String subjectsCanTeach;
 
+    @Column(columnDefinition = "TEXT")
+    String availableSchedule;
+
     @Builder.Default
     @Column(precision = 3, scale = 2)
     BigDecimal rating = new BigDecimal("5.00");

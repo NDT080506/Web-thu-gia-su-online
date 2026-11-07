@@ -98,6 +98,8 @@ public class TutorProfileServiceImpl implements TutorProfileService {
                 .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.TUTOR_PROFILE_NOT_FOUND));
 
+        tutorProfileMapper.updateTutorProfileResponse(tutorProfile, request);
+
         return tutorProfileMapper.toTutorProfileResponse(tutorProfileRepository.save(tutorProfile));
     }
 

@@ -54,6 +54,8 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/brokerage-packages/**")
                 .permitAll()
+                .requestMatchers(HttpMethod.GET, "/tutor-profiles", "/tutor-profiles/**")
+                .permitAll()
                 .requestMatchers("/ws", "/ws/**")
                 .permitAll()
                 .requestMatchers("/mock-payments/**")

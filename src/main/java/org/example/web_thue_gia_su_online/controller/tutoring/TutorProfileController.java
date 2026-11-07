@@ -53,6 +53,13 @@ public class TutorProfileController {
                 .build();
     }
 
+    @GetMapping("/{userId}")
+    ApiResponse<TutorProfileResponse> getPublicTutorProfile(@PathVariable String userId) {
+        return ApiResponse.<TutorProfileResponse>builder()
+                .result(tutorProfileService.getTutorProfile(userId))
+                .build();
+    }
+
     @PatchMapping
     ApiResponse<TutorProfileResponse> updateMyTutorProfile(@RequestBody @Valid TutorProfileUpdateRequest request) {
         return ApiResponse.<TutorProfileResponse>builder()

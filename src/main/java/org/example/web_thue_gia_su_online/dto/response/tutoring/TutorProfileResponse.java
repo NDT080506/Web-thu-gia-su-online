@@ -17,6 +17,7 @@ public class TutorProfileResponse {
     String userId;
     String bio;
     String subjectsCanTeach;
+    String availableSchedule;
     BigDecimal rating;
     Instant createdAt;
 }

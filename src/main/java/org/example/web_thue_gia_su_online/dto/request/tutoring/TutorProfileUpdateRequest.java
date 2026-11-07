@@ -14,4 +14,6 @@ public class TutorProfileUpdateRequest {
     String bio;
 
     String subjectsCanTeach;
+
+    String availableSchedule;
 }
