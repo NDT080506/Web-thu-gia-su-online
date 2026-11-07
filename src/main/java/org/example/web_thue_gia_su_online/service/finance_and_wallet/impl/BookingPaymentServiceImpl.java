@@ -99,12 +99,12 @@ public class BookingPaymentServiceImpl implements BookingPaymentService {
                 .referenceCode(UUID.randomUUID().toString())
                 .amount(amount)
                 .balanceAfter(wallet.getAvailableBalance())
-                .note("Giữ tiền thanh toán cho booking " + bookingId)
+                .note("Thanh toán phí dịch vụ môi giới cho booking " + bookingId)
                 .build();
 
         PaymentTransaction savedTransaction = paymentTransactionRepository.save(transaction);
 
-        // 10. Chuyển booking sang PAID — tiền đã được giữ trong escrow.
+        // 10. Chuyển booking sang PENDING_CONFIRMATION — đã thanh toán phí môi giới thành công.
         booking.setStatus(BookingStatus.PENDING_CONFIRMATION);
         bookingRepository.save(booking);
 
