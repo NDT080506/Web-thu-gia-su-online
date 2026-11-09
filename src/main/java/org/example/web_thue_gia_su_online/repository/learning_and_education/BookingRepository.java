@@ -23,7 +23,9 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
 		""")
     Optional<Booking> findByIdForUpdate(@Param("bookingId") String bookingId);
 
-    List<Booking> findAllByStudentId(String studentId);
+    @Query("SELECT b FROM Booking b WHERE b.student.id = :studentId")
+    List<Booking> findAllByStudentId(@Param("studentId") String studentId);
 
-    List<Booking> findAllByTutorId(String tutorId);
+    @Query("SELECT b FROM Booking b WHERE b.brokeragePackage.tutor.id = :tutorId")
+    List<Booking> findAllByTutorId(@Param("tutorId") String tutorId);
 }

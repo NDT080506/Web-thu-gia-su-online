@@ -16,11 +16,11 @@ public interface ActionLogRepository extends JpaRepository<ActionLog, String> {
 		SELECT a
 		FROM ActionLog a
 		LEFT JOIN a.user u
-		WHERE (:userId IS NULL OR u.id = :userId)
-		AND (:action IS NULL OR a.action = :action)
-		AND (:targetType IS NULL OR a.targetType = :targetType)
-		AND (:fromDate IS NULL OR a.createdAt >= :fromDate)
-		AND (:toDate IS NULL OR a.createdAt <= :toDate)
+		WHERE (CAST(:userId AS string) IS NULL OR u.id = :userId)
+		AND (CAST(:action AS string) IS NULL OR STR(a.action) = :action)
+		AND (CAST(:targetType AS string) IS NULL OR a.targetType = :targetType)
+		AND (CAST(:fromDate AS java.time.Instant) IS NULL OR a.createdAt >= :fromDate)
+		AND (CAST(:toDate AS java.time.Instant) IS NULL OR a.createdAt <= :toDate)
 		ORDER BY a.createdAt DESC
 		""")
     List<ActionLog> searchActionLogs(

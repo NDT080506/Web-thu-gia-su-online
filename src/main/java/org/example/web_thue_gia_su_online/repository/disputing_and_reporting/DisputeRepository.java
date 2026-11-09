@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.enums.DisputeStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,5 +22,6 @@ public interface DisputeRepository extends JpaRepository<Dispute, String> {
 
     List<Dispute> findByStatus(DisputeStatus status);
 
-    boolean existsSuccessfulRefund(String disputeId, DisputeStatus status);
+    @Query("SELECT COUNT(d) > 0 FROM Dispute d WHERE d.id = :disputeId AND d.status = :status")
+    boolean existsSuccessfulRefund(@Param("disputeId") String disputeId, @Param("status") DisputeStatus status);
 }
