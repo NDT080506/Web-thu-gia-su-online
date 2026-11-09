@@ -45,8 +45,7 @@ public class RefundServiceImpl implements RefundService {
                 .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
 
         // Kiểm tra tránh hoàn tiền hai lần
-        if (disputeRepository.existsByIdAndStatus(
-                dispute.getId(), DisputeStatus.APPROVED)) {
+        if (disputeRepository.existsByIdAndStatus(dispute.getId(), DisputeStatus.APPROVED)) {
             throw new AppException(ErrorCode.REFUND_ALREADY_PROCESSED);
         }
 

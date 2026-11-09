@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -35,7 +34,7 @@ public class ActionLogServiceImpl implements ActionLogService {
     ActionLogMapper actionLogMapper;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void log(ActionCode actionCode, User user, String targetType, String targetId) {
 
         HttpServletRequest request = getCurrentRequest();

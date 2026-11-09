@@ -71,12 +71,12 @@ public class BookingController {
                 .build();
     }
 
-//    @GetMapping("/tutor")
-//    public ApiResponse<List<BookingResponse>> getByTutorId() {
-//        return ApiResponse.<List<BookingResponse>>builder()
-//                .result(bookingService.getByTutorId())
-//                .build();
-//    }
+    //    @GetMapping("/tutor")
+    //    public ApiResponse<List<BookingResponse>> getByTutorId() {
+    //        return ApiResponse.<List<BookingResponse>>builder()
+    //                .result(bookingService.getByTutorId())
+    //                .build();
+    //    }
 
     @GetMapping("/student/{studentId}")
     public ApiResponse<List<BookingResponse>> getByStudentId(@PathVariable String studentId) {
@@ -85,10 +85,10 @@ public class BookingController {
                 .build();
     }
 
-//    @GetMapping("/tutor/{tutorId}")
-//    public ApiResponse<List<BookingResponse>> getByTutorId(@PathVariable String tutorId) {
-//        return ApiResponse.<List<BookingResponse>>builder()
-//                .result(bookingService.getByTutorId(tutorId))
-//                .build();
-//    }
+    //    @GetMapping("/tutor/{tutorId}")
+    //    public ApiResponse<List<BookingResponse>> getByTutorId(@PathVariable String tutorId) {
+    //        return ApiResponse.<List<BookingResponse>>builder()
+    //                .result(bookingService.getByTutorId(tutorId))
+    //                .build();
+    //    }
 }
