@@ -82,7 +82,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
     public WalletResponse getWalletByUserId(String userId) {
         // Authorization: chỉ owner hoặc admin mới được xem
@@ -90,8 +90,24 @@ public class WalletServiceImpl implements WalletService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        Wallet wallet =
-                walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
+        Wallet wallet = walletRepository
+                .findByUser_IdAndType(userId, WalletType.NORMAL)
+                .or(() -> walletRepository.findByUserId(userId))
+                .orElseGet(() -> {
+                    User user = userRepository
+                            .findById(userId)
+                            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                    Instant now = Instant.now();
+                    Wallet newWallet = Wallet.builder()
+                            .user(user)
+                            .type(WalletType.NORMAL)
+                            .availableBalance(0)
+                            .holdingBalance(0)
+                            .createdAt(now)
+                            .updatedAt(now)
+                            .build();
+                    return walletRepository.save(newWallet);
+                });
 
         return walletMapper.toWalletResponse(wallet);
     }

@@ -1,5 +1,6 @@
 package org.example.web_thue_gia_su_online.service.finance_and_wallet.impl;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.DepositRequest;
@@ -9,12 +10,16 @@ import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.Paymen
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentVerificationResult;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
+import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.enums.TransactionStatus;
 import org.example.web_thue_gia_su_online.enums.TransactionType;
 import org.example.web_thue_gia_su_online.enums.WalletType;
+import org.example.web_thue_gia_su_online.exception.AppException;
+import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRepository;
+import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.DepositService;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentGateway;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
@@ -36,6 +41,7 @@ public class DepositServiceImpl implements DepositService {
     PaymentTransactionRepository transactionRepository;
     PaymentGateway paymentGateway;
     ActionLogService actionLogService;
+    UserRepository userRepository;
 
     @NonFinal
     @Value("${app.frontend-url}")
@@ -50,7 +56,22 @@ public class DepositServiceImpl implements DepositService {
 
         Wallet wallet = walletRepository
                 .findByUser_IdAndType(userId, WalletType.NORMAL)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy ví của người dùng"));
+                .or(() -> walletRepository.findByUserId(userId))
+                .orElseGet(() -> {
+                    User user = userRepository
+                            .findById(userId)
+                            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                    Instant now = Instant.now();
+                    Wallet newWallet = Wallet.builder()
+                            .user(user)
+                            .type(WalletType.NORMAL)
+                            .availableBalance(0)
+                            .holdingBalance(0)
+                            .createdAt(now)
+                            .updatedAt(now)
+                            .build();
+                    return walletRepository.save(newWallet);
+                });
 
         String referenceCode = UUID.randomUUID().toString();
 
@@ -61,7 +82,7 @@ public class DepositServiceImpl implements DepositService {
                 .provider(paymentGateway.getType())
                 .referenceCode(referenceCode)
                 .amount(request.getAmount())
-                .balanceAfter(null)
+                .balanceAfter(wallet.getAvailableBalance())
                 .note("Nạp tiền vào ví")
                 .build();
 

@@ -18,9 +18,11 @@ public interface WalletRepository extends JpaRepository<Wallet, String> {
     @Query("SELECT w FROM Wallet w WHERE w.user.id = :userId")
     Optional<Wallet> findByUserId(@Param("userId") String userId);
 
-    Optional<Wallet> findByUser_IdAndType(String userId, WalletType type);
+    @Query("SELECT w FROM Wallet w WHERE w.user.id = :userId AND w.type = :type")
+    Optional<Wallet> findByUser_IdAndType(@Param("userId") String userId, @Param("type") WalletType type);
 
-    Boolean existsByUser_IdAndType(String userId, WalletType type);
+    @Query("SELECT count(w) > 0 FROM Wallet w WHERE w.user.id = :userId AND w.type = :type")
+    Boolean existsByUser_IdAndType(@Param("userId") String userId, @Param("type") WalletType type);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT w FROM Wallet w WHERE w.user.id = :userId")
