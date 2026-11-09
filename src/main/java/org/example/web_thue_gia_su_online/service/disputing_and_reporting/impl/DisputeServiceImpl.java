@@ -11,7 +11,9 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
 import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.BookingStatus;
 import org.example.web_thue_gia_su_online.enums.DisputeStatus;
+import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.enums.TransactionStatus;
 import org.example.web_thue_gia_su_online.enums.TransactionType;
 import org.example.web_thue_gia_su_online.exception.AppException;
@@ -129,7 +131,9 @@ public class DisputeServiceImpl implements DisputeService {
     private void validateBookingPayment(Booking booking) {
 
         boolean paymentCompleted = paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
-                booking.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
+                        booking.getId(), TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS)
+                || paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
+                        booking.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
 
         if (!paymentCompleted) {
             throw new AppException(ErrorCode.PAYMENT_NOT_COMPLETED);
@@ -139,7 +143,9 @@ public class DisputeServiceImpl implements DisputeService {
     private void validateEnrollmentPayment(CourseEnrollment enrollment) {
 
         boolean paymentCompleted = paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
-                enrollment.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
+                        enrollment.getId(), TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS)
+                || paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
+                        enrollment.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
 
         if (!paymentCompleted) {
             throw new AppException(ErrorCode.PAYMENT_NOT_COMPLETED);
@@ -221,6 +227,15 @@ public class DisputeServiceImpl implements DisputeService {
         }
 
         refundService.refundDispute(dispute);
+
+        if (dispute.getBooking() != null) {
+            dispute.getBooking().setStatus(BookingStatus.CANCELLED);
+            bookingRepository.save(dispute.getBooking());
+        }
+        if (dispute.getEnrollment() != null) {
+            dispute.getEnrollment().setStatus(EnrollmentStatus.CANCELLED);
+            enrollmentRepository.save(dispute.getEnrollment());
+        }
 
         dispute.setAdminNote("Your dispute has been approved by the creator");
         dispute.setStatus(DisputeStatus.APPROVED);
