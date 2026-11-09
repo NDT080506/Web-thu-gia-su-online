@@ -137,15 +137,15 @@ public class BookingServiceImpl implements BookingService {
                 .toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    @PreAuthorize("hasRole('TUTOR')")
-    public List<BookingResponse> getByTutorId() {
-        String tutorId = getCurrentUserId();
-        return bookingRepository.findAllByTutorId(tutorId).stream()
-                .map(bookingMapper::toResponse)
-                .toList();
-    }
+//    @Override
+//    @Transactional(readOnly = true)
+//    @PreAuthorize("hasRole('TUTOR')")
+//    public List<BookingResponse> getByTutorId() {
+//        String tutorId = getCurrentUserId();
+//        return bookingRepository.findAllByTutorId(tutorId).stream()
+//                .map(bookingMapper::toResponse)
+//                .toList();
+//    }
 
     @Override
     @Transactional(readOnly = true)
@@ -156,14 +156,14 @@ public class BookingServiceImpl implements BookingService {
                 .toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<BookingResponse> getByTutorId(String tutorId) {
-        return bookingRepository.findAllByTutorId(tutorId).stream()
-                .map(bookingMapper::toResponse)
-                .toList();
-    }
+//    @Override
+//    @Transactional(readOnly = true)
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public List<BookingResponse> getByTutorId(String tutorId) {
+//        return bookingRepository.findAllByTutorId(tutorId).stream()
+//                .map(bookingMapper::toResponse)
+//                .toList();
+//    }
 
     @Override
     @Transactional

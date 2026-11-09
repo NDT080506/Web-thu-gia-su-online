@@ -13,11 +13,11 @@ public interface BookingService {
 
     List<BookingResponse> getByMyId();
 
-    List<BookingResponse> getByTutorId();
+//    List<BookingResponse> getByTutorId();
 
     List<BookingResponse> getByStudentId(String studentId);
 
-    List<BookingResponse> getByTutorId(String tutorId);
+//    List<BookingResponse> getByTutorId(String tutorId);
 
     BookingResponse cancelBooking(String bookingId);
 

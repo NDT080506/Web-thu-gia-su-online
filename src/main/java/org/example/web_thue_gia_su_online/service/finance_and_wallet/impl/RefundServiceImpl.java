@@ -50,7 +50,8 @@ public class RefundServiceImpl implements RefundService {
         }
 
         // Kiểm tra tránh hoàn tiền hai lần
-        if (disputeRepository.existsSuccessfulRefund(dispute.getId(), DisputeStatus.APPROVED)) {
+        if (disputeRepository.existsByIdAndStatus(
+                dispute.getId(), DisputeStatus.APPROVED)) {
             throw new AppException(ErrorCode.REFUND_ALREADY_PROCESSED);
         }
 
