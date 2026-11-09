@@ -44,30 +44,51 @@ public class RefundServiceImpl implements RefundService {
                 .findByUser_IdForUpdate(refundInfo.studentId())
                 .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
 
-        // Kiểm tra Tutor còn đủ tiền không
-        if (tutorWallet.getAvailableBalance() < refundInfo.amount()) {
-            throw new AppException(ErrorCode.INSUFFICIENT_TUTOR_BALANCE);
-        }
-
         // Kiểm tra tránh hoàn tiền hai lần
         if (disputeRepository.existsByIdAndStatus(
                 dispute.getId(), DisputeStatus.APPROVED)) {
             throw new AppException(ErrorCode.REFUND_ALREADY_PROCESSED);
         }
 
-        // Thu hồi tiền từ Tutor
-        tutorWallet.setAvailableBalance(tutorWallet.getAvailableBalance() - refundInfo.amount());
+        boolean escrowReleased = dispute.getBooking() != null
+                ? paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
+                        dispute.getBooking().getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS)
+                : (dispute.getEnrollment() != null
+                        && paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
+                                dispute.getEnrollment().getId(),
+                                TransactionType.ESCROW_RELEASE,
+                                TransactionStatus.SUCCESS));
+
+        if (escrowReleased) {
+            // Tiền đã giải ngân cho Tutor -> Thu hồi tiền từ Tutor
+            if (tutorWallet.getAvailableBalance() < refundInfo.amount()) {
+                throw new AppException(ErrorCode.INSUFFICIENT_TUTOR_BALANCE);
+            }
+            tutorWallet.setAvailableBalance(tutorWallet.getAvailableBalance() - refundInfo.amount());
+            walletRepository.save(tutorWallet);
+        } else {
+            // Tiền vẫn đang tạm giữ (holding balance) trong ví của student -> giải tỏa holding balance
+            if (studentWallet.getHoldingBalance() >= refundInfo.amount()) {
+                studentWallet.setHoldingBalance(studentWallet.getHoldingBalance() - refundInfo.amount());
+            }
+        }
 
         // Hoàn tiền cho Student
         studentWallet.setAvailableBalance(studentWallet.getAvailableBalance() + refundInfo.amount());
+        walletRepository.save(studentWallet);
 
         // Ghi nhận giao dịch hoàn tiền
         PaymentTransaction transaction = PaymentTransaction.builder()
+                .sourceWallet(tutorWallet)
+                .destinationWallet(studentWallet)
                 .type(TransactionType.REFUND)
                 .status(TransactionStatus.SUCCESS)
+                .referenceCode(java.util.UUID.randomUUID().toString())
                 .amount(refundInfo.amount())
+                .balanceAfter(studentWallet.getAvailableBalance())
                 .booking(dispute.getBooking())
                 .enrollment(dispute.getEnrollment())
+                .note("Hoàn tiền khiếu nại thành công")
                 .build();
 
         paymentTransactionRepository.save(transaction);

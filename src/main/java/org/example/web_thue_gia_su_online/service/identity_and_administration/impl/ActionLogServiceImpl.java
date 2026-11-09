@@ -12,6 +12,7 @@ import org.example.web_thue_gia_su_online.enums.ActionCode;
 import org.example.web_thue_gia_su_online.mapper.identity_and_administration.ActionLogMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.ActionLogRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,12 @@ public class ActionLogServiceImpl implements ActionLogService {
     @PreAuthorize("hasRole('ADMIN')")
     public List<ActionLogResponse> getActionLogs(
             String userId, String action, String targetType, Instant fromDate, Instant toDate) {
+
+        if (userId == null && action == null && targetType == null && fromDate == null && toDate == null) {
+            return actionLogRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
+                    .map(actionLogMapper::toResponse)
+                    .toList();
+        }
 
         return actionLogRepository.searchActionLogs(userId, action, targetType, fromDate, toDate).stream()
                 .map(actionLogMapper::toResponse)

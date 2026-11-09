@@ -8,11 +8,14 @@ import org.example.web_thue_gia_su_online.enums.DisputeStatus;
 import org.example.web_thue_gia_su_online.service.disputing_and_reporting.DisputeService;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequestMapping("/admin/disputes")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AdminDisputeController {
 
     DisputeService disputeService;
