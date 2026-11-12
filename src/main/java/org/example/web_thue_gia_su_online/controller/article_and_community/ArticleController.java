@@ -1,7 +1,5 @@
 package org.example.web_thue_gia_su_online.controller.article_and_community;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.article_and_community.ArticleCreationRequest;
@@ -9,6 +7,8 @@ import org.example.web_thue_gia_su_online.dto.request.article_and_community.Arti
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.article_and_community.ArticleResponse;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -40,16 +40,16 @@ public class ArticleController {
     }
 
     @GetMapping
-    ApiResponse<List<ArticleResponse>> getArticles() {
-        return ApiResponse.<List<ArticleResponse>>builder()
-                .result(articleService.getArticles())
+    ApiResponse<Page<ArticleResponse>> getArticles(Pageable pageable) {
+        return ApiResponse.<Page<ArticleResponse>>builder()
+                .result(articleService.getArticles(pageable))
                 .build();
     }
 
     @GetMapping("/my-articles")
-    ApiResponse<List<ArticleResponse>> getMyArticles() {
-        return ApiResponse.<List<ArticleResponse>>builder()
-                .result(articleService.getMyArticles())
+    ApiResponse<Page<ArticleResponse>> getMyArticles(Pageable pageable) {
+        return ApiResponse.<Page<ArticleResponse>>builder()
+                .result(articleService.getMyArticles(pageable))
                 .build();
     }
 

@@ -3,8 +3,10 @@ package org.example.web_thue_gia_su_online.mapper.learning_and_education;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseEnrollmentCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseEnrollmentResponse;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface CourseEnrollmentMapper {
@@ -12,6 +14,7 @@ public interface CourseEnrollmentMapper {
     @Mapping(target = "course.id", source = "courseId")
     CourseEnrollment toEntity(CourseEnrollmentCreationRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "courseId", source = "course.id")
     @Mapping(target = "pricePaid", source = "totalPrice")

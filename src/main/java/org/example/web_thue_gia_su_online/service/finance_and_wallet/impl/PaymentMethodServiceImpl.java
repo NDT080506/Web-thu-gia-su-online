@@ -12,6 +12,8 @@ import org.example.web_thue_gia_su_online.mapper.finance_and_wallet.PaymentMetho
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentMethodRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentMethodService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,10 +59,8 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     }
 
     @Override
-    public List<PaymentMethodResponse> getPaymentMethodsByUserId(String userId) {
-        return paymentMethodRepository.findByUserId(userId).stream()
-                .map(paymentMethodMapper::toResponse)
-                .toList();
+    public Page<PaymentMethodResponse> getPaymentMethodsByUserId(String userId, Pageable pageable) {
+        return paymentMethodRepository.findResponsesByUserId(userId, pageable);
     }
 
     @Override
@@ -86,7 +86,8 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     }
 
     private void unsetExistingDefaults(String userId) {
-        List<PaymentMethod> userMethods = paymentMethodRepository.findByUserId(userId);
+        List<PaymentMethod> userMethods =
+                paymentMethodRepository.findByUserId(userId, Pageable.unpaged()).getContent();
         for (PaymentMethod pm : userMethods) {
             if (pm.isDefault()) {
                 pm.setDefault(false);

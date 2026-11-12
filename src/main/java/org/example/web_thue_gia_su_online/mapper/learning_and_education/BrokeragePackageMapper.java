@@ -11,6 +11,7 @@ public interface BrokeragePackageMapper {
 
     BrokeragePackage toEntity(BrokeragePackageCreationRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "tutorId", source = "tutor.id")
     BrokeragePackageResponse toResponse(BrokeragePackage entity);
 

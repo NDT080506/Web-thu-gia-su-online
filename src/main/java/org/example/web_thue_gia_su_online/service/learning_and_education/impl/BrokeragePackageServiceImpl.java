@@ -1,6 +1,5 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BrokeragePackageCreationRequest;
@@ -14,6 +13,8 @@ import org.example.web_thue_gia_su_online.mapper.learning_and_education.Brokerag
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BrokeragePackageRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BrokeragePackageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,17 +63,15 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BrokeragePackageResponse> getByTutorId(String tutorId) {
-        return repository.findByTutorIdAndActiveTrue(tutorId).stream()
-                .map(mapper::toResponse)
-                .toList();
+    public Page<BrokeragePackageResponse> getByTutorId(String tutorId, Pageable pageable) {
+        return repository.findResponsesByTutorIdAndActiveTrue(tutorId, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<BrokeragePackageResponse> getAll() {
-        return repository.findAll().stream().map(mapper::toResponse).toList();
+    public Page<BrokeragePackageResponse> getAll(Pageable pageable) {
+        return repository.findResponsesAll(pageable);
     }
 
     @Override

@@ -2,7 +2,7 @@ package org.example.web_thue_gia_su_online.dto.response.disputing_and_reporting;
 
 import java.time.Instant;
 
-import org.example.web_thue_gia_su_online.enums.DisputeStatus;
+import org.example.web_thue_gia_su_online.enums.disputing_and_reporting.DisputeStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +22,7 @@ public class DisputeResponse {
     String reason;
     String evidenceUrl;
     DisputeStatus status;
-    long refundAmount;
+    Long refundAmount;
     String adminNote;
     Instant createdAt;
     Instant resolvedAt;

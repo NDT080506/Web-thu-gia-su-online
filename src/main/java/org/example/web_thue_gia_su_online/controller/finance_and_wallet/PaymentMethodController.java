@@ -1,13 +1,13 @@
 package org.example.web_thue_gia_su_online.controller.finance_and_wallet;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.PaymentMethodCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentMethodResponse;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentMethodService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -39,9 +39,9 @@ public class PaymentMethodController {
     }
 
     @GetMapping("/user/{userId}")
-    ApiResponse<List<PaymentMethodResponse>> getPaymentMethodsByUserId(@PathVariable String userId) {
-        return ApiResponse.<List<PaymentMethodResponse>>builder()
-                .result(paymentMethodService.getPaymentMethodsByUserId(userId))
+    ApiResponse<Page<PaymentMethodResponse>> getPaymentMethodsByUserId(@PathVariable String userId, Pageable pageable) {
+        return ApiResponse.<Page<PaymentMethodResponse>>builder()
+                .result(paymentMethodService.getPaymentMethodsByUserId(userId, pageable))
                 .build();
     }
 

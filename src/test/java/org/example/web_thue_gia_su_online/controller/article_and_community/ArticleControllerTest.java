@@ -19,6 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class ArticleControllerTest {
@@ -60,13 +63,15 @@ class ArticleControllerTest {
     @Test
     void getArticles_shouldReturnListOfArticles() {
         List<ArticleResponse> list = List.of(ArticleResponse.builder().id("1").build());
-        when(articleService.getArticles()).thenReturn(list);
+        Page<ArticleResponse> page = new PageImpl<>(list);
+        when(articleService.getArticles((Pageable) org.mockito.ArgumentMatchers.any()))
+                .thenReturn(page);
 
-        ApiResponse<List<ArticleResponse>> apiResponse = articleController.getArticles();
+        ApiResponse<Page<ArticleResponse>> apiResponse = articleController.getArticles(Pageable.unpaged());
 
         assertNotNull(apiResponse);
-        assertEquals(1, apiResponse.getResult().size());
-        verify(articleService).getArticles();
+        assertEquals(1, apiResponse.getResult().getSize());
+        verify(articleService).getArticles((Pageable) org.mockito.ArgumentMatchers.any());
     }
 
     @Test

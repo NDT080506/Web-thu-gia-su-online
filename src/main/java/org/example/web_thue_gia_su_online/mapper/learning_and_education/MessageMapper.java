@@ -12,6 +12,7 @@ public interface MessageMapper {
     @Mapping(target = "conversation.id", source = "conversationId")
     Message toEntity(MessageCreationRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "conversationId", source = "conversation.id")
     @Mapping(target = "senderId", source = "sender.id")
     @Mapping(target = "senderName", source = "sender.displayName")

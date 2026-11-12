@@ -1,6 +1,5 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageCreationRequest;
@@ -9,7 +8,7 @@ import org.example.web_thue_gia_su_online.dto.response.learning_and_education.Me
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Message;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.MessageMapper;
@@ -18,6 +17,8 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Conv
 import org.example.web_thue_gia_su_online.repository.learning_and_education.MessageRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.MessageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -95,7 +96,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
-    public List<MessageResponse> getMessagesByConversation(String conversationId) {
+    public Page<MessageResponse> getMessagesByConversation(String conversationId, Pageable pageable) {
         Conversation conversation = conversationRepository
                 .findById(conversationId)
                 .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
@@ -103,9 +104,7 @@ public class MessageServiceImpl implements MessageService {
         String currentUserId = getCurrentUserId();
         checkParticipant(conversation, currentUserId);
 
-        return messageRepository.findAllByConversation_IdOrderByCreatedAtAsc(conversationId).stream()
-                .map(messageMapper::toResponse)
-                .toList();
+        return messageRepository.findResponsesByConversationId(conversationId, pageable);
     }
 
     @Override

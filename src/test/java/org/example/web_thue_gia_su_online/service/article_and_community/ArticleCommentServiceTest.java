@@ -18,7 +18,7 @@ import org.example.web_thue_gia_su_online.dto.response.article_and_community.Art
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.mapper.article_and_community.ArticleCommentMapper;
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleCommentRepository;
@@ -32,6 +32,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -207,14 +210,14 @@ class ArticleCommentServiceTest {
                 ArticleCommentResponse.builder().id("1").build();
 
         when(articleRepository.findById("article-1")).thenReturn(Optional.of(article));
-        when(articleCommentRepository.findByArticleIdOrderByCreatedAtAsc("article-1"))
-                .thenReturn(List.of(comment));
+        when(articleCommentRepository.findByArticleIdOrderByCreatedAtAsc("article-1", (Pageable) any()))
+                .thenReturn(new PageImpl<>(List.of(comment)));
         when(articleCommentMapper.toArticleCommentResponse(comment)).thenReturn(response);
 
-        List<ArticleCommentResponse> result = service.getCommentsByArticle("article-1");
+        Page<ArticleCommentResponse> result = service.getCommentsByArticle("article-1", Pageable.unpaged());
 
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(1, result.getSize());
     }
 
     @Test
@@ -382,14 +385,15 @@ class ArticleCommentServiceTest {
 
         when(userRepository.findById("admin-1")).thenReturn(Optional.of(adminUser));
         when(articleRepository.findById("article-1")).thenReturn(Optional.of(article));
-        when(articleCommentRepository.findByArticleIdOrderByCreatedAtAsc("article-1"))
-                .thenReturn(List.of(hiddenComment));
+        when(articleCommentRepository.findByArticleIdOrderByCreatedAtAsc("article-1", (Pageable) any()))
+                .thenReturn(new PageImpl<>(List.of(hiddenComment)));
         when(articleCommentMapper.toArticleCommentResponse(hiddenComment)).thenReturn(response);
 
-        List<ArticleCommentResponse> result = service.getCommentsByArticle("article-1");
+        Page<ArticleCommentResponse> result = service.getCommentsByArticle("article-1", Pageable.unpaged());
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("c-hidden", result.get(0).getId());
+        assertEquals(1, result.getSize());
+        assertEquals(1, result.getContent().size());
+        assertEquals("c-hidden", result.getContent().get(0).getId());
     }
 }

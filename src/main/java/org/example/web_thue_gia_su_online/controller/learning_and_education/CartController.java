@@ -9,6 +9,8 @@ import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CartItemResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseEnrollmentResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CartService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -24,9 +26,9 @@ public class CartController {
     CartService cartService;
 
     @GetMapping
-    public ApiResponse<List<CartItemResponse>> getMyCart() {
-        return ApiResponse.<List<CartItemResponse>>builder()
-                .result(cartService.getMyCart())
+    public ApiResponse<Page<CartItemResponse>> getMyCart(Pageable pageable) {
+        return ApiResponse.<Page<CartItemResponse>>builder()
+                .result(cartService.getMyCart(pageable))
                 .build();
     }
 

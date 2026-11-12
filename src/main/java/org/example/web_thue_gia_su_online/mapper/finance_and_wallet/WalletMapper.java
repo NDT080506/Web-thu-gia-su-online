@@ -12,7 +12,8 @@ public interface WalletMapper {
     @Mapping(target = "user.id", source = "userId")
     Wallet toWallet(WalletCreationRequest request);
 
-    @Mapping(source = "user.id", target = "userId")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "userId", source = "user.id")
     WalletResponse toWalletResponse(Wallet wallet);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

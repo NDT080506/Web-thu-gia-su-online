@@ -15,8 +15,10 @@ public interface ArticleMapper {
 
     Article toArticle(ArticleCreationRequest request);
 
-    @Mapping(source = "author.id", target = "authorId")
-    @Mapping(source = "published", target = "isPublished")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "authorId", source = "author.id")
+    @Mapping(target = "authorNickname", source = "author.displayName")
+    @Mapping(target = "authorAvatarUrl", source = "author.avatarUrl")
     ArticleResponse toArticleResponse(Article article);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

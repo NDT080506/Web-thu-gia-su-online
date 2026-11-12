@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.RequestStatus;
+import org.example.web_thue_gia_su_online.enums.tutoring.ApplicationRequestStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -47,7 +47,7 @@ public class TutorApplication {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @NotNull
-    RequestStatus status = RequestStatus.PENDING;
+    ApplicationRequestStatus status = ApplicationRequestStatus.PENDING;
 
     @Column(columnDefinition = "TEXT")
     String adminNote;

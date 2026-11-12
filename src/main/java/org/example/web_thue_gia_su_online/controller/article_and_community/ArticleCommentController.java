@@ -1,7 +1,5 @@
 package org.example.web_thue_gia_su_online.controller.article_and_community;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.article_and_community.ArticleCommentCreationRequest;
@@ -9,6 +7,8 @@ import org.example.web_thue_gia_su_online.dto.request.article_and_community.Arti
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.article_and_community.ArticleCommentResponse;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleCommentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -41,9 +41,9 @@ public class ArticleCommentController {
     }
 
     @GetMapping("/article/{articleId}")
-    ApiResponse<List<ArticleCommentResponse>> getCommentsByArticle(@PathVariable String articleId) {
-        return ApiResponse.<List<ArticleCommentResponse>>builder()
-                .result(articleCommentService.getCommentsByArticle(articleId))
+    ApiResponse<Page<ArticleCommentResponse>> getCommentsByArticle(@PathVariable String articleId, Pageable pageable) {
+        return ApiResponse.<Page<ArticleCommentResponse>>builder()
+                .result(articleCommentService.getCommentsByArticle(articleId, pageable))
                 .build();
     }
 

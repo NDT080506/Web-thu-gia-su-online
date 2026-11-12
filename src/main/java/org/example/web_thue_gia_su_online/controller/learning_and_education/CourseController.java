@@ -1,13 +1,13 @@
 package org.example.web_thue_gia_su_online.controller.learning_and_education;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -37,16 +37,16 @@ public class CourseController {
     }
 
     @GetMapping
-    public ApiResponse<List<CourseResponse>> getCourses() {
-        return ApiResponse.<List<CourseResponse>>builder()
-                .result(courseService.getCourses())
+    public ApiResponse<Page<CourseResponse>> getCourses(Pageable pageable) {
+        return ApiResponse.<Page<CourseResponse>>builder()
+                .result(courseService.getCourses(pageable))
                 .build();
     }
 
     @GetMapping("/tutor/{tutorId}")
-    public ApiResponse<List<CourseResponse>> getAllByTutorId(@PathVariable String tutorId) {
-        return ApiResponse.<List<CourseResponse>>builder()
-                .result(courseService.getAllByTutorId(tutorId))
+    public ApiResponse<Page<CourseResponse>> getAllByTutorId(@PathVariable String tutorId, Pageable pageable) {
+        return ApiResponse.<Page<CourseResponse>>builder()
+                .result(courseService.getAllByTutorId(tutorId, pageable))
                 .build();
     }
 }

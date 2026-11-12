@@ -10,8 +10,8 @@ import org.example.web_thue_gia_su_online.dto.response.article_and_community.Art
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.article_and_community.ArticleCommentMapper;
@@ -20,6 +20,9 @@ import org.example.web_thue_gia_su_online.repository.article_and_community.Artic
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleCommentService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -128,7 +131,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ArticleCommentResponse> getCommentsByArticle(String articleId) {
+    public Page<ArticleCommentResponse> getCommentsByArticle(String articleId, Pageable pageable) {
         Article article =
                 articleRepository.findById(articleId).orElseThrow(() -> new AppException(ErrorCode.ARTICLE_NOT_FOUND));
 
@@ -148,17 +151,21 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<ArticleComment> comments = articleCommentRepository.findByArticleIdOrderByCreatedAtAsc(articleId);
+        List<ArticleComment> comments = articleCommentRepository
+                .findByArticleIdOrderByCreatedAtAsc(articleId, pageable)
+                .getContent();
         String currentUserId = getCurrentUserIdOrNull();
         boolean isAdmin = currentRoleLevel >= 3;
 
-        return comments.stream()
+        List<ArticleCommentResponse> result = comments.stream()
                 .filter(c -> !c.isHidden()
                         || isAdmin
                         || (currentUserId != null
                                 && currentUserId.equals(c.getUser().getId())))
                 .map(articleCommentMapper::toArticleCommentResponse)
                 .toList();
+
+        return new PageImpl<>(result, pageable, result.size());
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.LessonCreationRequest;
@@ -9,7 +8,7 @@ import org.example.web_thue_gia_su_online.dto.request.learning_and_education.Les
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.LessonResponse;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Lesson;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.LessonMapper;
@@ -17,6 +16,8 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Cour
 import org.example.web_thue_gia_su_online.repository.learning_and_education.LessonRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.LessonService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -80,10 +81,8 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<LessonResponse> getLessonsByCourseId(String courseId) {
-        return lessonRepository.findByCourseId(courseId).stream()
-                .map(lessonMapper::toResponse)
-                .toList();
+    public Page<LessonResponse> getLessonsByCourseId(String courseId, Pageable pageable) {
+        return lessonRepository.findResponsesByCourseId(courseId, pageable);
     }
 
     @Override

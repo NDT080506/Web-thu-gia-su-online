@@ -19,8 +19,8 @@ public class ArticleResponse {
     String authorAvatarUrl;
     String title;
     String content;
-    int minRoleLevel;
-    boolean isPublished;
+    Integer minRoleLevel;
+    Boolean isPublished;
     Instant createdAt;
     Instant updatedAt;
 }

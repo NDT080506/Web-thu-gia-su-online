@@ -1,7 +1,7 @@
 package org.example.web_thue_gia_su_online.dto.response.finance_and_wallet;
 
-import org.example.web_thue_gia_su_online.enums.PaymentGatewayType;
-import org.example.web_thue_gia_su_online.enums.TransactionStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.PaymentGatewayType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

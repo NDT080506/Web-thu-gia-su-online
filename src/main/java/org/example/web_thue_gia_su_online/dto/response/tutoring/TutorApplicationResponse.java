@@ -2,7 +2,7 @@ package org.example.web_thue_gia_su_online.dto.response.tutoring;
 
 import java.time.Instant;
 
-import org.example.web_thue_gia_su_online.enums.RequestStatus;
+import org.example.web_thue_gia_su_online.enums.tutoring.ApplicationRequestStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +23,7 @@ public class TutorApplicationResponse {
     String subjectsCanTeach;
     String cvUrl;
     String testSubmission;
-    RequestStatus status;
+    ApplicationRequestStatus status;
     String adminNote;
     Instant createdAt;
 }

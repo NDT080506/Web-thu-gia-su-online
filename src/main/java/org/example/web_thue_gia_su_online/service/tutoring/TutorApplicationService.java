@@ -1,9 +1,9 @@
 package org.example.web_thue_gia_su_online.service.tutoring;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorApplicationCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.tutoring.TutorApplicationResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface TutorApplicationService {
     public TutorApplicationResponse createTutorApplication(TutorApplicationCreationRequest request);
@@ -12,7 +12,7 @@ public interface TutorApplicationService {
 
     public TutorApplicationResponse getTutorApplication(String id);
 
-    public List<TutorApplicationResponse> getTutorApplications();
+    public Page<TutorApplicationResponse> getTutorApplications(Pageable pageable);
 
     public TutorApplicationResponse approveTutorApplication(String id);
 

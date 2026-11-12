@@ -10,7 +10,7 @@ import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.Paymen
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.finance_and_wallet.PaymentTransactionMapper;
@@ -19,6 +19,9 @@ import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRe
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentTransactionService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -157,7 +160,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
-    public List<PaymentTransactionResponse> getTransactionsByWallet(String walletId) {
+    public Page<PaymentTransactionResponse> getTransactionsByWallet(String walletId, Pageable pageable) {
         // Authorization: chỉ owner của wallet hoặc admin mới được xem
         Wallet wallet =
                 walletRepository.findById(walletId).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
@@ -165,30 +168,34 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<PaymentTransaction> results = new ArrayList<>();
-        results.addAll(paymentTransactionRepository.findBySourceWalletId(walletId));
-        results.addAll(paymentTransactionRepository.findByDestinationWalletId(walletId));
-        return results.stream()
-                .distinct()
-                .map(paymentTransactionMapper::toPaymentTransactionResponse)
-                .toList();
+        Page<PaymentTransaction> sourcePage = paymentTransactionRepository.findBySourceWalletId(walletId, pageable);
+        Page<PaymentTransaction> destPage = paymentTransactionRepository.findByDestinationWalletId(walletId, pageable);
+        List<PaymentTransaction> results = new ArrayList<>(sourcePage.getContent());
+        results.addAll(destPage.getContent());
+        results = results.stream().distinct().toList();
+        return new PageImpl<>(
+                results.stream()
+                        .map(paymentTransactionMapper::toPaymentTransactionResponse)
+                        .toList(),
+                pageable,
+                results.size());
     }
 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public List<PaymentTransactionResponse> getTransactionsByBooking(String bookingId) {
-        return paymentTransactionRepository.findByBookingId(bookingId).stream()
-                .map(paymentTransactionMapper::toPaymentTransactionResponse)
-                .toList();
+    public Page<PaymentTransactionResponse> getTransactionsByBooking(String bookingId, Pageable pageable) {
+        return paymentTransactionRepository
+                .findByBookingId(bookingId, pageable)
+                .map(paymentTransactionMapper::toPaymentTransactionResponse);
     }
 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<PaymentTransactionResponse> getTransactions() {
-        return paymentTransactionRepository.findAll().stream()
-                .map(paymentTransactionMapper::toPaymentTransactionResponse)
-                .toList();
+    public Page<PaymentTransactionResponse> getTransactions(Pageable pageable) {
+        return paymentTransactionRepository
+                .findAll(pageable)
+                .map(paymentTransactionMapper::toPaymentTransactionResponse);
     }
 }

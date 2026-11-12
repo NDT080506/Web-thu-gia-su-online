@@ -1,22 +1,20 @@
 package org.example.web_thue_gia_su_online.service.finance_and_wallet;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.WalletUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.WalletResponse;
-import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
-import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.WalletType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.WalletType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface WalletService {
 
-    Wallet createWallet(User user, WalletType type);
+    WalletResponse createWallet(WalletType type);
 
     WalletResponse getWallet(String id);
 
-    WalletResponse getWalletByUserId(String userId);
+    Page<WalletResponse> getWalletByUserId(Pageable pageable);
 
-    List<WalletResponse> getWallets();
+    Page<WalletResponse> getWallets(Pageable pageable);
 
     WalletResponse updateWallet(WalletUpdateRequest request, String id);
 

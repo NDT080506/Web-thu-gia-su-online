@@ -2,7 +2,7 @@ package org.example.web_thue_gia_su_online.dto.response.identity_and_administrat
 
 import java.time.Instant;
 
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

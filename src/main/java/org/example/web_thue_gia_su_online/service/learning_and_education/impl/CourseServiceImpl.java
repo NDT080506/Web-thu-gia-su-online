@@ -1,13 +1,12 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseResponse;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseMapper;
@@ -15,6 +14,8 @@ import org.example.web_thue_gia_su_online.repository.identity_and_administration
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -71,15 +72,13 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseResponse> getCourses() {
-        return courseRepository.findAll().stream().map(courseMapper::toResponse).toList();
+    public Page<CourseResponse> getCourses(Pageable pageable) {
+        return courseRepository.findResponsesAll(pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseResponse> getAllByTutorId(String tutorId) {
-        return courseRepository.findAllByTutorId(tutorId).stream()
-                .map(courseMapper::toResponse)
-                .toList();
+    public Page<CourseResponse> getAllByTutorId(String tutorId, Pageable pageable) {
+        return courseRepository.findResponsesByTutorId(tutorId, pageable);
     }
 }

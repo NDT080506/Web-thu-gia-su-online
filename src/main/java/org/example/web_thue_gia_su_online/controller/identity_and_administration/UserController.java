@@ -1,7 +1,5 @@
 package org.example.web_thue_gia_su_online.controller.identity_and_administration;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserCreationRequest;
@@ -10,6 +8,8 @@ import org.example.web_thue_gia_su_online.dto.request.identity_and_administratio
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -40,9 +40,9 @@ public class UserController {
     }
 
     @GetMapping("/admin")
-    ApiResponse<List<UserResponse>> getUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getUsers())
+    ApiResponse<Page<UserResponse>> getUsers(Pageable pageable) {
+        return ApiResponse.<Page<UserResponse>>builder()
+                .result(userService.getUsers(pageable))
                 .build();
     }
 

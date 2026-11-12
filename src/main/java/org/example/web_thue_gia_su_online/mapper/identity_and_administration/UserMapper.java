@@ -12,6 +12,7 @@ public interface UserMapper {
     @Mapping(target = "passwordHash", ignore = true)
     User toUser(UserCreationRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     UserResponse toUserResponse(User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

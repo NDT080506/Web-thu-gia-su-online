@@ -17,7 +17,7 @@ import org.example.web_thue_gia_su_online.dto.request.article_and_community.Arti
 import org.example.web_thue_gia_su_online.dto.response.article_and_community.ArticleResponse;
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.mapper.article_and_community.ArticleMapper;
 import org.example.web_thue_gia_su_online.repository.article_and_community.ArticleCommentRepository;
@@ -31,6 +31,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -146,14 +149,15 @@ class ArticleServiceTest {
         Article article = Article.builder().id("article-1").build();
         ArticleResponse response = ArticleResponse.builder().id("article-1").build();
 
-        when(repository.findByIsPublishedTrueAndMinRoleLevelLessThanEqualOrderByCreatedAtDesc(anyInt()))
-                .thenReturn(List.of(article));
+        when(repository.findByIsPublishedTrueAndMinRoleLevelLessThanEqualOrderByCreatedAtDesc(
+                        anyInt(), (Pageable) any()))
+                .thenReturn(new PageImpl<>(List.of(article)));
         when(mapper.toArticleResponse(article)).thenReturn(response);
 
-        List<ArticleResponse> result = service.getArticles();
+        Page<ArticleResponse> result = service.getArticles(Pageable.unpaged());
 
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(1, result.getSize());
     }
 
     @Test

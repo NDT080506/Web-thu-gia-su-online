@@ -1,9 +1,9 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CourseService {
 
@@ -11,7 +11,7 @@ public interface CourseService {
 
     CourseResponse getById(String id);
 
-    List<CourseResponse> getCourses();
+    Page<CourseResponse> getCourses(Pageable pageable);
 
-    List<CourseResponse> getAllByTutorId(String tutorId);
+    Page<CourseResponse> getAllByTutorId(String tutorId, Pageable pageable);
 }

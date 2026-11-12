@@ -1,6 +1,5 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingCreationRequest;
@@ -9,11 +8,11 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.BrokeragePackage;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.BookingStatus;
-import org.example.web_thue_gia_su_online.enums.ConversationStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionType;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.BookingStatus;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.ConversationStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.BookingMapper;
@@ -25,6 +24,8 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Conv
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BookingService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -130,11 +131,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('STUDENT')")
-    public List<BookingResponse> getByMyId() {
+    public Page<BookingResponse> getByMyId(Pageable pageable) {
         String studentId = getCurrentUserId();
-        return bookingRepository.findAllByStudentId(studentId).stream()
-                .map(bookingMapper::toResponse)
-                .toList();
+        return bookingRepository.findResponsesByStudentId(studentId, pageable);
     }
 
     //    @Override
@@ -150,10 +149,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<BookingResponse> getByStudentId(String studentId) {
-        return bookingRepository.findAllByStudentId(studentId).stream()
-                .map(bookingMapper::toResponse)
-                .toList();
+    public Page<BookingResponse> getByStudentId(String studentId, Pageable pageable) {
+        return bookingRepository.findResponsesByStudentId(studentId, pageable);
     }
 
     //    @Override

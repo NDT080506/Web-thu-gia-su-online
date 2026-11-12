@@ -11,9 +11,11 @@ public interface BookingMapper {
     @Mapping(target = "brokeragePackage.id", source = "packageId")
     Booking toEntity(BookingCreationRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "packageId", source = "brokeragePackage.id")
     @Mapping(target = "packageName", source = "brokeragePackage.name")
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "studentName", source = "student.displayName")
+    @Mapping(target = "tutorId", source = "conversation.tutor.id")
     BookingResponse toResponse(Booking entity);
 }

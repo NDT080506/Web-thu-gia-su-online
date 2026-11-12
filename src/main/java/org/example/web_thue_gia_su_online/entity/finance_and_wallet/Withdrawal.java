@@ -5,7 +5,7 @@ import java.time.Instant;
 import jakarta.persistence.*;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.WithdrawalStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.WithdrawalStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

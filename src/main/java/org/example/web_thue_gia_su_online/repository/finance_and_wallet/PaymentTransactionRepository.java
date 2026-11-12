@@ -5,9 +5,12 @@ import java.util.Optional;
 
 import jakarta.persistence.LockModeType;
 
+import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PaymentTransaction;
-import org.example.web_thue_gia_su_online.enums.TransactionStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -16,11 +19,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaymentTransactionRepository extends JpaRepository<PaymentTransaction, String> {
-    List<PaymentTransaction> findBySourceWalletId(String sourceWalletId);
+    Page<PaymentTransaction> findBySourceWalletId(String sourceWalletId, Pageable pageable);
 
-    List<PaymentTransaction> findByDestinationWalletId(String destinationWalletId);
+    Page<PaymentTransaction> findByDestinationWalletId(String destinationWalletId, Pageable pageable);
 
-    List<PaymentTransaction> findByBookingId(String bookingId);
+    Page<PaymentTransaction> findByBookingId(String bookingId, Pageable pageable);
 
     Optional<PaymentTransaction> findByReferenceCode(String referenceCode);
 
@@ -67,4 +70,56 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
             @Param("status") TransactionStatus status);
 
     Optional<PaymentTransaction> findByWithdrawal_Id(String withdrawalId);
+
+    @Query("""
+		SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
+			pt.id,
+			pt.sourceWallet.id,
+			pt.destinationWallet.id,
+			pt.booking.id,
+			pt.type,
+			pt.amount,
+			pt.balanceAfter,
+			pt.note,
+			pt.createdAt
+		)
+		FROM PaymentTransaction pt
+		WHERE pt.id = :id
+		""")
+    Optional<PaymentTransactionResponse> findResponseById(@Param("id") String id);
+
+    @Query("""
+		SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
+			pt.id,
+			pt.sourceWallet.id,
+			pt.destinationWallet.id,
+			pt.booking.id,
+			pt.type,
+			pt.amount,
+			pt.balanceAfter,
+			pt.note,
+			pt.createdAt
+		)
+		FROM PaymentTransaction pt
+		WHERE pt.booking.id = :bookingId
+		""")
+    Page<PaymentTransactionResponse> findResponsesByBookingId(@Param("bookingId") String bookingId, Pageable pageable);
+
+    @Query("""
+		SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
+			pt.id,
+			pt.sourceWallet.id,
+			pt.destinationWallet.id,
+			pt.booking.id,
+			pt.type,
+			pt.amount,
+			pt.balanceAfter,
+			pt.note,
+			pt.createdAt
+		)
+		FROM PaymentTransaction pt
+		WHERE pt.sourceWallet.id = :walletId OR pt.destinationWallet.id = :walletId
+		ORDER BY pt.createdAt DESC
+		""")
+    Page<PaymentTransactionResponse> findResponsesByWalletId(@Param("walletId") String walletId, Pageable pageable);
 }

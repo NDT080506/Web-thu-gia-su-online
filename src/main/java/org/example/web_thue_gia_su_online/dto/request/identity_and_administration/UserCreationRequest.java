@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -11,6 +11,7 @@ public interface CourseMapper {
 
     Course toEntity(CourseCreationRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "tutorId", source = "tutor.id")
     @Mapping(target = "tutorName", source = "tutor.displayName")
     CourseResponse toResponse(Course entity);

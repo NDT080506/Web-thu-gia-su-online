@@ -1,9 +1,9 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.BookingCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.BookingResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface BookingService {
 
@@ -11,13 +11,13 @@ public interface BookingService {
 
     BookingResponse getById(String id);
 
-    List<BookingResponse> getByMyId();
+    Page<BookingResponse> getByMyId(Pageable pageable);
 
-    //    List<BookingResponse> getByTutorId();
+    //    Page<BookingResponse> getByTutorId(Pageable pageable);
 
-    List<BookingResponse> getByStudentId(String studentId);
+    Page<BookingResponse> getByStudentId(String studentId, Pageable pageable);
 
-    //    List<BookingResponse> getByTutorId(String tutorId);
+    //    Page<BookingResponse> getByTutorId(String tutorId, Pageable pageable);
 
     BookingResponse cancelBooking(String bookingId);
 

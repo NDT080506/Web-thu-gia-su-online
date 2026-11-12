@@ -1,20 +1,21 @@
 package org.example.web_thue_gia_su_online.service.finance_and_wallet.impl;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.WalletUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.WalletResponse;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.WalletType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.WalletType;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.finance_and_wallet.WalletMapper;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRepository;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.WalletService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -48,11 +49,15 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
-    public Wallet createWallet(User user, WalletType type) {
+    public WalletResponse createWallet(WalletType type) {
 
-        if (user != null && walletRepository.existsByUser_IdAndType(user.getId(), type)) {
+        String userId = getCurrentUserId();
+
+        if (walletRepository.existsByUser_IdAndType(userId, type)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Instant now = Instant.now();
         Wallet wallet = Wallet.builder()
@@ -64,7 +69,7 @@ public class WalletServiceImpl implements WalletService {
                 .updatedAt(now)
                 .build();
 
-        return walletRepository.save(wallet);
+        return walletMapper.toWalletResponse(walletRepository.save(wallet));
     }
 
     @Override
@@ -84,25 +89,21 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'TUTOR')")
-    public WalletResponse getWalletByUserId(String userId) {
-        // Authorization: chỉ owner hoặc admin mới được xem
-        if (!isAdmin() && !userId.equals(getCurrentUserId())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
+    public Page<WalletResponse> getWalletByUserId(Pageable pageable) {
 
-        Wallet wallet =
-                walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_FOUND));
-
-        return walletMapper.toWalletResponse(wallet);
+        String userId = getCurrentUserId();
+        return walletRepository.findResponsesByUserId(userId, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<WalletResponse> getWallets() {
-        return walletRepository.findAll().stream()
-                .map(walletMapper::toWalletResponse)
-                .toList();
+    public Page<WalletResponse> getWallets(Pageable pageable) {
+
+        if (!isAdmin()) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        return walletRepository.findResponses(pageable);
     }
 
     @Override

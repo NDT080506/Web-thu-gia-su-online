@@ -2,8 +2,8 @@ package org.example.web_thue_gia_su_online.dto.response.identity_and_administrat
 
 import java.time.Instant;
 
-import org.example.web_thue_gia_su_online.enums.AccountStatus;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.AccountStatus;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

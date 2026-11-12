@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.PaymentInitiationRequest;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentInitiationResult;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentVerificationResult;
-import org.example.web_thue_gia_su_online.enums.PaymentGatewayType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.PaymentGatewayType;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.PaymentGateway;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,6 @@
 package org.example.web_thue_gia_su_online.service.disputing_and_reporting.impl;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting.DisputeCreationRequest;
@@ -10,12 +9,12 @@ import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.BookingStatus;
-import org.example.web_thue_gia_su_online.enums.DisputeStatus;
-import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionType;
+import org.example.web_thue_gia_su_online.enums.disputing_and_reporting.DisputeStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionType;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.BookingStatus;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.disputing_and_reporting.DisputeMapper;
@@ -27,6 +26,8 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Cour
 import org.example.web_thue_gia_su_online.service.disputing_and_reporting.DisputeService;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.RefundService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -155,11 +156,9 @@ public class DisputeServiceImpl implements DisputeService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('STUDENT')")
-    public List<DisputeResponse> getMyDisputes() {
+    public Page<DisputeResponse> getMyDisputes(Pageable pageable) {
         String studentId = getCurrentStudentId();
-        return disputeRepository.findByCreatedBy_Id(studentId).stream()
-                .map(disputeMapper::toResponse)
-                .toList();
+        return disputeRepository.findResponsesByUserId(studentId, pageable);
     }
 
     @Override
@@ -199,10 +198,10 @@ public class DisputeServiceImpl implements DisputeService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<DisputeResponse> getAllDisputes(DisputeStatus status) {
-        List<Dispute> disputes = status == null ? disputeRepository.findAll() : disputeRepository.findByStatus(status);
-
-        return disputes.stream().map(disputeMapper::toResponse).toList();
+    public Page<DisputeResponse> getAllDisputes(DisputeStatus status, Pageable pageable) {
+        return status == null
+                ? disputeRepository.findResponsesAll(pageable)
+                : disputeRepository.findResponsesByStatus(status, pageable);
     }
 
     @Override

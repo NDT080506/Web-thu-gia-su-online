@@ -12,8 +12,9 @@ public interface DisputeMapper {
     @Mapping(target = "enrollment.id", source = "enrollmentId")
     Dispute toDispute(DisputeCreationRequest request);
 
-    @Mapping(source = "booking.id", target = "bookingId")
-    @Mapping(source = "enrollment.id", target = "enrollmentId")
-    @Mapping(source = "createdBy.id", target = "createdBy")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "bookingId", source = "booking.id")
+    @Mapping(target = "enrollmentId", source = "enrollment.id")
+    @Mapping(target = "createdBy", source = "createdBy.id")
     DisputeResponse toResponse(Dispute dispute);
 }

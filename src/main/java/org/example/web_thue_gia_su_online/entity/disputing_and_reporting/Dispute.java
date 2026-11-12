@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
-import org.example.web_thue_gia_su_online.enums.DisputeStatus;
+import org.example.web_thue_gia_su_online.enums.disputing_and_reporting.DisputeStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

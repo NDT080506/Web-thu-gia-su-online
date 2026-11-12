@@ -1,9 +1,9 @@
 package org.example.web_thue_gia_su_online.service.finance_and_wallet;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.PaymentTransactionCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PaymentTransactionService {
 
@@ -11,9 +11,9 @@ public interface PaymentTransactionService {
 
     PaymentTransactionResponse getTransaction(String id);
 
-    List<PaymentTransactionResponse> getTransactionsByWallet(String walletId);
+    Page<PaymentTransactionResponse> getTransactionsByWallet(String walletId, Pageable pageable);
 
-    List<PaymentTransactionResponse> getTransactionsByBooking(String bookingId);
+    Page<PaymentTransactionResponse> getTransactionsByBooking(String bookingId, Pageable pageable);
 
-    List<PaymentTransactionResponse> getTransactions();
+    Page<PaymentTransactionResponse> getTransactions(Pageable pageable);
 }

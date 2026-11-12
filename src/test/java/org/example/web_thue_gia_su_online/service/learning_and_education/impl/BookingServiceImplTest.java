@@ -13,8 +13,8 @@ import org.example.web_thue_gia_su_online.entity.identity_and_administration.Use
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.BrokeragePackage;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
-import org.example.web_thue_gia_su_online.enums.BookingStatus;
-import org.example.web_thue_gia_su_online.enums.ConversationStatus;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.BookingStatus;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.ConversationStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.BookingMapper;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;

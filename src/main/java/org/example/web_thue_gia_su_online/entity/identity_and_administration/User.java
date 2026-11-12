@@ -16,8 +16,8 @@ import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Wallet;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.*;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
-import org.example.web_thue_gia_su_online.enums.AccountStatus;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.AccountStatus;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -15,12 +15,12 @@ public interface ArticleCommentMapper {
 
     ArticleComment toArticleComment(ArticleCommentCreationRequest request);
 
-    @Mapping(source = "article.id", target = "articleId")
-    @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "user.displayName", target = "userDisplayName")
-    @Mapping(source = "user.avatarUrl", target = "userAvatarUrl")
-    @Mapping(source = "parent.id", target = "parentId")
-    @Mapping(source = "hidden", target = "isHidden")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "articleId", source = "article.id")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "userDisplayName", source = "user.displayName")
+    @Mapping(target = "userAvatarUrl", source = "user.avatarUrl")
+    @Mapping(target = "parentId", source = "parent.id")
     ArticleCommentResponse toArticleCommentResponse(ArticleComment comment);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

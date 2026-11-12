@@ -1,6 +1,5 @@
 package org.example.web_thue_gia_su_online.service.identity_and_administration.impl;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserCreationRequest;
@@ -8,17 +7,17 @@ import org.example.web_thue_gia_su_online.dto.request.identity_and_administratio
 import org.example.web_thue_gia_su_online.dto.request.identity_and_administration.UserUpdateStatusRequest;
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.WalletType;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.identity_and_administration.UserMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.authentication.EmailVerificationService;
-import org.example.web_thue_gia_su_online.service.finance_and_wallet.WalletService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.UserService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImpl implements UserService {
 
     UserRepository userRepository;
-    WalletService walletService;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     EmailVerificationService emailVerificationService;
@@ -60,7 +58,6 @@ public class UserServiceImpl implements UserService {
 
         try {
             user = userRepository.saveAndFlush(user);
-            walletService.createWallet(user, WalletType.NORMAL);
             emailVerificationService.sendVerificationEmail(user);
             actionLogService.log(ActionCode.CREATE_USER, user, "User", user.getId());
         } catch (DataIntegrityViolationException e) {
@@ -73,8 +70,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        return userRepository.findResponses(pageable);
     }
 
     @Override

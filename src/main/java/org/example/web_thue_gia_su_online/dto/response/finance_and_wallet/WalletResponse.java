@@ -2,7 +2,7 @@ package org.example.web_thue_gia_su_online.dto.response.finance_and_wallet;
 
 import java.time.Instant;
 
-import org.example.web_thue_gia_su_online.enums.WalletType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.WalletType;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -18,8 +18,8 @@ public class WalletResponse {
     String id;
     String userId;
     WalletType type;
-    long availableBalance;
-    long holdingBalance;
+    Long availableBalance;
+    Long holdingBalance;
     Instant createdAt;
     Instant updatedAt;
 }

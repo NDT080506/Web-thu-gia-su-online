@@ -20,6 +20,6 @@ public class ArticleCommentResponse {
     String userAvatarUrl;
     String parentId;
     String content;
-    boolean isHidden;
+    Boolean isHidden;
     Instant createdAt;
 }

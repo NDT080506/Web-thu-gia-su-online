@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import jakarta.persistence.*;
 
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

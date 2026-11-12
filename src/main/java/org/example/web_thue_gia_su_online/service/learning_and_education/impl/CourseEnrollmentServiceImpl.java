@@ -1,7 +1,6 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseEnrollmentCreationRequest;
@@ -9,10 +8,10 @@ import org.example.web_thue_gia_su_online.dto.response.learning_and_education.Co
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionType;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseEnrollmentMapper;
@@ -23,6 +22,8 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Cour
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseEnrollmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -110,17 +111,15 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('STUDENT')")
-    public List<CourseEnrollmentResponse> getEnrollmentsByStudent() {
+    public Page<CourseEnrollmentResponse> getEnrollmentsByStudent(Pageable pageable) {
         String studentId = getCurrentUserId();
-        return courseEnrollmentRepository.findByStudentId(studentId).stream()
-                .map(courseEnrollmentMapper::toResponse)
-                .toList();
+        return courseEnrollmentRepository.findResponsesByStudentId(studentId, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
-    public List<CourseEnrollmentResponse> getEnrollmentsByCourse(String courseId) {
+    public Page<CourseEnrollmentResponse> getEnrollmentsByCourse(String courseId, Pageable pageable) {
         Course course =
                 courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
@@ -138,9 +137,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
             }
         }
 
-        return courseEnrollmentRepository.findByCourseId(courseId).stream()
-                .map(courseEnrollmentMapper::toResponse)
-                .toList();
+        return courseEnrollmentRepository.findResponsesByCourseId(courseId, pageable);
     }
 
     @Override

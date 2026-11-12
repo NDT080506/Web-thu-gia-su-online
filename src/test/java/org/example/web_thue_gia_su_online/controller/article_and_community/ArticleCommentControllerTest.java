@@ -19,6 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class ArticleCommentControllerTest {
@@ -62,14 +65,17 @@ class ArticleCommentControllerTest {
     void getCommentsByArticle_shouldReturnListOfComments() {
         List<ArticleCommentResponse> list =
                 List.of(ArticleCommentResponse.builder().id("1").build());
-        when(articleCommentService.getCommentsByArticle("article-1")).thenReturn(list);
+        Page<ArticleCommentResponse> page = new PageImpl<>(list);
+        when(articleCommentService.getCommentsByArticle(eq("article-1"), (Pageable) org.mockito.ArgumentMatchers.any()))
+                .thenReturn(page);
 
-        ApiResponse<List<ArticleCommentResponse>> apiResponse =
-                articleCommentController.getCommentsByArticle("article-1");
+        ApiResponse<Page<ArticleCommentResponse>> apiResponse =
+                articleCommentController.getCommentsByArticle("article-1", Pageable.unpaged());
 
         assertNotNull(apiResponse);
-        assertEquals(1, apiResponse.getResult().size());
-        verify(articleCommentService).getCommentsByArticle("article-1");
+        assertEquals(1, apiResponse.getResult().getSize());
+        verify(articleCommentService)
+                .getCommentsByArticle(eq("article-1"), (Pageable) org.mockito.ArgumentMatchers.any());
     }
 
     @Test

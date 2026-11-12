@@ -9,6 +9,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface ReviewMapper {
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "reviewerId", source = "reviewer.id")
     @Mapping(target = "tutorId", source = "tutor.id")
     @Mapping(target = "bookingId", source = "booking.id")

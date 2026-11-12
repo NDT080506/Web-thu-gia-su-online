@@ -13,7 +13,7 @@ import org.example.web_thue_gia_su_online.dto.response.learning_and_education.Co
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
-import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseEnrollmentMapper;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentTransactionRepository;
@@ -27,6 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -262,7 +265,7 @@ class CourseEnrollmentServiceImplTest {
 
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(otherCourse));
 
-        assertThatThrownBy(() -> courseEnrollmentService.getEnrollmentsByCourse(courseId))
+        assertThatThrownBy(() -> courseEnrollmentService.getEnrollmentsByCourse(courseId, Pageable.unpaged()))
                 .isInstanceOf(AccessDeniedException.class);
     }
 
@@ -272,9 +275,11 @@ class CourseEnrollmentServiceImplTest {
 
         Course course = createActiveCourse();
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
-        when(courseEnrollmentRepository.findByCourseId(courseId)).thenReturn(Collections.emptyList());
+        when(courseEnrollmentRepository.findByCourseId(courseId, (Pageable) any()))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
 
-        var result = courseEnrollmentService.getEnrollmentsByCourse(courseId);
+        Page<CourseEnrollmentResponse> result =
+                courseEnrollmentService.getEnrollmentsByCourse(courseId, Pageable.unpaged());
         assertThat(result).isEmpty();
     }
 }

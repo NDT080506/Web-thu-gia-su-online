@@ -2,6 +2,8 @@ package org.example.web_thue_gia_su_online.dto.response.learning_and_education;
 
 import java.time.Instant;
 
+import org.example.web_thue_gia_su_online.enums.learning_and_education.EnrollmentStatus;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,9 +17,9 @@ public class CourseEnrollmentResponse {
     String id;
     String studentId;
     String courseId;
-    long pricePaid;
-    String status;
-    int progressPercent;
+    Long pricePaid;
+    EnrollmentStatus status;
+    Integer progressPercent;
     Instant completedAt;
     Instant createdAt;
 }

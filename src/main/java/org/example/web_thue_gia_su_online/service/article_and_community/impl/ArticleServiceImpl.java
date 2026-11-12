@@ -10,8 +10,8 @@ import org.example.web_thue_gia_su_online.dto.response.article_and_community.Art
 import org.example.web_thue_gia_su_online.entity.article_and_community.Article;
 import org.example.web_thue_gia_su_online.entity.article_and_community.ArticleComment;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.article_and_community.ArticleMapper;
@@ -20,6 +20,8 @@ import org.example.web_thue_gia_su_online.repository.article_and_community.Artic
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.service.article_and_community.ArticleService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -114,22 +116,20 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticleResponse> getArticles() {
+    public Page<ArticleResponse> getArticles(Pageable pageable) {
         int currentRoleLevel = getCurrentUserRoleLevel();
         return articleRepository
-                .findByIsPublishedTrueAndMinRoleLevelLessThanEqualOrderByCreatedAtDesc(currentRoleLevel)
-                .stream()
-                .map(articleMapper::toArticleResponse)
-                .toList();
+                .findByIsPublishedTrueAndMinRoleLevelLessThanEqualOrderByCreatedAtDesc(currentRoleLevel, pageable)
+                .map(articleMapper::toArticleResponse);
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public List<ArticleResponse> getMyArticles() {
+    public Page<ArticleResponse> getMyArticles(Pageable pageable) {
         String currentUserId = getCurrentUserId();
-        return articleRepository.findByAuthorIdOrderByCreatedAtDesc(currentUserId).stream()
-                .map(articleMapper::toArticleResponse)
-                .toList();
+        return articleRepository
+                .findByAuthorIdOrderByCreatedAtDesc(currentUserId, pageable)
+                .map(articleMapper::toArticleResponse);
     }
 
     @Override
@@ -178,7 +178,8 @@ public class ArticleServiceImpl implements ArticleService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<ArticleComment> comments = articleCommentRepository.findByArticleId(id);
+        List<ArticleComment> comments =
+                articleCommentRepository.findByArticleId(id, Pageable.unpaged()).getContent();
         if (comments != null && !comments.isEmpty()) {
             List<ArticleComment> replies =
                     comments.stream().filter(c -> c.getParent() != null).toList();

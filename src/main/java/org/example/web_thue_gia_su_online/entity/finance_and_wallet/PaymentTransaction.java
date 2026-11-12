@@ -7,9 +7,9 @@ import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
-import org.example.web_thue_gia_su_online.enums.PaymentGatewayType;
-import org.example.web_thue_gia_su_online.enums.TransactionStatus;
-import org.example.web_thue_gia_su_online.enums.TransactionType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.PaymentGatewayType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionStatus;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionType;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

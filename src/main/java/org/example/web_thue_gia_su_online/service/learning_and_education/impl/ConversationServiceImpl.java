@@ -1,7 +1,6 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
 import java.time.Instant;
-import java.util.List;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -9,14 +8,16 @@ import org.example.web_thue_gia_su_online.dto.request.learning_and_education.Con
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.ConversationResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Conversation;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.ConversationStatus;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.ConversationStatus;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.ConversationMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.ConversationRepository;
 import org.example.web_thue_gia_su_online.repository.tutoring.TutorProfileRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.ConversationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -103,14 +104,9 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('TUTOR', 'STUDENT')")
-    public List<ConversationResponse> getMyConversations() {
+    public Page<ConversationResponse> getMyConversations(Pageable pageable) {
         String userId = getCurrentUserId();
-
-        // Lấy tất cả conversations mà user tham gia (cả student và tutor)
-        List<Conversation> conversations =
-                conversationRepository.findAllByStudent_IdOrTutor_IdOrderByUpdatedAtDesc(userId, userId);
-
-        return conversations.stream().map(conversationMapper::toResponse).toList();
+        return conversationRepository.findResponsesByStudentOrTutorId(userId, pageable);
     }
 
     @Override

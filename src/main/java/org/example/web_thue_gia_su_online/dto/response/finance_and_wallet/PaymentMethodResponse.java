@@ -16,5 +16,5 @@ public class PaymentMethodResponse {
     String bankName;
     String accountNumber;
     String accountHolderName;
-    boolean isDefault;
+    Boolean isDefault;
 }

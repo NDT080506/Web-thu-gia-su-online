@@ -3,7 +3,7 @@ package org.example.web_thue_gia_su_online.configuration;
 import java.time.Instant;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;

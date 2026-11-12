@@ -1,10 +1,10 @@
 package org.example.web_thue_gia_su_online.controller.learning_and_education;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.WishlistItemResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.WishlistService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -20,9 +20,9 @@ public class WishlistController {
     WishlistService wishlistService;
 
     @GetMapping
-    public ApiResponse<List<WishlistItemResponse>> getMyWishlist() {
-        return ApiResponse.<List<WishlistItemResponse>>builder()
-                .result(wishlistService.getMyWishlist())
+    public ApiResponse<Page<WishlistItemResponse>> getMyWishlist(Pageable pageable) {
+        return ApiResponse.<Page<WishlistItemResponse>>builder()
+                .result(wishlistService.getMyWishlist(pageable))
                 .build();
     }
 

@@ -1,13 +1,13 @@
 package org.example.web_thue_gia_su_online.controller.learning_and_education;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.ConversationCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.ConversationResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.ConversationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -30,9 +30,9 @@ public class ConversationController {
     }
 
     @GetMapping("/me")
-    public ApiResponse<List<ConversationResponse>> getMyConversations() {
-        return ApiResponse.<List<ConversationResponse>>builder()
-                .result(conversationService.getMyConversations())
+    public ApiResponse<Page<ConversationResponse>> getMyConversations(Pageable pageable) {
+        return ApiResponse.<Page<ConversationResponse>>builder()
+                .result(conversationService.getMyConversations(pageable))
                 .build();
     }
 

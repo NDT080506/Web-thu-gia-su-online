@@ -18,6 +18,8 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Cour
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CartService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseEnrollmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -66,11 +68,11 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
-    public List<CartItemResponse> getMyCart() {
+    public Page<CartItemResponse> getMyCart(Pageable pageable) {
         String userId = getCurrentUserId();
-        return cartItemRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(this::toResponse)
-                .toList();
+        return cartItemRepository
+                .findAllByUserIdOrderByCreatedAtDesc(userId, pageable)
+                .map(this::toResponse);
     }
 
     @Override
@@ -120,7 +122,9 @@ public class CartServiceImpl implements CartService {
     @PreAuthorize("isAuthenticated()")
     public List<CourseEnrollmentResponse> checkout() {
         String userId = getCurrentUserId();
-        List<CartItem> cartItems = cartItemRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        List<CartItem> cartItems = cartItemRepository
+                .findAllByUserIdOrderByCreatedAtDesc(userId, Pageable.unpaged())
+                .getContent();
 
         List<CourseEnrollmentResponse> enrolled = new ArrayList<>();
         for (CartItem item : cartItems) {

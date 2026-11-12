@@ -16,8 +16,8 @@ import org.example.web_thue_gia_su_online.dto.response.authentication.Introspect
 import org.example.web_thue_gia_su_online.dto.response.authentication.RefreshTokenResponse;
 import org.example.web_thue_gia_su_online.entity.authentication.InvalidatedToken;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.AccountStatus;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.AccountStatus;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.repository.authentication.InvalidatedTokenRepository;

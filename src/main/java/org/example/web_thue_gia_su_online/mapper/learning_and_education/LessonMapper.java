@@ -15,6 +15,7 @@ public interface LessonMapper {
 
     Lesson toEntity(LessonCreationRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "courseId", source = "course.id")
     LessonResponse toResponse(Lesson entity);
 

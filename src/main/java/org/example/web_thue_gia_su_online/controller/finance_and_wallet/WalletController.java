@@ -1,13 +1,14 @@
 package org.example.web_thue_gia_su_online.controller.finance_and_wallet;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
+import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.WalletCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.WalletUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.WalletResponse;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.WalletService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -24,13 +25,12 @@ public class WalletController {
 
     WalletService walletService;
 
-    //    @PostMapping("/{userId}")
-    //    ApiResponse<WalletResponse> createWallet(
-    //            @RequestBody @Valid WalletCreationRequest request, @PathVariable String userId) {
-    //        return ApiResponse.<WalletResponse>builder()
-    //                .result(walletService.createWallet(request, userId))
-    //                .build();
-    //    }
+    @PostMapping
+    ApiResponse<WalletResponse> createWallet(@RequestBody @Valid WalletCreationRequest request) {
+        return ApiResponse.<WalletResponse>builder()
+                .result(walletService.createWallet(request.getType()))
+                .build();
+    }
 
     @GetMapping("/{id}")
     ApiResponse<WalletResponse> getWallet(@PathVariable String id) {
@@ -39,17 +39,17 @@ public class WalletController {
                 .build();
     }
 
-    @GetMapping("/user/{userId}")
-    ApiResponse<WalletResponse> getWalletByUserId(@PathVariable String userId) {
-        return ApiResponse.<WalletResponse>builder()
-                .result(walletService.getWalletByUserId(userId))
+    @GetMapping("/user")
+    ApiResponse<Page<WalletResponse>> getWalletByUserId(Pageable pageable) {
+        return ApiResponse.<Page<WalletResponse>>builder()
+                .result(walletService.getWalletByUserId(pageable))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<WalletResponse>> getWallets() {
-        return ApiResponse.<List<WalletResponse>>builder()
-                .result(walletService.getWallets())
+    ApiResponse<Page<WalletResponse>> getWallets(Pageable pageable) {
+        return ApiResponse.<Page<WalletResponse>>builder()
+                .result(walletService.getWallets(pageable))
                 .build();
     }
 

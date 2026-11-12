@@ -7,7 +7,7 @@ import java.util.List;
 import jakarta.persistence.*;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.ConversationStatus;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.ConversationStatus;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

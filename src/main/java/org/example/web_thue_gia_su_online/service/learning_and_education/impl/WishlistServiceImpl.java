@@ -1,7 +1,5 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.WishlistItemResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
@@ -12,6 +10,8 @@ import org.example.web_thue_gia_su_online.repository.identity_and_administration
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.WishlistItemRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.WishlistService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,11 +58,11 @@ public class WishlistServiceImpl implements WishlistService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
-    public List<WishlistItemResponse> getMyWishlist() {
+    public Page<WishlistItemResponse> getMyWishlist(Pageable pageable) {
         String userId = getCurrentUserId();
-        return wishlistRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(this::toResponse)
-                .toList();
+        return wishlistRepository
+                .findAllByUserIdOrderByCreatedAtDesc(userId, pageable)
+                .map(this::toResponse);
     }
 
     @Override

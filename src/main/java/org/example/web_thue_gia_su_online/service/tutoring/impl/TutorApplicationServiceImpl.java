@@ -1,16 +1,15 @@
 package org.example.web_thue_gia_su_online.service.tutoring.impl;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorApplicationCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.tutoring.TutorApplicationResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorApplication;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.RequestStatus;
-import org.example.web_thue_gia_su_online.enums.UserRole;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole;
+import org.example.web_thue_gia_su_online.enums.tutoring.ApplicationRequestStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.tutoring.TutorApplicationMapper;
@@ -19,6 +18,8 @@ import org.example.web_thue_gia_su_online.repository.tutoring.TutorApplicationRe
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorApplicationService;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorProfileService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
                         SecurityContextHolder.getContext().getAuthentication())
                 .getName();
 
-        if (tutorApplicationRepository.existsByUserIdAndStatus(userId, RequestStatus.PENDING)) {
+        if (tutorApplicationRepository.existsByUserIdAndStatus(userId, ApplicationRequestStatus.PENDING)) {
             throw new AppException(ErrorCode.TUTOR_APPLICATION_EXISTED);
         }
 
@@ -93,10 +94,8 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public List<TutorApplicationResponse> getTutorApplications() {
-        return tutorApplicationRepository.findAll().stream()
-                .map(tutorApplicationMapper::toTutorApplicationResponse)
-                .toList();
+    public Page<TutorApplicationResponse> getTutorApplications(Pageable pageable) {
+        return tutorApplicationRepository.findResponses(pageable);
     }
 
     @Override
@@ -108,7 +107,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
                 .findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.TUTOR_APPLICATION_NOT_FOUND));
 
-        tutorApplication.setStatus(RequestStatus.APPROVED);
+        tutorApplication.setStatus(ApplicationRequestStatus.APPROVED);
         tutorApplication.setUpdatedAt(Instant.now());
 
         User user = userRepository
@@ -133,7 +132,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
                 .findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.TUTOR_APPLICATION_NOT_FOUND));
 
-        tutorApplication.setStatus(RequestStatus.REJECTED);
+        tutorApplication.setStatus(ApplicationRequestStatus.REJECTED);
         tutorApplication.setUpdatedAt(Instant.now());
 
         tutorApplicationRepository.save(tutorApplication);

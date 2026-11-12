@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.WalletType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.WalletType;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

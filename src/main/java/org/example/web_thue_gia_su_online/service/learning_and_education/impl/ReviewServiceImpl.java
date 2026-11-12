@@ -2,7 +2,6 @@ package org.example.web_thue_gia_su_online.service.learning_and_education.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.ReviewCreationRequest;
@@ -13,9 +12,9 @@ import org.example.web_thue_gia_su_online.entity.learning_and_education.Booking;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CourseEnrollment;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Review;
 import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
-import org.example.web_thue_gia_su_online.enums.BookingStatus;
-import org.example.web_thue_gia_su_online.enums.EnrollmentStatus;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.BookingStatus;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.ReviewMapper;
@@ -26,6 +25,8 @@ import org.example.web_thue_gia_su_online.repository.learning_and_education.Revi
 import org.example.web_thue_gia_su_online.repository.tutoring.TutorProfileRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.ReviewService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -131,15 +132,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @PreAuthorize("hasRole('TUTOR')")
-    public List<ReviewResponse> getTutorReviews() {
+    public Page<ReviewResponse> getTutorReviews(Pageable pageable) {
 
         String tutorId = Objects.requireNonNull(
                         SecurityContextHolder.getContext().getAuthentication())
                 .getName();
 
-        return reviewRepository.findAllByTutor_Id(tutorId).stream()
-                .map(reviewMapper::toResponse)
-                .toList();
+        return reviewRepository.findResponsesByTutorId(tutorId, pageable);
     }
 
     @Override

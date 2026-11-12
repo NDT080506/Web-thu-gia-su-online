@@ -1,7 +1,6 @@
 package org.example.web_thue_gia_su_online.service.tutoring.impl;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorProfileUpdateRequest;
@@ -12,10 +11,11 @@ import org.example.web_thue_gia_su_online.entity.tutoring.TutorProfile;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.tutoring.TutorProfileMapper;
-import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.tutoring.TutorProfileRepository;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorProfileService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TutorProfileServiceImpl implements TutorProfileService {
 
     TutorProfileRepository tutorProfileRepository;
-    UserRepository userRepository;
     TutorProfileMapper tutorProfileMapper;
 
     @Override
@@ -59,10 +58,8 @@ public class TutorProfileServiceImpl implements TutorProfileService {
     }
 
     @Override
-    public List<TutorProfileResponse> getTutorProfiles() {
-        return tutorProfileRepository.findAll().stream()
-                .map(tutorProfileMapper::toTutorProfileResponse)
-                .toList();
+    public Page<TutorProfileResponse> getTutorProfiles(Pageable pageable) {
+        return tutorProfileRepository.findResponses(pageable);
     }
 
     @Override

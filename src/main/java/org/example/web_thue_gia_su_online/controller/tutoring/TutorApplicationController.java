@@ -1,13 +1,13 @@
 package org.example.web_thue_gia_su_online.controller.tutoring;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.tutoring.TutorApplicationCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.tutoring.TutorApplicationResponse;
 import org.example.web_thue_gia_su_online.service.tutoring.TutorApplicationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -49,9 +49,9 @@ public class TutorApplicationController {
     }
 
     @GetMapping("/admin")
-    ApiResponse<List<TutorApplicationResponse>> getTutorApplications() {
-        return ApiResponse.<List<TutorApplicationResponse>>builder()
-                .result(tutorApplicationService.getTutorApplications())
+    ApiResponse<Page<TutorApplicationResponse>> getTutorApplications(Pageable pageable) {
+        return ApiResponse.<Page<TutorApplicationResponse>>builder()
+                .result(tutorApplicationService.getTutorApplications(pageable))
                 .build();
     }
 

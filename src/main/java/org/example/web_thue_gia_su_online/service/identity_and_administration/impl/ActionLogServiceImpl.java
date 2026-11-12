@@ -1,18 +1,18 @@
 package org.example.web_thue_gia_su_online.service.identity_and_administration.impl;
 
 import java.time.Instant;
-import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.example.web_thue_gia_su_online.dto.response.identity_and_administration.ActionLogResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.ActionLog;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.mapper.identity_and_administration.ActionLogMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.ActionLogRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -54,18 +54,14 @@ public class ActionLogServiceImpl implements ActionLogService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<ActionLogResponse> getActionLogs(
-            String userId, String action, String targetType, Instant fromDate, Instant toDate) {
+    public Page<ActionLogResponse> getActionLogs(
+            String userId, String action, String targetType, Instant fromDate, Instant toDate, Pageable pageable) {
 
         if (userId == null && action == null && targetType == null && fromDate == null && toDate == null) {
-            return actionLogRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
-                    .map(actionLogMapper::toResponse)
-                    .toList();
+            return actionLogRepository.findResponsesAll(pageable);
         }
 
-        return actionLogRepository.searchActionLogs(userId, action, targetType, fromDate, toDate).stream()
-                .map(actionLogMapper::toResponse)
-                .toList();
+        return actionLogRepository.searchActionLogsResponses(userId, action, targetType, fromDate, toDate, pageable);
     }
 
     @Override

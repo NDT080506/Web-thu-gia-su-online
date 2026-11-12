@@ -13,7 +13,7 @@ public class BrokeragePackageResponse {
     String id;
     String tutorId;
     String name;
-    long price;
-    int platformFeePercent;
-    boolean active;
+    Long price;
+    Integer platformFeePercent;
+    Boolean active;
 }

@@ -3,7 +3,7 @@ package org.example.web_thue_gia_su_online.dto.request.finance_and_wallet;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-import org.example.web_thue_gia_su_online.enums.TransactionType;
+import org.example.web_thue_gia_su_online.enums.finance_and_wallet.TransactionType;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

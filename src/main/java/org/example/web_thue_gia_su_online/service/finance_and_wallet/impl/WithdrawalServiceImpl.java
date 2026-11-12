@@ -1,6 +1,5 @@
 package org.example.web_thue_gia_su_online.service.finance_and_wallet.impl;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,7 +7,7 @@ import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.Withdra
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.WithdrawalResponse;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.PayoutResult;
 import org.example.web_thue_gia_su_online.entity.finance_and_wallet.Withdrawal;
-import org.example.web_thue_gia_su_online.enums.ActionCode;
+import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WithdrawalRepository;
@@ -16,6 +15,8 @@ import org.example.web_thue_gia_su_online.service.finance_and_wallet.PayoutGatew
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.WithdrawalPersistenceService;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.WithdrawalService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -80,12 +81,10 @@ public class WithdrawalServiceImpl implements WithdrawalService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<WithdrawalResponse> getMyWithdrawals() {
+    public Page<WithdrawalResponse> getMyWithdrawals(Pageable pageable) {
         String userId = getCurrentUserId();
 
-        return withdrawalRepository.findByUser_Id(userId).stream()
-                .map(this::toResponse)
-                .toList();
+        return withdrawalRepository.findByUser_Id(userId, pageable).map(this::toResponse);
     }
 
     @Override
@@ -103,8 +102,8 @@ public class WithdrawalServiceImpl implements WithdrawalService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
-    public List<WithdrawalResponse> getAllWithdrawals() {
-        return withdrawalRepository.findAll().stream().map(this::toResponse).toList();
+    public Page<WithdrawalResponse> getAllWithdrawals(Pageable pageable) {
+        return withdrawalRepository.findAll(pageable).map(this::toResponse);
     }
 
     private WithdrawalResponse toResponse(Withdrawal withdrawal) {

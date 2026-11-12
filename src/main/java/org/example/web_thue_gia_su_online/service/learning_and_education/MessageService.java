@@ -1,10 +1,10 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education;
 
-import java.util.List;
-
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageCreationRequest;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.MessageUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.MessageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MessageService {
 
@@ -12,7 +12,7 @@ public interface MessageService {
 
     MessageResponse sendMessage(MessageCreationRequest request);
 
-    List<MessageResponse> getMessagesByConversation(String conversationId);
+    Page<MessageResponse> getMessagesByConversation(String conversationId, Pageable pageable);
 
     MessageResponse update(String id, MessageUpdateRequest request);
 

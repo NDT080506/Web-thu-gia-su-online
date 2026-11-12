@@ -1,13 +1,13 @@
 package org.example.web_thue_gia_su_online.controller.disputing_and_reporting;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.disputing_and_reporting.DisputeCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.disputing_and_reporting.DisputeResponse;
 import org.example.web_thue_gia_su_online.service.disputing_and_reporting.DisputeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -31,9 +31,9 @@ public class DisputeController {
     }
 
     @GetMapping("/me")
-    public ApiResponse<List<DisputeResponse>> getMyDisputes() {
-        return ApiResponse.<List<DisputeResponse>>builder()
-                .result(disputeService.getMyDisputes())
+    public ApiResponse<Page<DisputeResponse>> getMyDisputes(Pageable pageable) {
+        return ApiResponse.<Page<DisputeResponse>>builder()
+                .result(disputeService.getMyDisputes(pageable))
                 .build();
     }
 
