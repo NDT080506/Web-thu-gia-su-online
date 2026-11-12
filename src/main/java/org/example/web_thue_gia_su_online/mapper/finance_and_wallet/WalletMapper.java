@@ -9,7 +9,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface WalletMapper {
 
-    @Mapping(target = "user.id", source = "userId")
     Wallet toWallet(WalletCreationRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
