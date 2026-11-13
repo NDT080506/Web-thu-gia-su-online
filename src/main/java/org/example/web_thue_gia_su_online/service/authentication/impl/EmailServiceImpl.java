@@ -29,9 +29,8 @@ public class EmailServiceImpl implements EmailService {
 
     private final ObjectMapper objectMapper;
 
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(10))
-            .build();
+    private final HttpClient httpClient =
+            HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
     @Value("${app.mail.from}")
     private String fromEmail;
@@ -62,7 +61,6 @@ public class EmailServiceImpl implements EmailService {
         }
 
         synchronized (this) {
-
             if (isAccessTokenValid()) {
                 return cachedAccessToken;
             }
@@ -76,19 +74,15 @@ public class EmailServiceImpl implements EmailService {
                     .uri(URI.create("https://oauth2.googleapis.com/token"))
                     .timeout(Duration.ofSeconds(20))
                     .header("Content-Type", "application/x-www-form-urlencoded")
-                    .POST(HttpRequest.BodyPublishers.ofString(
-                            formData, StandardCharsets.UTF_8))
+                    .POST(HttpRequest.BodyPublishers.ofString(formData, StandardCharsets.UTF_8))
                     .build();
 
-            HttpResponse<String> response = httpClient.send(
-                    request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                log.error("Google token refresh failed: status={}, body={}",
-                        response.statusCode(), response.body());
+                log.error("Google token refresh failed: status={}, body={}", response.statusCode(), response.body());
 
-                throw new IllegalStateException(
-                        "Could not refresh Gmail API access token");
+                throw new IllegalStateException("Could not refresh Gmail API access token");
             }
 
             JsonNode json = objectMapper.readTree(response.body());
@@ -97,8 +91,7 @@ public class EmailServiceImpl implements EmailService {
             long expiresIn = json.path("expires_in").asLong(3600);
 
             if (accessToken.isBlank()) {
-                throw new IllegalStateException(
-                        "Google did not return an access token");
+                throw new IllegalStateException("Google did not return an access token");
             }
 
             cachedAccessToken = accessToken;
@@ -111,8 +104,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private boolean isAccessTokenValid() {
-        return cachedAccessToken != null
-                && Instant.now().isBefore(tokenExpiresAt.minusSeconds(60));
+        return cachedAccessToken != null && Instant.now().isBefore(tokenExpiresAt.minusSeconds(60));
     }
 
     private String encode(String value) {
@@ -127,9 +119,7 @@ public class EmailServiceImpl implements EmailService {
         validateHeader(to);
         validateHeader(fromEmail);
 
-        String encodedContent = Base64.getMimeEncoder(
-                        76,
-                        "\r\n".getBytes(StandardCharsets.US_ASCII))
+        String encodedContent = Base64.getMimeEncoder(76, "\r\n".getBytes(StandardCharsets.US_ASCII))
                 .encodeToString(content.getBytes(StandardCharsets.UTF_8));
 
         String mimeMessage = "To: " + to + "\r\n"
@@ -141,34 +131,27 @@ public class EmailServiceImpl implements EmailService {
                 + "\r\n"
                 + encodedContent;
 
-        return Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString(mimeMessage.getBytes(StandardCharsets.UTF_8));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(mimeMessage.getBytes(StandardCharsets.UTF_8));
     }
 
     private void validateHeader(String value) {
-        if (value == null || value.isBlank()
-                || value.contains("\r") || value.contains("\n")) {
+        if (value == null || value.isBlank() || value.contains("\r") || value.contains("\n")) {
             throw new IllegalArgumentException("Invalid email header");
         }
     }
 
-    private HttpResponse<String> sendRequest(
-            String accessToken, String requestBody)
+    private HttpResponse<String> sendRequest(String accessToken, String requestBody)
             throws IOException, InterruptedException {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(
-                        "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"))
+                .uri(URI.create("https://gmail.googleapis.com/gmail/v1/users/me/messages/send"))
                 .timeout(Duration.ofSeconds(30))
                 .header("Authorization", "Bearer " + accessToken)
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(
-                        requestBody, StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
                 .build();
 
-        return httpClient.send(
-                request, HttpResponse.BodyHandlers.ofString());
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     @Override
@@ -176,35 +159,30 @@ public class EmailServiceImpl implements EmailService {
 
         String baseUrl = backendUrl.replaceAll("/+$", "");
 
-        String link = baseUrl
-                + "/giasu/auth/verify-email?token="
-                + encode(token);
+        String link = baseUrl + "/giasu/auth/verify-email?token=" + encode(token);
 
         String content = """
-                Chào bạn,
+				Chào bạn,
 
-                Vui lòng nhấn vào đường link dưới đây để xác thực tài khoản của bạn:
-                %s
+				Vui lòng nhấn vào đường link dưới đây để xác thực tài khoản của bạn:
+				%s
 
-                Đường link này sẽ hết hạn trong 15 phút.
+				Đường link này sẽ hết hạn trong 15 phút.
 
-                Trân trọng,
-                Đội ngũ EduTutor
-                """.formatted(link);
+				Trân trọng,
+				Đội ngũ EduTutor
+				""".formatted(link);
 
         try {
-            log.info("Sending verification email from {} to {}",
-                    fromEmail, email);
+            log.info("Sending verification email from {} to {}", fromEmail, email);
 
             String rawMessage = createRawMessage(email, content);
 
-            String requestBody = objectMapper.writeValueAsString(
-                    Map.of("raw", rawMessage));
+            String requestBody = objectMapper.writeValueAsString(Map.of("raw", rawMessage));
 
             String accessToken = getAccessToken();
 
-            HttpResponse<String> response = sendRequest(
-                    accessToken, requestBody);
+            HttpResponse<String> response = sendRequest(accessToken, requestBody);
 
             // If the access token was rejected, refresh and retry once.
             if (response.statusCode() == 401) {
@@ -219,19 +197,17 @@ public class EmailServiceImpl implements EmailService {
                 response = sendRequest(accessToken, requestBody);
             }
 
-            if (response.statusCode() < 200
-                    || response.statusCode() >= 300) {
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
 
-                log.error("Gmail API failed: status={}, body={}",
-                        response.statusCode(), response.body());
+                log.error("Gmail API failed: status={}, body={}", response.statusCode(), response.body());
 
-                throw new IllegalStateException(
-                        "Could not send verification email");
+                throw new IllegalStateException("Could not send verification email");
             }
 
             JsonNode result = objectMapper.readTree(response.body());
 
-            log.info("Verification email sent successfully. Message ID: {}",
+            log.info(
+                    "Verification email sent successfully. Message ID: {}",
                     result.path("id").asText());
 
         } catch (InterruptedException e) {
@@ -239,14 +215,12 @@ public class EmailServiceImpl implements EmailService {
 
             log.error("Gmail API request was interrupted", e);
 
-            throw new IllegalStateException(
-                    "Could not send verification email", e);
+            throw new IllegalStateException("Could not send verification email", e);
 
         } catch (IOException e) {
             log.error("Gmail API communication failed", e);
 
-            throw new IllegalStateException(
-                    "Could not send verification email", e);
+            throw new IllegalStateException("Could not send verification email", e);
         }
     }
 }
