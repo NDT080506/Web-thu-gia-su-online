@@ -18,6 +18,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 public class InvalidatedToken {
+
     @Id
     String id;
 
@@ -27,11 +28,13 @@ public class InvalidatedToken {
 
     Date expiryTime;
 
-    @NonNull
+    @Column(nullable = false, updatable = false)
     Instant createdAt;
 
     @PrePersist
     void onCreate() {
-        createdAt = Instant.now();
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
     }
 }
