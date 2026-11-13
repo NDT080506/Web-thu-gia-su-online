@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -121,7 +122,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public void logout(LogoutRequest request) {
+        if (request == null
+                || request.getAccessToken() == null
+                || request.getAccessToken().isBlank()
+                || request.getRefreshToken() == null
+                || request.getRefreshToken().isBlank()) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         try {
+            // 1. Xác thực hai token
             SignedJWT accessToken = verifyToken(request.getAccessToken(), "access");
 
             SignedJWT refreshToken = verifyToken(request.getRefreshToken(), "refresh");
@@ -129,33 +139,40 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             JWTClaimsSet accessClaims = accessToken.getJWTClaimsSet();
             JWTClaimsSet refreshClaims = refreshToken.getJWTClaimsSet();
 
-            // Hai token phải thuộc cùng một tài khoản
+            // 2. Kiểm tra hai token thuộc cùng tài khoản
             if (!accessClaims.getSubject().equals(refreshClaims.getSubject())) {
                 throw new AppException(ErrorCode.UNAUTHENTICATED);
             }
 
+            // 3. Lấy User
             String userId = accessClaims.getSubject();
 
             User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-            // Thu hồi Access Token
-            invalidatedTokenRepository.save(InvalidatedToken.builder()
+            // 4. Tạo hai invalidated token
+            InvalidatedToken invalidAccess = InvalidatedToken.builder()
                     .id(accessClaims.getJWTID())
                     .user(user)
                     .expiryTime(accessClaims.getExpirationTime())
-                    .build());
+                    .build();
 
-            // Thu hồi Refresh Token
-            invalidatedTokenRepository.save(InvalidatedToken.builder()
+            InvalidatedToken invalidRefresh = InvalidatedToken.builder()
                     .id(refreshClaims.getJWTID())
                     .user(user)
                     .expiryTime(refreshClaims.getExpirationTime())
-                    .build());
+                    .build();
 
+            // 5. Lưu và flush xuống database
+            invalidatedTokenRepository.saveAllAndFlush(List.of(invalidAccess, invalidRefresh));
+
+            log.info("Successfully invalidated access and refresh tokens for user {}", userId);
+
+            // 6. Ghi nhật ký
             actionLogService.log(ActionCode.LOGOUT, user, "Authentication", userId);
 
         } catch (ParseException | JOSEException e) {
-            throw new RuntimeException(e);
+            log.warn("Invalid token during logout: {}", e.getMessage());
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
     }
 
