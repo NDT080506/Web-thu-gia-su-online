@@ -29,6 +29,11 @@ app:
       client-secret: ${GMAIL_CLIENT_SECRET}
       refresh-token: ${GMAIL_REFRESH_TOKEN}
 
+  cleanup:
+    cron: "0 0 3 * * *"
+    zone: Asia/Ho_Chi_Minh
+    action-log-retention-days: 365
+
 jwt:
   signer-key: ${SIGNER_KEY}
   valid-duration: 1
