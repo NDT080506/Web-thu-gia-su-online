@@ -38,13 +38,13 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.backend-url}")
     private String backendUrl;
 
-    @Value("${app.mail.gmail.client-id}")
+    @Value("${app.mail.Gmail.client-id}")
     private String clientId;
 
-    @Value("${app.mail.gmail.client-secret}")
+    @Value("${app.mail.Gmail.client-secret}")
     private String clientSecret;
 
-    @Value("${app.mail.gmail.refresh-token}")
+    @Value("${app.mail.Gmail.refresh-token}")
     private String refreshToken;
 
     private volatile String cachedAccessToken;
