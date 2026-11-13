@@ -119,6 +119,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    @Transactional
     public void logout(LogoutRequest request) {
         try {
             SignedJWT accessToken = verifyToken(request.getAccessToken(), "access");
@@ -153,7 +154,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             actionLogService.log(ActionCode.LOGOUT, user, "Authentication", userId);
 
-        } catch (AppException | ParseException | JOSEException e) {
+        } catch (ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
     }
