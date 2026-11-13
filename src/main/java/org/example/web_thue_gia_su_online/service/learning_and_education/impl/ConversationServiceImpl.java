@@ -4,7 +4,6 @@ import java.time.Instant;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import lombok.extern.slf4j.Slf4j;
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.ConversationCreationRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.ConversationResponse;
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
@@ -29,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -108,8 +108,7 @@ public class ConversationServiceImpl implements ConversationService {
     @PreAuthorize("hasAnyRole('TUTOR', 'STUDENT')")
     public Page<ConversationResponse> getMyConversations(Pageable pageable) {
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("Principal: {}", authentication.getName());
         log.info("Authorities: {}", authentication.getAuthorities());
