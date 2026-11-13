@@ -9,7 +9,7 @@ spring:
 
   datasource:
     url: ${URL}
-    username: ${DB_USERNAME}
+    username: ${USERNAME}
     password: ${PASSWORD}
     driver-class-name: org.postgresql.Driver
 
@@ -37,3 +37,11 @@ jwt:
   signer-key: ${SIGNER_KEY}
   valid-duration: 1
   refreshable-duration: 30
+
+logging:
+  level:
+    root: INFO
+    org.springframework.boot: INFO
+    org.springframework.context: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.hibernate: INFO
