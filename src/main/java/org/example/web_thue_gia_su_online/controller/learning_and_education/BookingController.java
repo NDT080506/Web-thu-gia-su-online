@@ -71,12 +71,12 @@ public class BookingController {
                 .build();
     }
 
-    //    @GetMapping("/tutor")
-    //    public ApiResponse<List<BookingResponse>> getByTutorId() {
-    //        return ApiResponse.<List<BookingResponse>>builder()
-    //                .result(bookingService.getByTutorId())
-    //                .build();
-    //    }
+    @GetMapping("/tutor")
+    public ApiResponse<Page<BookingResponse>> getByTutorId(Pageable pageable) {
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .result(bookingService.getByTutorId(pageable))
+                .build();
+    }
 
     @GetMapping("/student/{studentId}")
     public ApiResponse<Page<BookingResponse>> getByStudentId(@PathVariable String studentId, Pageable pageable) {

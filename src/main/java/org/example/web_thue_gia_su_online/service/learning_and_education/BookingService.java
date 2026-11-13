@@ -13,7 +13,7 @@ public interface BookingService {
 
     Page<BookingResponse> getByMyId(Pageable pageable);
 
-    //    Page<BookingResponse> getByTutorId(Pageable pageable);
+    Page<BookingResponse> getByTutorId(Pageable pageable);
 
     Page<BookingResponse> getByStudentId(String studentId, Pageable pageable);
 

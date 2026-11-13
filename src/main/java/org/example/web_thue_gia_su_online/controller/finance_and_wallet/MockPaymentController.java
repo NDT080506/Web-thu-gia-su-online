@@ -6,7 +6,6 @@ import org.example.web_thue_gia_su_online.dto.request.finance_and_wallet.Payment
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentInitiationResult;
 import org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentVerificationResult;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.impl.MockPaymentGateway;
-import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -17,7 +16,6 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @RequestMapping("/mock-payments")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Profile("dev")
 public class MockPaymentController {
 
     MockPaymentGateway mockPaymentGateway;
