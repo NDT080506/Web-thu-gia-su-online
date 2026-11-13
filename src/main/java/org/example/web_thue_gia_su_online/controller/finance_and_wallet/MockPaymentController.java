@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @RequestMapping("/mock-payments")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Profile("dev")
+@Profile({"dev", "default"})
 public class MockPaymentController {
 
     MockPaymentGateway mockPaymentGateway;

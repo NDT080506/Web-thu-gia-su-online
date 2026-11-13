@@ -18,6 +18,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, String> {
+    boolean existsByType(WalletType type);
+
+    List<Wallet> findByType(WalletType type);
+
     @Query("SELECT w FROM Wallet w WHERE w.user.id = :userId AND w.type = :type")
     Optional<Wallet> findByUser_IdAndType(@Param("userId") String userId, @Param("type") WalletType type);
 

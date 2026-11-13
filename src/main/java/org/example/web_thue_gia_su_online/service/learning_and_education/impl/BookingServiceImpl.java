@@ -136,15 +136,13 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findResponsesByStudentId(studentId, pageable);
     }
 
-    //    @Override
-    //    @Transactional(readOnly = true)
-    //    @PreAuthorize("hasRole('TUTOR')")
-    //    public List<BookingResponse> getByTutorId() {
-    //        String tutorId = getCurrentUserId();
-    //        return bookingRepository.findAllByTutorId(tutorId).stream()
-    //                .map(bookingMapper::toResponse)
-    //                .toList();
-    //    }
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('TUTOR')")
+    public Page<BookingResponse> getByTutorId(Pageable pageable) {
+        String tutorId = getCurrentUserId();
+        return bookingRepository.findResponsesByTutorId(tutorId, pageable);
+    }
 
     @Override
     @Transactional(readOnly = true)

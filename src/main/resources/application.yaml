@@ -1,6 +1,5 @@
-
 server:
-  port: ${PORT:10000}
+  port: ${PORT:8080}
   servlet:
     context-path: /giasu
 
@@ -9,9 +8,9 @@ spring:
     name: Web thue gia su online
 
   datasource:
-    url: ${URL}
-    username: ${USERNAME}
-    password: ${PASSWORD}
+    url: ${URL:jdbc:postgresql://localhost:5434/giasu}
+    username: ${DB_USERNAME:postgres}
+    password: ${PASSWORD:123456}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,17 +18,20 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
 app:
-  frontend-url: ${FRONTEND_URL}
-  backend-url: ${BACKEND_URL}
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  backend-url: ${BACKEND_URL:http://localhost:8080}
   mail:
-    from: ${MAIL_FROM}
+    from: ${MAIL_FROM:anhembadao299@gmail.com}
     Gmail:
-      client-id: ${GMAIL_CLIENT_ID}
-      client-secret: ${GMAIL_CLIENT_SECRET}
-      refresh-token: ${GMAIL_REFRESH_TOKEN}
+      client-id: ${GMAIL_CLIENT_ID:dummy-client-id}
+      client-secret: ${GMAIL_CLIENT_SECRET:dummy-client-secret}
+      refresh-token: ${GMAIL_REFRESH_TOKEN:dummy-refresh-token}
 
 jwt:
-  signer-key: ${SIGNER_KEY}
+  signer-key: ${SIGNER_KEY:e7efae460b9d557389d4dfa025bc40d4166a7c8fbf72031d483b185e7e547ada}
   valid-duration: 1
   refreshable-duration: 30

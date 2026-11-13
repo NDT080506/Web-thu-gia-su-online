@@ -81,6 +81,7 @@ public class DepositServiceImpl implements DepositService {
                 .provider(paymentGateway.getType())
                 .referenceCode(referenceCode)
                 .amount(request.getAmount())
+                .balanceAfter(wallet.getAvailableBalance())
                 .note("Nạp tiền vào ví")
                 .build();
 

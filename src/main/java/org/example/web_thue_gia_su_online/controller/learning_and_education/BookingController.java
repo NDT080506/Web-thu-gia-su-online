@@ -50,6 +50,13 @@ public class BookingController {
                 .build();
     }
 
+    @GetMapping("/tutor")
+    public ApiResponse<Page<BookingResponse>> getByTutorId(Pageable pageable) {
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .result(bookingService.getByTutorId(pageable))
+                .build();
+    }
+
     @GetMapping("/{bookingId}")
     public ApiResponse<BookingResponse> getById(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
@@ -70,13 +77,6 @@ public class BookingController {
                 .result(bookingService.completeBooking(bookingId))
                 .build();
     }
-
-    //    @GetMapping("/tutor")
-    //    public ApiResponse<List<BookingResponse>> getByTutorId() {
-    //        return ApiResponse.<List<BookingResponse>>builder()
-    //                .result(bookingService.getByTutorId())
-    //                .build();
-    //    }
 
     @GetMapping("/student/{studentId}")
     public ApiResponse<Page<BookingResponse>> getByStudentId(@PathVariable String studentId, Pageable pageable) {
