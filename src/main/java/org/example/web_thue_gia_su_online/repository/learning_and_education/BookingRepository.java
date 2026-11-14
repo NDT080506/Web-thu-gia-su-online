@@ -84,7 +84,7 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
 			b.updatedAt
 		)
 		FROM Booking b
-		WHERE b.brokeragePackage.tutor.id = :tutorId
+		WHERE (b.brokeragePackage.tutor.id = :tutorId OR b.conversation.tutor.id = :tutorId)
 		ORDER BY b.createdAt DESC
 		""")
     Page<BookingResponse> findResponsesByTutorId(@Param("tutorId") String tutorId, Pageable pageable);

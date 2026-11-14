@@ -69,6 +69,12 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<BrokeragePackageResponse> getPublicActivePackages(Pageable pageable) {
+        return repository.findResponsesByActiveTrue(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN')")
     public Page<BrokeragePackageResponse> getAll(Pageable pageable) {
         return repository.findResponsesAll(pageable);

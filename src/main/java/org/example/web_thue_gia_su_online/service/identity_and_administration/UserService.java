@@ -13,6 +13,8 @@ public interface UserService {
 
     public Page<UserResponse> getUsers(Pageable pageable);
 
+    public Page<UserResponse> getTutors(Pageable pageable);
+
     public UserResponse getMyUser();
 
     public UserResponse getUser(String id);

@@ -39,6 +39,13 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/tutors")
+    ApiResponse<Page<UserResponse>> getTutors(Pageable pageable) {
+        return ApiResponse.<Page<UserResponse>>builder()
+                .result(userService.getTutors(pageable))
+                .build();
+    }
+
     @GetMapping("/admin")
     ApiResponse<Page<UserResponse>> getUsers(Pageable pageable) {
         return ApiResponse.<Page<UserResponse>>builder()

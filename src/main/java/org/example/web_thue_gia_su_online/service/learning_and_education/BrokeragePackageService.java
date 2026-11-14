@@ -14,6 +14,8 @@ public interface BrokeragePackageService {
 
     Page<BrokeragePackageResponse> getAll(Pageable pageable);
 
+    Page<BrokeragePackageResponse> getPublicActivePackages(Pageable pageable);
+
     Page<BrokeragePackageResponse> getByTutorId(String tutorId, Pageable pageable);
 
     BrokeragePackageResponse update(String id, BrokeragePackageUpdateRequest request);

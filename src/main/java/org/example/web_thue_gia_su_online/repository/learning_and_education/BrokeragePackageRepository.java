@@ -70,6 +70,20 @@ public interface BrokeragePackageRepository extends JpaRepository<BrokeragePacka
 			bp.active
 		)
 		FROM BrokeragePackage bp
+		WHERE bp.active = true
+		""")
+    Page<BrokeragePackageResponse> findResponsesByActiveTrue(Pageable pageable);
+
+    @Query("""
+		SELECT new org.example.web_thue_gia_su_online.dto.response.learning_and_education.BrokeragePackageResponse(
+			bp.id,
+			bp.tutor.id,
+			bp.name,
+			bp.price,
+			bp.platformFeePercent,
+			bp.active
+		)
+		FROM BrokeragePackage bp
 		""")
     Page<BrokeragePackageResponse> findResponsesAll(Pageable pageable);
 }

@@ -34,6 +34,25 @@ public interface UserRepository extends JpaRepository<User, String> {
 			u.updatedAt
 		)
 		FROM User u
+		WHERE u.role = org.example.web_thue_gia_su_online.enums.identity_and_administration.UserRole.TUTOR
+		ORDER BY u.createdAt DESC
+		""")
+    Page<UserResponse> findTutorResponses(Pageable pageable);
+
+    @Query("""
+		SELECT new org.example.web_thue_gia_su_online.dto.response.identity_and_administration.UserResponse(
+			u.id,
+			u.email,
+			u.displayName,
+			u.avatarUrl,
+			u.role,
+			u.status,
+			u.phone,
+			u.zaloLink,
+			u.createdAt,
+			u.updatedAt
+		)
+		FROM User u
 		""")
     Page<UserResponse> findResponses(Pageable pageable);
 }

@@ -30,6 +30,13 @@ public class BrokeragePackageController {
                 .build();
     }
 
+    @GetMapping
+    public ApiResponse<Page<BrokeragePackageResponse>> getAllPublic(Pageable pageable) {
+        return ApiResponse.<Page<BrokeragePackageResponse>>builder()
+                .result(packageService.getPublicActivePackages(pageable))
+                .build();
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<BrokeragePackageResponse> getById(@PathVariable String id) {
         return ApiResponse.<BrokeragePackageResponse>builder()

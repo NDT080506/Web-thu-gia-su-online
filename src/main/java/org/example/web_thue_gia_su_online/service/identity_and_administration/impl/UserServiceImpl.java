@@ -75,6 +75,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<UserResponse> getTutors(Pageable pageable) {
+        return userRepository.findTutorResponses(pageable);
+    }
+
+    @Override
     @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR', 'ADMIN')")
     public UserResponse getMyUser() {
 
