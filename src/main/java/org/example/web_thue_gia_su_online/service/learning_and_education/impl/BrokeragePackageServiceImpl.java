@@ -93,7 +93,7 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
     public void delete(String id) {
         repository.deleteById(id);
     }

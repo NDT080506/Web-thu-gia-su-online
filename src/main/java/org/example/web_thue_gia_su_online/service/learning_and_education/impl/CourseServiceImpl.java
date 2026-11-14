@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseResponse;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
 import org.example.web_thue_gia_su_online.enums.identity_and_administration.ActionCode;
@@ -16,6 +17,7 @@ import org.example.web_thue_gia_su_online.service.identity_and_administration.Ac
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -80,5 +82,26 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public Page<CourseResponse> getAllByTutorId(String tutorId, Pageable pageable) {
         return courseRepository.findResponsesByTutorId(tutorId, pageable);
+    }
+
+    @Override
+    public CourseResponse update(String id, CourseUpdateRequest request) {
+        Course course = courseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        String currentUserId = getCurrentUserId();
+        if (course.getTutor() != null && !course.getTutor().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Bạn không có quyền sửa khóa học này");
+        }
+
+        courseMapper.updateEntity(course, request);
+        courseRepository.save(course);
+        return courseMapper.toResponse(course);
+    }
+
+    @Override
+    public void delete(String id) {
+        Course course = courseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        courseRepository.delete(course);
     }
 }

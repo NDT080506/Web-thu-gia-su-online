@@ -1,6 +1,7 @@
 package org.example.web_thue_gia_su_online.service.learning_and_education;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,4 +15,8 @@ public interface CourseService {
     Page<CourseResponse> getCourses(Pageable pageable);
 
     Page<CourseResponse> getAllByTutorId(String tutorId, Pageable pageable);
+
+    CourseResponse update(String id, CourseUpdateRequest request);
+
+    void delete(String id);
 }

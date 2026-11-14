@@ -3,6 +3,7 @@ package org.example.web_thue_gia_su_online.controller.learning_and_education;
 import jakarta.validation.Valid;
 
 import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseCreationRequest;
+import org.example.web_thue_gia_su_online.dto.request.learning_and_education.CourseUpdateRequest;
 import org.example.web_thue_gia_su_online.dto.response.ApiResponse;
 import org.example.web_thue_gia_su_online.dto.response.learning_and_education.CourseResponse;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseService;
@@ -47,6 +48,22 @@ public class CourseController {
     public ApiResponse<Page<CourseResponse>> getAllByTutorId(@PathVariable String tutorId, Pageable pageable) {
         return ApiResponse.<Page<CourseResponse>>builder()
                 .result(courseService.getAllByTutorId(tutorId, pageable))
+                .build();
+    }
+
+    @PatchMapping("/tutor/{id}")
+    public ApiResponse<CourseResponse> tutorUpdate(
+            @PathVariable String id, @RequestBody @Valid CourseUpdateRequest request) {
+        return ApiResponse.<CourseResponse>builder()
+                .result(courseService.update(id, request))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable String id) {
+        courseService.delete(id);
+        return ApiResponse.<Void>builder()
+                .message("Course deleted successfully")
                 .build();
     }
 }
