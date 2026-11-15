@@ -72,54 +72,69 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
     Optional<PaymentTransaction> findByWithdrawal_Id(String withdrawalId);
 
     @Query("""
-		SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
-			pt.id,
-			pt.sourceWallet.id,
-			pt.destinationWallet.id,
-			pt.booking.id,
-			pt.type,
-			pt.amount,
-			pt.balanceAfter,
-			pt.note,
-			pt.createdAt
-		)
-		FROM PaymentTransaction pt
-		WHERE pt.id = :id
-		""")
+	SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
+		pt.id,
+		sw.id,
+		dw.id,
+		b.id,
+		e.id,
+		pt.type,
+		pt.amount,
+		pt.balanceAfter,
+		pt.note,
+		pt.createdAt
+	)
+	FROM PaymentTransaction pt
+	LEFT JOIN pt.sourceWallet sw
+	LEFT JOIN pt.destinationWallet dw
+	LEFT JOIN pt.booking b
+	LEFT JOIN pt.enrollment e
+	WHERE pt.id = :id
+	""")
     Optional<PaymentTransactionResponse> findResponseById(@Param("id") String id);
 
     @Query("""
-		SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
-			pt.id,
-			pt.sourceWallet.id,
-			pt.destinationWallet.id,
-			pt.booking.id,
-			pt.type,
-			pt.amount,
-			pt.balanceAfter,
-			pt.note,
-			pt.createdAt
-		)
-		FROM PaymentTransaction pt
-		WHERE pt.booking.id = :bookingId
-		""")
+	SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
+		pt.id,
+		sw.id,
+		dw.id,
+		b.id,
+		e.id,
+		pt.type,
+		pt.amount,
+		pt.balanceAfter,
+		pt.note,
+		pt.createdAt
+	)
+	FROM PaymentTransaction pt
+	LEFT JOIN pt.sourceWallet sw
+	LEFT JOIN pt.destinationWallet dw
+	LEFT JOIN pt.booking b
+	LEFT JOIN pt.enrollment e
+	WHERE b.id = :bookingId
+	""")
     Page<PaymentTransactionResponse> findResponsesByBookingId(@Param("bookingId") String bookingId, Pageable pageable);
 
     @Query("""
-		SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
-			pt.id,
-			pt.sourceWallet.id,
-			pt.destinationWallet.id,
-			pt.booking.id,
-			pt.type,
-			pt.amount,
-			pt.balanceAfter,
-			pt.note,
-			pt.createdAt
-		)
-		FROM PaymentTransaction pt
-		WHERE pt.sourceWallet.id = :walletId OR pt.destinationWallet.id = :walletId
-		ORDER BY pt.createdAt DESC
-		""")
+	SELECT new org.example.web_thue_gia_su_online.dto.response.finance_and_wallet.PaymentTransactionResponse(
+		pt.id,
+		sw.id,
+		dw.id,
+		b.id,
+		e.id,
+		pt.type,
+		pt.amount,
+		pt.balanceAfter,
+		pt.note,
+		pt.createdAt
+	)
+	FROM PaymentTransaction pt
+	LEFT JOIN pt.sourceWallet sw
+	LEFT JOIN pt.destinationWallet dw
+	LEFT JOIN pt.booking b
+	LEFT JOIN pt.enrollment e
+	WHERE sw.id = :walletId OR dw.id = :walletId
+	ORDER BY pt.createdAt DESC
+	""")
     Page<PaymentTransactionResponse> findResponsesByWalletId(@Param("walletId") String walletId, Pageable pageable);
 }
