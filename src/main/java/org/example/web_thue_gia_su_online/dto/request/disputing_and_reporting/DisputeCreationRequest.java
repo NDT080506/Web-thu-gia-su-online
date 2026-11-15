@@ -20,6 +20,5 @@ public class DisputeCreationRequest {
     @NotBlank
     String reason;
 
-    @NotBlank
     String evidenceUrl;
 }

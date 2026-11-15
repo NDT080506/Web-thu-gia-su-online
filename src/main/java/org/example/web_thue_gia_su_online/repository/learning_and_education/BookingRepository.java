@@ -25,6 +25,8 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
 		""")
     Optional<Booking> findByIdForUpdate(@Param("bookingId") String bookingId);
 
+	boolean existsByBrokeragePackage_Id(String pkgId);
+
     Page<Booking> findAllByStudentId(String studentId, Pageable pageable);
 
     @Query("""

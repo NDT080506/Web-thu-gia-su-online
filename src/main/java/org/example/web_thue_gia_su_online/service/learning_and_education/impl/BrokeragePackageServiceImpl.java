@@ -11,6 +11,7 @@ import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.BrokeragePackageMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
+import org.example.web_thue_gia_su_online.repository.learning_and_education.BookingRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.BrokeragePackageRepository;
 import org.example.web_thue_gia_su_online.service.learning_and_education.BrokeragePackageService;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
     BrokeragePackageRepository repository;
     BrokeragePackageMapper mapper;
     UserRepository userRepository;
+    BookingRepository bookingRepository;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -95,6 +97,23 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'TUTOR')")
     public void delete(String id) {
-        repository.deleteById(id);
+        BrokeragePackage pkg = repository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PACKAGE_NOT_FOUND));
+
+
+        String currentUserId = getCurrentUserId();
+
+        if (!pkg.getTutor().getId().equals(currentUserId)) {
+            throw new AccessDeniedException(
+                    "Bạn không có quyền xóa gói dịch vụ thuê này"
+            );
+        }
+
+        if (bookingRepository.existsByBrokeragePackage_Id(id)) {
+            pkg.setActive(false);
+            repository.save(pkg);
+            return;
+        }
+
+        repository.delete(pkg);
     }
 }

@@ -12,6 +12,7 @@ import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.mapper.learning_and_education.CourseMapper;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
+import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseService;
@@ -33,6 +34,7 @@ import lombok.experimental.FieldDefaults;
 public class CourseServiceImpl implements CourseService {
 
     CourseRepository courseRepository;
+    CourseEnrollmentRepository courseEnrollmentRepository;
     UserRepository userRepository;
     CourseMapper courseMapper;
     ActionLogService actionLogService;
@@ -99,8 +101,25 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
     public void delete(String id) {
-        Course course = courseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        String currentUserId = getCurrentUserId();
+
+        if (!course.getTutor().getId().equals(currentUserId)) {
+            throw new AccessDeniedException(
+                    "Bạn không có quyền xóa khóa học này"
+            );
+        }
+
+        if (courseEnrollmentRepository.existsByCourse_Id(id)) {
+            course.setActive(false);
+            courseRepository.save(course);
+            return;
+        }
 
         courseRepository.delete(course);
     }

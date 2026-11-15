@@ -10,6 +10,7 @@ import org.example.web_thue_gia_su_online.dto.response.learning_and_education.Co
 import org.example.web_thue_gia_su_online.entity.identity_and_administration.User;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.CartItem;
 import org.example.web_thue_gia_su_online.entity.learning_and_education.Course;
+import org.example.web_thue_gia_su_online.enums.learning_and_education.EnrollmentStatus;
 import org.example.web_thue_gia_su_online.exception.AppException;
 import org.example.web_thue_gia_su_online.exception.ErrorCode;
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
@@ -122,27 +123,80 @@ public class CartServiceImpl implements CartService {
     @PreAuthorize("isAuthenticated()")
     public List<CourseEnrollmentResponse> checkout() {
         String userId = getCurrentUserId();
+
         List<CartItem> cartItems = cartItemRepository
                 .findAllByUserIdOrderByCreatedAtDesc(userId, Pageable.unpaged())
                 .getContent();
 
         List<CourseEnrollmentResponse> enrolled = new ArrayList<>();
+
         for (CartItem item : cartItems) {
             String courseId = item.getCourse().getId();
-            // Nếu chưa ghi danh thì gọi enrollCourse
-            boolean alreadyEnrolled = courseEnrollmentRepository
-                    .findByStudentIdAndCourseId(userId, courseId)
-                    .isPresent();
-            if (!alreadyEnrolled) {
-                CourseEnrollmentCreationRequest req = CourseEnrollmentCreationRequest.builder()
-                        .courseId(courseId)
-                        .build();
-                enrolled.add(courseEnrollmentService.enrollCourse(req));
+
+            // 1. Kiểm tra enrollment đã tồn tại chưa
+            var existingEnrollment = courseEnrollmentRepository
+                    .findByStudentIdAndCourseId(userId, courseId);
+
+            if (existingEnrollment.isPresent()) {
+                var existing = existingEnrollment.get();
+
+                // 2. Enrollment PENDING: trả lại để tiếp tục thanh toán
+                if (existing.getStatus() == EnrollmentStatus.PENDING) {
+                    CourseEnrollmentResponse response =
+                            courseEnrollmentRepository
+                                    .findResponseById(existing.getId())
+                                    .orElseThrow(() -> new AppException(
+                                            ErrorCode.COURSE_ENROLLMENT_NOT_FOUND
+                                    ));
+
+                    enrolled.add(response);
+                }
+
+                // 3. Đã thanh toán hoặc hoàn thành: không cần thanh toán lại
+                else if (existing.getStatus() == EnrollmentStatus.ACTIVE
+                        || existing.getStatus() == EnrollmentStatus.COMPLETED) {
+
+                    cartItemRepository.deleteByUserIdAndCourseId(
+                            userId,
+                            courseId
+                    );
+                }
+
+                // 4. Enrollment CANCELLED: không cho thanh toán lại
+                else if (existing.getStatus() == EnrollmentStatus.CANCELLED) {
+                    throw new AppException(
+                            ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE
+                    );
+                }
+
+                continue;
+            }
+
+            // 5. Chưa tồn tại enrollment: tạo enrollment mới
+            CourseEnrollmentCreationRequest request =
+                    CourseEnrollmentCreationRequest.builder()
+                            .courseId(courseId)
+                            .build();
+
+            CourseEnrollmentResponse newEnrollment =
+                    courseEnrollmentService.enrollCourse(request);
+
+            // 6. Enrollment cần thanh toán: đưa vào danh sách trả về
+            if (newEnrollment.getStatus() == EnrollmentStatus.PENDING) {
+                enrolled.add(newEnrollment);
+            }
+
+            // 7. Khóa học miễn phí đã ACTIVE: xóa khỏi giỏ hàng
+            else if (newEnrollment.getStatus() == EnrollmentStatus.ACTIVE) {
+                cartItemRepository.deleteByUserIdAndCourseId(
+                        userId,
+                        courseId
+                );
             }
         }
 
-        // Xóa sạch giỏ hàng sau khi checkout thành công
-        cartItemRepository.deleteAllByUserId(userId);
+        // KHÔNG xóa toàn bộ giỏ hàng tại đây.
+        // Chỉ xóa từng khóa học sau khi thanh toán thành công.
 
         return enrolled;
     }
