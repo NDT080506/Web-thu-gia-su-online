@@ -134,20 +134,16 @@ public class CartServiceImpl implements CartService {
             String courseId = item.getCourse().getId();
 
             // 1. Kiểm tra enrollment đã tồn tại chưa
-            var existingEnrollment = courseEnrollmentRepository
-                    .findByStudentIdAndCourseId(userId, courseId);
+            var existingEnrollment = courseEnrollmentRepository.findByStudentIdAndCourseId(userId, courseId);
 
             if (existingEnrollment.isPresent()) {
                 var existing = existingEnrollment.get();
 
                 // 2. Enrollment PENDING: trả lại để tiếp tục thanh toán
                 if (existing.getStatus() == EnrollmentStatus.PENDING) {
-                    CourseEnrollmentResponse response =
-                            courseEnrollmentRepository
-                                    .findResponseById(existing.getId())
-                                    .orElseThrow(() -> new AppException(
-                                            ErrorCode.COURSE_ENROLLMENT_NOT_FOUND
-                                    ));
+                    CourseEnrollmentResponse response = courseEnrollmentRepository
+                            .findResponseById(existing.getId())
+                            .orElseThrow(() -> new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_FOUND));
 
                     enrolled.add(response);
                 }
@@ -156,17 +152,12 @@ public class CartServiceImpl implements CartService {
                 else if (existing.getStatus() == EnrollmentStatus.ACTIVE
                         || existing.getStatus() == EnrollmentStatus.COMPLETED) {
 
-                    cartItemRepository.deleteByUserIdAndCourseId(
-                            userId,
-                            courseId
-                    );
+                    cartItemRepository.deleteByUserIdAndCourseId(userId, courseId);
                 }
 
                 // 4. Enrollment CANCELLED: không cho thanh toán lại
                 else if (existing.getStatus() == EnrollmentStatus.CANCELLED) {
-                    throw new AppException(
-                            ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE
-                    );
+                    throw new AppException(ErrorCode.COURSE_ENROLLMENT_NOT_ACTIVE);
                 }
 
                 continue;
@@ -174,12 +165,9 @@ public class CartServiceImpl implements CartService {
 
             // 5. Chưa tồn tại enrollment: tạo enrollment mới
             CourseEnrollmentCreationRequest request =
-                    CourseEnrollmentCreationRequest.builder()
-                            .courseId(courseId)
-                            .build();
+                    CourseEnrollmentCreationRequest.builder().courseId(courseId).build();
 
-            CourseEnrollmentResponse newEnrollment =
-                    courseEnrollmentService.enrollCourse(request);
+            CourseEnrollmentResponse newEnrollment = courseEnrollmentService.enrollCourse(request);
 
             // 6. Enrollment cần thanh toán: đưa vào danh sách trả về
             if (newEnrollment.getStatus() == EnrollmentStatus.PENDING) {
@@ -188,10 +176,7 @@ public class CartServiceImpl implements CartService {
 
             // 7. Khóa học miễn phí đã ACTIVE: xóa khỏi giỏ hàng
             else if (newEnrollment.getStatus() == EnrollmentStatus.ACTIVE) {
-                cartItemRepository.deleteByUserIdAndCourseId(
-                        userId,
-                        courseId
-                );
+                cartItemRepository.deleteByUserIdAndCourseId(userId, courseId);
             }
         }
 

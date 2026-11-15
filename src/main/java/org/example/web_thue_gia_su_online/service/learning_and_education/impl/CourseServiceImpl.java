@@ -104,15 +104,12 @@ public class CourseServiceImpl implements CourseService {
     @Transactional
     @PreAuthorize("hasAnyRole('TUTOR', 'ADMIN')")
     public void delete(String id) {
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        Course course = courseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         String currentUserId = getCurrentUserId();
 
         if (!course.getTutor().getId().equals(currentUserId)) {
-            throw new AccessDeniedException(
-                    "Bạn không có quyền xóa khóa học này"
-            );
+            throw new AccessDeniedException("Bạn không có quyền xóa khóa học này");
         }
 
         if (courseEnrollmentRepository.existsByCourse_Id(id)) {

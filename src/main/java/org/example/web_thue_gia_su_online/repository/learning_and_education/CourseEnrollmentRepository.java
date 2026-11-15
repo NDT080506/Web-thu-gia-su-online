@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollment, String> {
     Page<CourseEnrollment> findByStudentId(String studentId, Pageable pageable);
 
-	boolean existsByCourse_Id(String courseId);
+    boolean existsByCourse_Id(String courseId);
 
     Page<CourseEnrollment> findByCourseId(String courseId, Pageable pageable);
 

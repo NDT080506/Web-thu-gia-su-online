@@ -115,9 +115,7 @@ public class EnrollmentPaymentServiceImpl implements EnrollmentPaymentService {
 
         // 12. Xóa khóa học đã thanh toán khỏi giỏ hàng
         cartItemRepository.deleteByUserIdAndCourseId(
-                userId,
-                enrollment.getCourse().getId()
-        );
+                userId, enrollment.getCourse().getId());
 
         return new EnrollmentPaymentResponse(
                 savedTransaction.getId(),

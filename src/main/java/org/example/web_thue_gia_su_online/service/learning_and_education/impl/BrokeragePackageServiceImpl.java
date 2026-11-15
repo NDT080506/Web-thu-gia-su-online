@@ -99,13 +99,10 @@ public class BrokeragePackageServiceImpl implements BrokeragePackageService {
     public void delete(String id) {
         BrokeragePackage pkg = repository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PACKAGE_NOT_FOUND));
 
-
         String currentUserId = getCurrentUserId();
 
         if (!pkg.getTutor().getId().equals(currentUserId)) {
-            throw new AccessDeniedException(
-                    "Bạn không có quyền xóa gói dịch vụ thuê này"
-            );
+            throw new AccessDeniedException("Bạn không có quyền xóa gói dịch vụ thuê này");
         }
 
         if (bookingRepository.existsByBrokeragePackage_Id(id)) {
