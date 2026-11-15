@@ -19,6 +19,7 @@ public class PaymentTransactionResponse {
     String sourceWalletId;
     String destinationWalletId;
     String bookingId;
+    String enrollmentId;
     TransactionType type;
     Long amount;
     Long balanceAfter;

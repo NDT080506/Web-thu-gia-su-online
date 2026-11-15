@@ -131,24 +131,26 @@ public class DisputeServiceImpl implements DisputeService {
 
     private void validateBookingPayment(Booking booking) {
 
-        boolean paymentCompleted = paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
+        boolean escrowIsHeld = booking.getStatus() == BookingStatus.PENDING_CONFIRMATION
+                && paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
                         booking.getId(), TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS)
-                || paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
+                && !paymentTransactionRepository.existsByBooking_IdAndTypeAndStatus(
                         booking.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
 
-        if (!paymentCompleted) {
+        if (!escrowIsHeld) {
             throw new AppException(ErrorCode.PAYMENT_NOT_COMPLETED);
         }
     }
 
     private void validateEnrollmentPayment(CourseEnrollment enrollment) {
 
-        boolean paymentCompleted = paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
+        boolean escrowIsHeld = enrollment.getStatus() == EnrollmentStatus.ACTIVE
+                && paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
                         enrollment.getId(), TransactionType.ESCROW_HOLD, TransactionStatus.SUCCESS)
-                || paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
+                && !paymentTransactionRepository.existsByEnrollment_IdAndTypeAndStatus(
                         enrollment.getId(), TransactionType.ESCROW_RELEASE, TransactionStatus.SUCCESS);
 
-        if (!paymentCompleted) {
+        if (!escrowIsHeld) {
             throw new AppException(ErrorCode.PAYMENT_NOT_COMPLETED);
         }
     }

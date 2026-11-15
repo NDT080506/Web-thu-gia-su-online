@@ -20,5 +20,6 @@ public interface PaymentTransactionMapper {
     @Mapping(target = "sourceWalletId", source = "sourceWallet.id")
     @Mapping(target = "destinationWalletId", source = "destinationWallet.id")
     @Mapping(target = "bookingId", source = "booking.id")
+    @Mapping(target = "enrollmentId", source = "enrollment.id")
     PaymentTransactionResponse toPaymentTransactionResponse(PaymentTransaction transaction);
 }
