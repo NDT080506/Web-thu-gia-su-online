@@ -33,12 +33,12 @@ public class EscrowReleaseServiceImpl implements EscrowReleaseService {
 
     @Override
     @Transactional
-    public void releaseEnrollmentEscrow(CourseEnrollment enrollment) {
+    public void settleEnrollmentPayment(CourseEnrollment enrollment) {
         String enrollmentId = enrollment.getId();
 
-        // 1. Chỉ giải ngân khi enrollment đã hoàn thành
-        if (enrollment.getStatus() != EnrollmentStatus.COMPLETED) {
-            throw new IllegalStateException("Chỉ được giải ngân khi khóa học đã hoàn thành");
+        // Chỉ giải ngân khi enrollment đã thanh toán và đang hoạt động.
+        if (enrollment.getStatus() != EnrollmentStatus.ACTIVE) {
+            throw new IllegalStateException("Chỉ được giải ngân enrollment đang hoạt động");
         }
 
         // 2. Kiểm tra số tiền cần phân chia (chống overflow)

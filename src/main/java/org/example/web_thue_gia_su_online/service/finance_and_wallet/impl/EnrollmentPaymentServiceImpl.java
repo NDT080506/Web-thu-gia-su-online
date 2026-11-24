@@ -18,6 +18,7 @@ import org.example.web_thue_gia_su_online.repository.finance_and_wallet.WalletRe
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CartItemRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.service.finance_and_wallet.EnrollmentPaymentService;
+import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ public class EnrollmentPaymentServiceImpl implements EnrollmentPaymentService {
     WalletRepository walletRepository;
     PaymentTransactionRepository paymentTransactionRepository;
     CartItemRepository cartItemRepository;
+    EscrowReleaseService escrowReleaseService;
 
     private String getCurrentUserId() {
         return Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication())
@@ -113,7 +115,10 @@ public class EnrollmentPaymentServiceImpl implements EnrollmentPaymentService {
         // 11. Lưu wallet (bắt buộc để persist thay đổi balance)
         walletRepository.save(wallet);
 
-        // 12. Xóa khóa học đã thanh toán khỏi giỏ hàng
+        // 12. Giải ngân ngay phần thu nhập gia sư và phí nền tảng.
+        escrowReleaseService.settleEnrollmentPayment(enrollment);
+
+        // 13. Xóa khóa học đã thanh toán khỏi giỏ hàng
         cartItemRepository.deleteByUserIdAndCourseId(
                 userId, enrollment.getCourse().getId());
 

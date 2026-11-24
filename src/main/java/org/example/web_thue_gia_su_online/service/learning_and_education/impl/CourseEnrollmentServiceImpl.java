@@ -19,7 +19,6 @@ import org.example.web_thue_gia_su_online.repository.finance_and_wallet.PaymentT
 import org.example.web_thue_gia_su_online.repository.identity_and_administration.UserRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseEnrollmentRepository;
 import org.example.web_thue_gia_su_online.repository.learning_and_education.CourseRepository;
-import org.example.web_thue_gia_su_online.service.finance_and_wallet.EscrowReleaseService;
 import org.example.web_thue_gia_su_online.service.identity_and_administration.ActionLogService;
 import org.example.web_thue_gia_su_online.service.learning_and_education.CourseEnrollmentService;
 import org.springframework.data.domain.Page;
@@ -45,7 +44,6 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     UserRepository userRepository;
     CourseRepository courseRepository;
     CourseEnrollmentMapper courseEnrollmentMapper;
-    EscrowReleaseService escrowReleaseService;
     PaymentTransactionRepository paymentTransactionRepository;
     ActionLogService actionLogService;
 
@@ -205,8 +203,6 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         enrollment.setCompletedAt(Instant.now());
         courseEnrollmentRepository.save(enrollment);
 
-        // 6. Giải ngân tiền đã giữ cho enrollment
-        escrowReleaseService.releaseEnrollmentEscrow(enrollment);
         actionLogService.log(ActionCode.COMPLETE_ENROLLMENT, enrollment.getStudent(), "CourseEnrollment", enrollmentId);
 
         return courseEnrollmentMapper.toResponse(enrollment);
