@@ -34,8 +34,8 @@ public class DataCleanupServiceImpl implements DataCleanupService {
 
     @Override
     @Transactional
-    public int cleanupOldActionLogs(int retentionDays) {
-        Instant cutoff = Instant.now().minus(retentionDays, ChronoUnit.DAYS);
+    public int cleanupOldActionLogs(int retentionMinutes) {
+        Instant cutoff = Instant.now().minus(retentionMinutes, ChronoUnit.MINUTES);
 
         int deleted = actionLogRepository.deleteOlderThan(cutoff);
 

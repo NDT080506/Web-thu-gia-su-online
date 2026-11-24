@@ -14,10 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 public class DataCleanupScheduler {
     private final DataCleanupService dataCleanupService;
 
-    @Value("${app.cleanup.action-log-retention-days:365}")
-    private int actionLogRetentionDays;
+    @Value("${app.cleanup.action-log-retention-minutes}")
+    private int actionLogRetentionMinutes;
 
-    @Scheduled(cron = "${app.cleanup.cron:0 0 3 * * *}", zone = "${app.cleanup.zone:Asia/Ho_Chi_Minh}")
+    @Scheduled(cron = "${app.cleanup.cron}", zone = "${app.cleanup.zone:Asia/Ho_Chi_Minh}")
     public void cleanup() {
 
         log.info("Starting scheduled data cleanup...");
@@ -29,7 +29,7 @@ public class DataCleanupScheduler {
         }
 
         try {
-            dataCleanupService.cleanupOldActionLogs(actionLogRetentionDays);
+            dataCleanupService.cleanupOldActionLogs(actionLogRetentionMinutes);
         } catch (Exception e) {
             log.error("Failed to cleanup old action logs", e);
         }

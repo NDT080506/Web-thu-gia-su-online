@@ -15,7 +15,7 @@ spring:
 
     hikari:
       maximum-pool-size: 5
-      minimum-idle: 1
+      minimum-idle: 2
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
@@ -37,9 +37,9 @@ app:
       refresh-token: ${GMAIL_REFRESH_TOKEN}
 
   cleanup:
-    cron: "0 0 3 * * *"
+    cron: "0 * * * * *"
     zone: Asia/Ho_Chi_Minh
-    action-log-retention-days: 365
+    action-log-retention-minutes: 1
 
 jwt:
   signer-key: ${SIGNER_KEY}
