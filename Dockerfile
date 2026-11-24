@@ -1,13 +1,13 @@
-
 # Stage 1: Build application
 FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
 COPY pom.xml .
+COPY settings.xml /root/.m2/settings.xml
 COPY src ./src
 
-RUN mvn -B clean package -DskipTests
+RUN mvn -B -s /root/.m2/settings.xml clean package -DskipTests
 
 # Stage 2: Run application
 FROM eclipse-temurin:21-jre
