@@ -51,6 +51,30 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
+	SELECT t FROM PaymentTransaction t
+	WHERE t.enrollment.id = :enrollmentId
+		AND t.type = :type
+		AND t.status = :status
+	""")
+    List<PaymentTransaction> findEnrollmentTransactionsForUpdate(
+            @Param("enrollmentId") String enrollmentId,
+            @Param("type") TransactionType type,
+            @Param("status") TransactionStatus status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+	SELECT t FROM PaymentTransaction t
+	WHERE t.booking.id = :bookingId
+		AND t.type = :type
+		AND t.status = :status
+	""")
+    List<PaymentTransaction> findBookingTransactionsForUpdate(
+            @Param("bookingId") String bookingId,
+            @Param("type") TransactionType type,
+            @Param("status") TransactionStatus status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
 			SELECT pt
 			FROM PaymentTransaction pt
 			WHERE pt.id = :transactionId

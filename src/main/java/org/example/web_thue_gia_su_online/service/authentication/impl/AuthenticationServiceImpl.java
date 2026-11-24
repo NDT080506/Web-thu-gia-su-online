@@ -236,7 +236,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .subject(user.getId())
                 .issuer("my-app-backend")
                 .issueTime(new Date())
-                .expirationTime(Date.from(Instant.now().plus(duration, ChronoUnit.DAYS)))
+                .expirationTime(Date.from(Instant.now().plus(duration, ChronoUnit.MINUTES)))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .claim("token_type", tokenType)
@@ -258,15 +258,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     public String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-
-        //                if (!CollectionUtils.isEmpty(user.getRole().value())) {
-        //                    user.getRoles().forEach(role -> {
-        //                        stringJoiner.add("ROLE_" + role.getName());
-        //                        if (!CollectionUtils.isEmpty(role.getPermissions()))
-        //                            role.getPermissions().forEach(permission ->
-        // stringJoiner.add(permission.getName()));
-        //                    });
-        //                }
 
         stringJoiner.add("ROLE_" + user.getRole().toString());
 

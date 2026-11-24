@@ -188,6 +188,7 @@ public class DisputeServiceImpl implements DisputeService {
 
         if (dispute.getStatus() == DisputeStatus.REJECTED
                 || dispute.getStatus() == DisputeStatus.APPROVED
+                || dispute.getStatus() == DisputeStatus.REFUND_PENDING
                 || dispute.getStatus() == DisputeStatus.CANCELLED) {
             throw new AppException(ErrorCode.DISPUTE_CANNOT_BE_CANCELLED);
         }
@@ -220,14 +221,22 @@ public class DisputeServiceImpl implements DisputeService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public DisputeResponse approveDispute(String disputeId) {
-        Dispute dispute =
-                disputeRepository.findById(disputeId).orElseThrow(() -> new AppException(ErrorCode.DISPUTE_NOT_FOUND));
+        Dispute dispute = disputeRepository
+                .findByIdForUpdate(disputeId)
+                .orElseThrow(() -> new AppException(ErrorCode.DISPUTE_NOT_FOUND));
 
-        if (dispute.getStatus() != DisputeStatus.UNDER_REVIEW) {
+        if (dispute.getStatus() != DisputeStatus.UNDER_REVIEW && dispute.getStatus() != DisputeStatus.REFUND_PENDING) {
             throw new AppException(ErrorCode.DISPUTE_NOT_FOUND);
         }
 
-        refundService.refundDispute(dispute);
+        if (dispute.getRefundAmount() == 0) {
+            long totalPrice = dispute.getBooking() != null
+                    ? dispute.getBooking().getTotalPrice()
+                    : dispute.getEnrollment().getTotalPrice();
+            dispute.setRefundAmount(totalPrice);
+        }
+
+        boolean refunded = refundService.refundDispute(dispute);
 
         if (dispute.getBooking() != null) {
             dispute.getBooking().setStatus(BookingStatus.CANCELLED);
@@ -238,9 +247,12 @@ public class DisputeServiceImpl implements DisputeService {
             enrollmentRepository.save(dispute.getEnrollment());
         }
 
-        dispute.setAdminNote("Your dispute has been approved by the creator");
-        dispute.setStatus(DisputeStatus.APPROVED);
-        dispute.setResolvedAt(Instant.now());
+        dispute.setAdminNote(
+                refunded
+                        ? "Dispute approved and refund completed"
+                        : "Dispute approved; refund pending manual balance recovery");
+        dispute.setStatus(refunded ? DisputeStatus.APPROVED : DisputeStatus.REFUND_PENDING);
+        dispute.setResolvedAt(refunded ? Instant.now() : null);
         disputeRepository.save(dispute);
         actionLogService.log(ActionCode.APPROVE_DISPUTE, dispute.getCreatedBy(), "Dispute", disputeId);
 

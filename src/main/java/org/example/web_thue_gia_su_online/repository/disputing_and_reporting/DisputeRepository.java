@@ -2,18 +2,25 @@ package org.example.web_thue_gia_su_online.repository.disputing_and_reporting;
 
 import java.util.Optional;
 
+import jakarta.persistence.LockModeType;
+
 import org.example.web_thue_gia_su_online.dto.response.disputing_and_reporting.DisputeResponse;
 import org.example.web_thue_gia_su_online.entity.disputing_and_reporting.Dispute;
 import org.example.web_thue_gia_su_online.enums.disputing_and_reporting.DisputeStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DisputeRepository extends JpaRepository<Dispute, String> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT d FROM Dispute d WHERE d.id = :id")
+    Optional<Dispute> findByIdForUpdate(@Param("id") String id);
+
     Page<Dispute> findByCreatedBy_Id(String userId, Pageable pageable);
 
     Optional<Dispute> findByIdAndCreatedBy_Id(String id, String userId);
