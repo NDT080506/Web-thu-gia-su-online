@@ -219,8 +219,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String tokenType = claims.getStringClaim("token_type");
         String jit = claims.getJWTID();
 
-        if (!(verified && expiredTime.after(new Date()) && expectedType.equals(tokenType)))
+        if (!(verified && expiredTime.after(new Date()) && expectedType.equals(tokenType))) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
 
         if (invalidatedTokenRepository.existsById(jit)) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);

@@ -7,6 +7,7 @@ import org.example.web_thue_gia_su_online.dto.request.authentication.IntrospectR
 import org.example.web_thue_gia_su_online.service.authentication.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -16,10 +17,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
+
     @Value("${jwt.signer-key}")
     private String signerKey;
 
     @Autowired
+    @Lazy
     private AuthenticationService authenticationService;
 
     private NimbusJwtDecoder nimbusJwtDecoder = null;
@@ -30,7 +33,9 @@ public class CustomJwtDecoder implements JwtDecoder {
             var response = authenticationService.introspect(
                     IntrospectRequest.builder().accessToken(token).build());
 
-            if (!response.isValid()) throw new JwtException("Token invalid");
+            if (!response.isValid()) {
+                throw new JwtException("Token invalid");
+            }
 
         } catch (Exception e) {
             throw new JwtException("Invalid token", e);
@@ -38,6 +43,7 @@ public class CustomJwtDecoder implements JwtDecoder {
 
         if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS256");
+
             nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
                     .macAlgorithm(MacAlgorithm.HS256)
                     .build();
