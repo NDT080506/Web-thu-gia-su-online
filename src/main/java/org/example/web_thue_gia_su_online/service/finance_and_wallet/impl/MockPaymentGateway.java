@@ -46,7 +46,7 @@ public class MockPaymentGateway implements PaymentGateway {
             throw new IllegalArgumentException("Payment reference already exists");
         }
 
-        String paymentUrl = "http://localhost:8080/giasu/mock-payment/" + request.getReferenceCode();
+        String paymentUrl = "http://localhost:10000/giasu/mock-payment/" + request.getReferenceCode();
 
         return new PaymentInitiationResult(
                 request.getTransactionId(), request.getReferenceCode(), providerReference, paymentUrl);

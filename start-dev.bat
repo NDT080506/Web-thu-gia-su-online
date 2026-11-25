@@ -25,16 +25,16 @@ if %ERRORLEVEL% equ 0 (
 
 :: 2. GIẢI PHÓNG PORT NẾU BỊ TREO HOẶC CHẠY NGẦM
 echo.
-echo [2/4] Dọn dẹp các tiến trình chiếm dụng Port 8080 và 3000...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8080 ^| findstr LISTENING') do (
-    echo   -> Đang giải phóng cổng 8080 (PID %%a)...
+echo [2/4] Dọn dẹp các tiến trình chiếm dụng Port 10000 và 3000...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :10000 ^| findstr LISTENING') do (
+    echo   -> Đang giải phóng cổng 10000 (PID %%a)...
     taskkill /F /PID %%a > nul 2>&1
 )
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') do (
     echo   -> Đang giải phóng cổng 3000 (PID %%a)...
     taskkill /F /PID %%a > nul 2>&1
 )
-echo   -> Các cổng 8080 và 3000 đã sạch sẽ!
+echo   -> Các cổng 10000 và 3000 đã sạch sẽ!
 
 :: 3. CHUẨN HÓA CODE VÀ FORMAT SPOTLESS
 echo.
@@ -44,13 +44,13 @@ call mvn spotless:apply > nul 2>&1
 :: 4. KHỞI CHẠY BACKEND VÀ FRONTEND TRONG CỬA SỔ RIÊNG
 echo.
 echo [4/4] Khởi động Server Backend & Frontend...
-start "BACKEND - Spring Boot (Port 8080)" cmd /k "cd /d C:\Users\Admin\Desktop\Web-thu-gia-su-online && mvn spring-boot:run"
+start "BACKEND - Spring Boot (Port 10000)" cmd /k "cd /d C:\Users\Admin\Desktop\Web-thu-gia-su-online && mvn spring-boot:run"
 start "FRONTEND - Vite Dev Server (Port 3000)" cmd /k "cd /d C:\Users\Admin\Desktop\web-thue-gia-su-fe && npm run dev"
 
 echo.
 echo ========================================================
 echo   HỆ THỐNG ĐÃ ĐƯỢC BẬT THÀNH CÔNG!
-echo   - Backend:  http://localhost:8080/giasu
+echo   - Backend:  http://localhost:10000/giasu
 echo   - Frontend: http://localhost:3000
 echo ========================================================
 echo Bạn có thể đóng cửa sổ này.
