@@ -90,6 +90,9 @@ public class User {
     @OneToOne(mappedBy = "user")
     TutorProfile tutorProfile;
 
+    @OneToOne(mappedBy = "user")
+    Wallet wallet;
+
     // ─── One-to-Many ──────────────────────────────────────────
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     @Builder.Default
@@ -126,10 +129,6 @@ public class User {
     @OneToMany(mappedBy = "createdBy", orphanRemoval = true)
     @Builder.Default
     List<Dispute> disputes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
-    @Builder.Default
-    List<Wallet> wallets = new ArrayList<>();
 
     @OneToMany(mappedBy = "author", orphanRemoval = true)
     @Builder.Default
