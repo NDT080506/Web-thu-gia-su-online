@@ -17,92 +17,107 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 @Configuration
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    public final String[] PUBLIC_ENDPOINTS = {
+    private static final String[] PUBLIC_ENDPOINTS = {
         "/users", "/auth/login", "/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/verify-email"
     };
 
-    @Value("${jwt.signer-key}")
-    private String signerKey;
-
-    private CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS)
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, "/articles", "/articles/*")
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, "/article-comments/**")
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, "/courses", "/courses/**")
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, "/lessons/course/**")
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, "/brokerage-packages/**")
-                .permitAll()
-                .requestMatchers("/ws", "/ws/**")
-                .permitAll()
-                .requestMatchers("/mock-payments/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated());
 
-        // httpSecurity.authorizeHttpRequests(request -> request.anyRequest().permitAll());
+        httpSecurity
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(request -> request
+                        // Cho phép Preflight request
+                        .requestMatchers(HttpMethod.OPTIONS, "/**")
+                        .permitAll()
 
-        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+                        // Public authentication endpoints
+                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS)
+                        .permitAll()
 
-        httpSecurity.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable);
+                        // Public GET endpoints
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/articles",
+                                "/articles/**",
+                                "/article-comments/**",
+                                "/courses",
+                                "/courses/**",
+                                "/lessons/course/**",
+                                "/brokerage-packages/**")
+                        .permitAll()
+
+                        // WebSocket
+                        .requestMatchers("/ws", "/ws/**")
+                        .permitAll()
+
+                        // Mock payment
+                        .requestMatchers("/mock-payments/**")
+                        .permitAll()
+
+                        // Các endpoint còn lại yêu cầu xác thực
+                        .anyRequest()
+                        .authenticated())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(customJwtDecoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
         return httpSecurity.build();
     }
 
     @Bean
-    public CorsFilter corsFilter(@Value("${app.frontend-url}") String frontendUrl) {
-        CorsConfiguration config = new CorsConfiguration();
+    public CorsConfigurationSource corsConfigurationSource(@Value("${FRONTEND_URL}") String frontendUrl) {
 
-        config.setAllowedOriginPatterns(List.of(frontendUrl));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(frontendUrl.trim()));
+
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", configuration);
 
-        return new CorsFilter(source);
+        return source;
     }
 
     @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+
         return jwtAuthenticationConverter;
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
 }
